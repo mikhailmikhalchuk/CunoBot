@@ -1,0 +1,2 @@
+New report by Cuno#3435 on April 3, 2020 at 9:17:01 PM: monochrome.js can't read startsWith of undefined 24:35
+New report by Idk0967#8492 on April 5, 2020 at 4:11:34 PM: filter commands not working with gifs
