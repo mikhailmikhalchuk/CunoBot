@@ -25,6 +25,10 @@ module.exports = {
                 }
             })
         }
+        else if (args == "" || args == undefined) {
+            message.delete()
+            return false
+        }
         //If not, send the plaintext message
         else {
             message.channel.send(args.join(" "))

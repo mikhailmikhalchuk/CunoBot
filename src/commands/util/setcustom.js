@@ -11,14 +11,14 @@ module.exports = {
     func: async (message, args) => {
         if (args == "" || args == undefined) {
             message.reply("please specify the command data below (type \`cancel\` to cancel).")
-            message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
-                if (c.first().content == "cancel") {
+            message.channel.awaitMessages(m => m.author.id == message.author.id, {max: 1, time: 1.8e+6, errors: ['time']}).then(async c => {
+                if (c.first().content.toLowerCase() == "cancel") {
                     message.channel.send("Cancelled prompt.")
                 }
                 else {
                     var towrite = c
-                    message.reply(`is this data correct?:\n\`\`\`js\n${c.first().content}\n\`\`\``)
-                    message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
+                    message.reply(`is this data correct? (Y/N):\n\`\`\`js\n${c.first().content}\n\`\`\``)
+                    message.channel.awaitMessages(m => m.author.id == message.author.id, {max: 1, time: 1.8e+6, errors: ['time']}).then(async c => {
                         if (c.first().content == "yes") {
                             fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/commands/util/custom.js', adding + towrite.first().content + "\n\t}\n}", function (err) {
                                 if (err) message.channel.send(global.Functions.BasicEmbed(("error"), err))
@@ -33,9 +33,9 @@ module.exports = {
             })
         }
         else {
-            message.reply(`is this data correct?:\n\`\`\`js\n${args.join().replace(",", " ")}\n\`\`\``)
+            message.reply(`is this data correct? (Y/N):\n\`\`\`js\n${args.join().replace(",", " ")}\n\`\`\``)
             message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
-                if (c.first().content == "yes") {
+                if (c.first().content.toLowerCase() == "y") {
                     fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/commands/util/custom.js', adding + args.join().replace(",", " ") + "\n\t}\n}", function (err) {
                         if (err) message.channel.send(global.Functions.BasicEmbed(("error"), err))
                         message.reply("successfully wrote to file.")

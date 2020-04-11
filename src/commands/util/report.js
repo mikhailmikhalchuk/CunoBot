@@ -30,6 +30,7 @@ module.exports = {
             else {
                 try {
                     fs.appendFile('reports.txt', bug, async function (err) {
+                        message.delete()
                         await m.edit("Successfully added your report to the bug list.")
                     })
                 }

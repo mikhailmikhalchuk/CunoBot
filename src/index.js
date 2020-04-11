@@ -6,6 +6,11 @@ const Client = new Discord.Client();
 const f = require('./functions.js')
 const fs = require('fs');
 const commands = []
+var serverignore = []
+
+//SET TO TRUE IF TESTING COMMANDS TO IGNORE ALL MESSAGES NOT FROM YOU
+var testing = false
+//SET TO TRUE IF TESTING COMMANDS TO IGNORE ALL MESSAGES NOT FROM YOU
 
 //Ready listener
 Client.on('ready', async () => {
@@ -15,16 +20,20 @@ Client.on('ready', async () => {
 
 //Command listener
 Client.on('message', async (message) => {
-    if (!message.guild) return;
+    if (!message.guild || serverignore.includes(message.guild.id) || testing == true && message.author.id != "287372868814372885") return;
     const args = message.content.trim().split(" ")
     comm = args.shift()
     var prefix = f.getServerPrefix(message.guild.id)
+    if (comm == "?help" && !JSON.stringify(server).includes(message.guild.id)) {
+        message.reply("looks like this server has not been added to the server index. Please contact the bot owner (Cuno#3435).")
+        serverignore.push(message.guild.id)
+    }
     //Help Command
     if (comm == `${prefix}help` || comm == `${prefix}commands`) {
         if (args[0] == undefined || args[0] == "") {
             var categories = []
             //Finds all categories (folders in src/commands)
-            for (var i in commands) {
+            for (var i in commands) { 
                 categories.push(i)
             }
             //List available categories

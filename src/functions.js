@@ -1,12 +1,11 @@
 const Discord = require('discord.js')
-const auth = require('./data/auth.json');
 const role = require('./data/roles.json');
 const server = require('./data/guilds.json');
 var functions = {}
 
 //Returns integer string used for calculating member permissions
 functions.getUserLevel = (member) => {
-    if (member.id == auth.cunos_uuid) {
+    if (member.id == "287372868814372885") {
         return 3
     }
     else if (member.roles.cache.has(role.mcwbureaucrat) || member.roles.cache.has(role.cbtestrole) || member.roles.cache.has(role.puadmin) || member.roles.cache.has(role.bdadmin)) {
@@ -19,6 +18,21 @@ functions.getUserLevel = (member) => {
         return -1
     }
     return 0
+}
+
+functions.unusedGuildWrite = () => {
+    //Convert guilds.json to string
+    var ssave = JSON.stringify(server)
+    //Replace closing bracket with server name & ID plus closing bracket
+    var ssave = ssave.replace("}", `,\"${guild.name.trim().toLowerCase()}\": \"${guild.id}\"\n}`)
+    //Add line breaks and tabs to the end of all commas (converting to string eliminates all line breaks)
+    var ssave = ssave.replace(/,/g, ",\n\t")
+    //Replace opening bracket with opening bracket, line break & tab
+    var ssave = ssave.replace("{", "{\n\t")
+    //Write all this to guilds.json
+    fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/guilds.json', ssave, function (err) {
+        if (err) message.channel.send(global.Functions.BasicEmbed(("error"), err))
+    });
 }
 
 //Returns the prefix of the server a command was executed in
@@ -102,14 +116,6 @@ functions.commandMatch = (commandData, str) => {
 //Capitalize
 functions.capitalize = (string) => {
     return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
-//Add zero if hour/minute/second is single-digit
-functions.addZero = (i) => {
-    if (i < 10) {
-        i = "0" + i;
-    }
-    return i;
 }
 
 //Creates embed color

@@ -3,7 +3,6 @@ const Discord = require('discord.js')
 
 module.exports = {
     name: "invert",
-    prefix: "?",
     aliases: [],
     desc: "Inverts the colors of an image.",
     args: "<attached image>",
@@ -21,7 +20,10 @@ module.exports = {
                 })
             })
                 .catch(e => {
-                    if (e.message.startsWith("ENOENT:")) {
+                    if (e.message == undefined) {
+                        return status.edit(null, global.Functions.BasicEmbed('error', e))
+                    }
+                    else if (e.message.startsWith("ENOENT:")) {
                         return status.edit(null, global.Functions.BasicEmbed('error', "Please provide an image or link to an image."))
                     }
                     else {
@@ -30,7 +32,10 @@ module.exports = {
                 })
         })
             .catch(e => {
-                if (e.message.startsWith("ENOENT:")) {
+                if (e.message == undefined) {
+                    return status.edit(null, global.Functions.BasicEmbed('error', e))
+                }
+                else if (e.message.startsWith("ENOENT:")) {
                     return status.edit(null, global.Functions.BasicEmbed('error', "Please provide an image or link to an image."))
                 }
                 else {

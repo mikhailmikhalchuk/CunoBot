@@ -3,7 +3,6 @@ const Discord = require('discord.js')
 
 module.exports = {
     name: "monochrome",
-    prefix: "?",
     aliases: [],
     desc: "Applies a monochromatic filter to an image.",
     args: "<attached image>",
@@ -21,7 +20,10 @@ module.exports = {
                 })
             })
                 .catch(e => {
-                    if (e.message.startsWith("ENOENT:")) {
+                    if (e.message == undefined) {
+                        return status.edit(null, global.Functions.BasicEmbed('error', e))
+                    }
+                    else if (e.message.startsWith("ENOENT:")) {
                         return status.edit(null, global.Functions.BasicEmbed('error', "Please provide an image or link to an image."))
                     }
                     else {
@@ -30,7 +32,10 @@ module.exports = {
                 })
         })
             .catch(e => {
-                if (e.message.startsWith("ENOENT:")) {
+                if (e.message == undefined) {
+                    return status.edit(null, global.Functions.BasicEmbed('error', e))
+                }
+                else if (e.message.startsWith("ENOENT:")) {
                     return status.edit(null, global.Functions.BasicEmbed('error', "Please provide an image or link to an image."))
                 }
                 else {

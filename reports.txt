@@ -1,1 +1,4 @@
-New report by Idk0967#8492 on April 5, 2020 at 4:11:34 PM: filter commands not working with gifs
+New report by Cuno#3435 on April 10, 2020 at 8:41:10 PM: say attempts to return an empty message if it is blank
+New report by Cuno#3435 on April 10, 2020 at 8:41:18 PM: delete report messages
+New report by Cuno#3435 on April 10, 2020 at 8:43:03 PM: delete exec messages
+New report by Cuno#3435 on April 11, 2020 at 11:12:16 AM: test
