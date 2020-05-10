@@ -1,12 +1,13 @@
 ﻿const server = require('./data/guilds.json');
 const role = require('./data/roles.json');
+const dateFormat = require('dateformat');
 const auth = require('./data/auth.json');
 const Discord = require('discord.js');
 const Client = new Discord.Client();
 const f = require('./functions.js')
 const fs = require('fs');
-const commands = []
 var serverignore = []
+const commands = []
 
 //SET TO TRUE IF TESTING COMMANDS TO IGNORE ALL MESSAGES NOT FROM YOU
 var testing = false
@@ -20,7 +21,22 @@ Client.on('ready', async () => {
 
 //Command listener
 Client.on('message', async (message) => {
-    if (!message.guild || serverignore.includes(message.guild.id) || testing == true && message.author.id != "287372868814372885") return;
+    if (!message.guild) {
+        if (message.author.id == "660856814610677761") {return}
+        else {
+            Client.channels.fetch("708415515122598069").then((m) => {
+                m.send(`${message.author.username}#${message.author.discriminator} » ${message.content}`)
+            })
+            return;
+        }
+    }
+    else if (serverignore.includes(message.guild.id) || testing == true && message.author.id != "287372868814372885") return;
+    else if (message.author.id == "660856814610677761" && message.content.includes("@everyone")) {
+        message.channel.messages.fetch(message.id).then((m) => {
+            var d = new Date();
+            console.log(`Bot pinged everyone on ${dateFormat(d, 'mmmm d, yyyy "at" h:MM:ss TT')} in ${message.guild.name}, channel #${message.channel.name}. Link: ${m.url}.`)
+        })
+    }
     const args = message.content.trim().split(" ")
     comm = args.shift()
     var prefix = f.getServerPrefix(message.guild.id)
@@ -66,7 +82,7 @@ Client.on('message', async (message) => {
             for (var group in commands) {
                 for (var command in commands[group]) {
                     var commandData = commands[group][command]
-                    if (f.commandMatch(commandData, searchCommand) && !commandData.hidden && !f.commandServerHidden(message.guild.id, commandData.name)) {
+                    if (f.commandMatch(commandData, searchCommand) && !commandData.hidden && !f.commandServerHidden(message.guild, commandData.name)) {
                         //Lists command data
                         return message.channel.send(f.BasicEmbed("normal")
                             .setTitle(`Command Help: ${commandData.name}`)
@@ -94,7 +110,7 @@ Client.on('message', async (message) => {
                 const embed = f.BasicEmbed("normal", " ").setTitle("Commands")
                 for (var command in commands[searchCommand]) {
                     var commandData = commands[searchCommand][command]
-                    if (!commandData.hidden && !f.commandServerHidden(message.guild.id, commandData.name)) embed.setDescription(embed.description + `**${prefix + commandData.name} ${commandData.args ? commandData.args : ""}** - ${commandData.desc}\n`)
+                    if (!commandData.hidden && !f.commandServerHidden(message.guild, commandData.name)) embed.setDescription(embed.description + `**${prefix + commandData.name} ${commandData.args ? commandData.args : ""}** - ${commandData.desc}\n`)
                 }
                 return message.channel.send(`Type \`${prefix}help\` followed by the command name for more information on a specific command.`, embed)
             }
@@ -106,12 +122,12 @@ Client.on('message', async (message) => {
         group = commands[group]
         for (var command in group) {
             command = group[command]
-            if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.commandServerHidden(message.guild.id, command.name) == true) {
+            if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.commandServerHidden(message.guild, command.name) == true) {
                 return false
             }
             //Test command success - command prefix & name exist and user is at correct level
-            else if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.getUserLevel(message.member) >= command.level) {
-                //Successfully executes command
+            else if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.getUserLevel(message.guild.id, message.member) >= command.level) {
+                //Executes command
                 try {
                     command.func(message, args)
                 }
@@ -121,11 +137,11 @@ Client.on('message', async (message) => {
                 }
             }
             //Catch error if user is in DM
-            else if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.getUserLevel(message.member) == -1) {
+            else if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.getUserLevel(message.guild.id, message.member) == -1) {
                 return false
             }
             //Catch error if user is not at correct level
-            else if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.getUserLevel(message.member) < command.level) {
+            else if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.getUserLevel(message.guild.id, message.member) < command.level) {
                 message.channel.send(f.BasicEmbed(("error"), "You do not have the proper permissions to execute this command."))
             }
         }

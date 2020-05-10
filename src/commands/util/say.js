@@ -2,9 +2,9 @@ const Discord = require('discord.js');
 
 module.exports = {
     name: "say",
-    aliases: ["speak"],
+    aliases: [],
     desc: "Makes the bot send a message.",
-    args: "<text>",
+    args: "[channel] <text>",
     level: "2",
     hidden: true,
     func: (message, args) => {
@@ -17,11 +17,17 @@ module.exports = {
                 const att = new Discord.MessageAttachment(attachment.url);
                 //Send a space with the attachment to prevent error if args empty
                 if (args == "") {
-                    message.channel.send(" ", att)
+                    if (args[0].startsWith("<#")) {
+                        message.guild.channels.resolve(args[0].slice(2, 20)).send((" ", att))
+                    }
+                    else {message.channel.send(" ", att)}
                 }
                 //Otherwise send args and attachment
                 else {
-                    message.channel.send(args.join(" "), att)
+                    if (args[0].startsWith("<#")) {
+                        message.guild.channels.resolve(args[0].slice(2, 20)).send((args.slice(1).join(" "), att))
+                    }
+                    else {message.channel.send(args.join(" "), att)}
                 }
             })
         }
@@ -31,7 +37,10 @@ module.exports = {
         }
         //If not, send the plaintext message
         else {
-            message.channel.send(args.join(" "))
+            if (args[0].startsWith("<#")) {
+                message.guild.channels.resolve(args[0].slice(2, 20)).send(args.slice(1).join(" "))
+            }
+            else {message.channel.send(args.join(" "))}
         }
             message.delete()
         }

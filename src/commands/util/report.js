@@ -1,10 +1,10 @@
 const fs = require('fs')
 const dateFormat = require('dateformat');
-let userCooldown = {};
+var userCooldown = {};
 
 module.exports = {
     name: "report",
-    aliases: ["bug"],
+    aliases: [],
     desc: "Adds a report to the bot's bug list. Do not abuse this command.",
     args: "[message]",
     level: "0",
@@ -15,29 +15,19 @@ module.exports = {
             userCooldown[message.author.id] = true;
             //Add to list placeholder
             const m = await message.channel.send("Adding to list...")
-            //Create date and format it
+            //Create date
             var d = new Date();
-            var addtime = dateFormat(d, 'mmmm d, yyyy "at" h:MM:ss TT')
-            //Prevent argument spaces from parsing as commas
-            var report = args.join(" ")
-            //Create the message
-            var bug = `New report by ${message.member.user.tag} on ${addtime}: ${report}\n`
             //Check for empty message
             if (args == "" || args == undefined) {
                 m.edit("", global.Functions.BasicEmbed(("error"), "Please provide a message to add to the bug list!"))
             }
             //Append message to local file (C:\Users\Cuno\Documents\DiscordBot\reports.txt)
             else {
-                try {
-                    fs.appendFile('reports.txt', bug, async function (err) {
-                        message.delete()
-                        await m.edit("Successfully added your report to the bug list.")
-                    })
-                }
-                catch (e) {
-                    message.channel.send(global.Functions.BasicEmbed(("error"), "There was an error writing to the file."))
-                    console.log(e)
-                }
+                fs.appendFile('reports.txt', `New report by ${message.member.user.tag} on ${dateFormat(d, 'mmmm d, yyyy "at" h:MM:ss TT')}: ${args.join(" ")}\n`, async function (err) {
+                    message.delete()
+                    if (err) message.channel.send(global.Functions.BasicEmbed(("error"), err))
+                    await m.edit("Successfully added your report to the bug list.")
+                })
                 //Set the time to wait for 10 minutes
                 setTimeout(() => {userCooldown[message.author.id] = false}, 600000)
             }

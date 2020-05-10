@@ -1,5 +1,7 @@
 const Jimp = require('jimp')
 const Discord = require('discord.js')
+const Client = new Discord.Client();
+const index = require("C:/Users/Cuno/Documents/DiscordBot/src/index.js")
 
 module.exports = {
     name: "invert",
@@ -17,6 +19,11 @@ module.exports = {
                 await status.edit("Finished, sending to channel...")
                 message.channel.send(new Discord.MessageAttachment(a)).then(() => {
                     status.edit("Finished.")
+                })
+                .catch(e => {
+                    if (e.message.startsWith("Request entity too large")) { 
+                        
+                    }
                 })
             })
                 .catch(e => {

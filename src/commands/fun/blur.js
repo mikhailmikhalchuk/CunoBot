@@ -15,8 +15,18 @@ module.exports = {
         Jimp.read(message.attachments.first() ? message.attachments.first().url : args[0]).then(d => {
             d.blur(6).getBufferAsync(Jimp.AUTO).then(async a => {
                 await status.edit("Finished, sending to channel...")
-                message.channel.send(new Discord.MessageAttachment(a)).then(() => {
+                message.channel.send(new Discord.MessageAttachment(a)).then(a => {
                     status.edit("Finished.")
+                })
+                .catch(e => {
+                    if (e.message.startsWith("Request entity too large")) {
+                        message.channel.fetch("702215070729633942").then(m => {
+                            m.channel.send(new Discord.MessageAttachment(a)).then(a => {
+                                message.channel.send(a.url)
+                                status.edit("Finished.")
+                            })
+                        })
+                    }
                 })
             })
                 .catch(e => {

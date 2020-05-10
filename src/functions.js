@@ -4,19 +4,28 @@ const server = require('./data/guilds.json');
 var functions = {}
 
 //Returns integer string used for calculating member permissions
-functions.getUserLevel = (member) => {
+functions.getUserLevel = (guild, member) => {
     if (member.id == "287372868814372885") {
         return 3
-    }
-    else if (member.roles.cache.has(role.mcwbureaucrat) || member.roles.cache.has(role.cbtestrole) || member.roles.cache.has(role.puadmin) || member.roles.cache.has(role.bdadmin)) {
-        return 2
-    }
-    else if (member.roles.cache.has(role.mcwadministrator) || member.roles.cache.has(role.pumoderator) || member.roles.cache.has(role.bdmoderator)) {
-        return 1
     }
     else if (member.user.bot) {
         return -1
     }
+    else {
+    switch (guild) {
+        case server.madcitywiki:
+            if (member.roles.cache.has(role.mcwbureaucrat)) return 2
+            else if (member.roles.cache.has(role.mcwadministrator)) return 1
+        case server.cunobot:
+            if (member.roles.cache.has(role.cbtestrole)) return 2
+        case server.paralleluniverse:
+            if (member.roles.cache.has(role.puadmin)) return 2
+            else if (member.roles.cache.has(role.pumoderator)) return 1
+        case server.breaddimension:
+            if (member.roles.cache.has(role.bdadmin)) return 2
+            else if (member.roles.cache.has(role.bdmoderator)) return 1
+    }
+}
     return 0
 }
 
@@ -51,7 +60,7 @@ functions.getServerPrefix = (guild) => {
 
 //Makes commands non-functional on servers where that is requested
 functions.commandServerHidden = (guild, name) => {
-    if (guild == server.paralleluniverse) {
+    if (guild.id == server.paralleluniverse) {
         if (name == "purge") {
             return true
         }

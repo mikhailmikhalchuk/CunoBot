@@ -1,18 +1,20 @@
 module.exports = {
     name: "purge",
     aliases: ["delete"],
-    desc: "Deletes messages as specified by the user.",
-    args: "<messages>",
+    desc: "Bulk deletes messages.",
+    args: "<#>",
     level: "1",
     func: (message, args) => {
         //Success
         if (args >= 1) {
+            if (args == 1) {messages = "message"}
+            else {messages = "messages"}
             try {
                 message.channel.bulkDelete(Number(args[0] * 1 + 1))
-                message.channel.send(global.Functions.BasicEmbed(("success"), `Successfully deleted ${Number(args[0])} messages.`)
+                message.channel.send(global.Functions.BasicEmbed(("success"), `Successfully deleted ${Number(args[0])} ${messages}.`)
                     .setAuthor("Purged"))
                     .then(msg => {
-                        msg.delete({ timeout: 3000 })
+                        msg.delete({timeout: 3000})
                     })
             }
             catch (e) {

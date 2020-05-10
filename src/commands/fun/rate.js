@@ -1,12 +1,11 @@
 module.exports = {
     name: "rate",
     aliases: [],
-    desc: "Has the bot rate a message on a scale of 1 to 10.",
+    desc: "Has the bot rate a message on a scale of 0 to 10.",
     args: "[message]",
     level: "0",
     func: async (message, args) => {
-        if (message.mentions.members.first() == undefined) {var men = "oh"}
-        else {var men = message.mentions.members.first().id}
+        if (message.mentions.members.first() != undefined) {var men = message.mentions.members.first().id}
         if (args == "" || args == undefined) {
             message.channel.send(global.Functions.BasicEmbed(("error"), "Please provide a message to rate."))
         }

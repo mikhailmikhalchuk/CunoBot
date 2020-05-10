@@ -6,6 +6,6 @@ module.exports = {
 	level: "3",
 	hidden: true,
 	func: async (message, args) => {
-		message.channel.send("Hello")
+		message.channel.send("test")
 	}
 }
