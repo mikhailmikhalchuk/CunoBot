@@ -18,6 +18,9 @@ module.exports = {
                 message.channel.send(new Discord.MessageAttachment(a)).then(() => {
                     status.edit("Finished.")
                 })
+                .catch(e => {
+                    global.Functions.BasicEmbed(("error"), e)
+                })
             })
                 .catch(e => {
                     if (e.message == undefined) {

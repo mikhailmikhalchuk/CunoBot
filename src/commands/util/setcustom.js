@@ -1,4 +1,4 @@
-const adding = "module.exports = {\n\tname: \"custom\",\n\tprefix: \"?\",\n\taliases: [],\n\tdesc: \"Executes a command set using ?setcustom.\",\n\tlevel: \"3\",\n\thidden: true,\n\tfunc: async (message, args) => {\n\t\t"
+var adding = "module.exports = {\n\tname: \"custom\",\n\tprefix: \"?\",\n\taliases: [],\n\tdesc: \"Executes a command set using ?setcustom.\",\n\tlevel: \"3\",\n\thidden: true,\n\tfunc: async (message, args) => {\n\t\t"
 const fs = require('fs');
 
 module.exports = {

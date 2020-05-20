@@ -19,14 +19,7 @@ module.exports = {
                     status.edit("Finished.")
                 })
                 .catch(e => {
-                    if (e.message.startsWith("Request entity too large")) {
-                        message.channel.fetch("702215070729633942").then(m => {
-                            m.channel.send(new Discord.MessageAttachment(a)).then(a => {
-                                message.channel.send(a.url)
-                                status.edit("Finished.")
-                            })
-                        })
-                    }
+                    global.Functions.BasicEmbed(("error"), e)
                 })
             })
                 .catch(e => {

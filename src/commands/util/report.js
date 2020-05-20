@@ -10,7 +10,7 @@ module.exports = {
     level: "0",
     func: async (message, args) => {
         //Check if user is on cooldown or can bypass
-        if (userCooldown[message.author.id] == false || userCooldown[message.author.id] == undefined || global.Functions.getUserLevel(message.member) == 3) {
+        if (userCooldown[message.author.id] == false || userCooldown[message.author.id] == undefined || global.Functions.getUserLevel(message.guild.id, message.member) == 3) {
             //Sets cooldown
             userCooldown[message.author.id] = true;
             //Add to list placeholder
@@ -23,7 +23,7 @@ module.exports = {
             }
             //Append message to local file (C:\Users\Cuno\Documents\DiscordBot\reports.txt)
             else {
-                fs.appendFile('reports.txt', `New report by ${message.member.user.tag} on ${dateFormat(d, 'mmmm d, yyyy "at" h:MM:ss TT')}: ${args.join(" ")}\n`, async function (err) {
+                fs.appendFile('reports.txt', `New report by ${message.member.user.tag} (id: ${message.member.id}) from ${message.guild.name} (id: ${message.guild.id}) on ${dateFormat(d, 'mmmm d, yyyy "at" h:MM:ss TT')}: ${args.join(" ")}\n`, async function (err) {
                     message.delete()
                     if (err) message.channel.send(global.Functions.BasicEmbed(("error"), err))
                     await m.edit("Successfully added your report to the bug list.")

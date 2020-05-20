@@ -8,9 +8,11 @@ module.exports = {
     level: "1",
     func: (message, args) => {
         message.channel.messages.fetch(args[0]).then(m => {
+            if (m.content == "") {content = "."}
+            else {content = m.content}
             message.channel.send(m.url, global.Functions.BasicEmbed("normal")
             .setAuthor(m.author.username, m.author.avatarURL({format: 'png', dynamic: true}))
-            .addField("Content", m.content)
+            .addField("Content", content)
             .addField("Date sent", dateFormat(m.createdAt, "mmmm dS, yyyy 'at' h:MM TT '(EST)'")))
         })
         .catch((e) => {

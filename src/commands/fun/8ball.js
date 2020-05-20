@@ -25,6 +25,9 @@ module.exports = {
                 case 4:
                     message.reply("definitely not.")
                     break
+                default:
+                    message.reply("an error occured while rolling the 8-ball.")
+                    break
             }
         }
     }

@@ -11,10 +11,39 @@ module.exports = {
             return message.channel.send(null, global.Functions.BasicEmbed("error", memberData[1]))
         }
         var member = memberData[1]
+        var embed = global.Functions.BasicEmbed("normal")
         //No users by name specified
         if (!member) {
             return message.channel.send(global.Functions.BasicEmbed(("error"), "No users found!"))
         }
+        // Presence Data
+        const game = member.user.presence.activities[0]
+        if (game) {
+            if (game.type == 2) {
+                embed = embed.setDescription(`*Listening to ${game.name}: ${game.details} by ${game.state}*`)
+            }
+            switch (game.name) {
+                case "Fortnite":
+                    embed = embed.setDescription(`*Playing Fortnite: ${game.details} | ${game.state}*`)
+                    break
+                case "Roblox":
+                    embed = embed.setDescription(`*Playing Roblox: ${game.details}*`)
+                    break
+                case "Paladins":
+                    embed = embed.setDescription(`*Playing Paladins: ${game.state}*`)
+                    break
+                case "Visual Studio Code":
+                    embed = embed.setDescription(`*Visual Studio Code: ${game.details}*\n*${game.state}*`)
+                    break
+                case "Custom Status":
+                    if (game.emoji == null) embed = embed.setDescription(`*${game.state}*`)
+                    else embed = embed.setDescription(`*${game.emoji}${game.state}*`)
+                    break
+                default:
+                    embed = embed.setDescription(`*Playing ${game.name}*`)
+                    break
+                }
+            }
         // Online/Offline/Idle/DND
         var emoji = ""
         var stat = ""
@@ -35,16 +64,26 @@ module.exports = {
                 emoji = "<:dnd:666789986447785986>"
                 stat = "DnD"
                 break
+            default:
+                emoji = ""
+                stat = "Unknown"
+                break
+        }
+        // Streaming
+        if (game && game.type == 1) {
+            emoji = "<:streaming:671128707603103799>"
+            stat = `[Streaming](${game.url})` 
         }
         //Embed
-        message.channel.send(global.Functions.BasicEmbed("normal")
+        embed = embed
             .setAuthor(member.displayName, member.user.avatarURL({format: 'png', dynamic: true}))
             .addField("Username", member.user.tag, true)
             .addField("ID", member.id, true)
             .addField("Status", `${emoji} ${stat}`, true)
-            .addField("Account Creation", member.user.createdAt.toLocaleString('en-US', { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" }), true)
-            .addField("Joined Server", member.joinedAt.toLocaleString('en-US', { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" }), true)
-            .addField("Bot Permissions", `${global.Functions.getUserLevel(member)} (${global.Functions.levelToString(message.guild.id, global.Functions.getUserLevel(member))})`, true)
-            .addField("Roles", member.roles.cache.array().join(", ")))
+            .addField("Account Creation", member.user.createdAt.toLocaleString('en-US', {year: "numeric", month: "long", day: "numeric", timeZone: "UTC"}), true)
+            .addField("Joined Server", member.joinedAt.toLocaleString('en-US', {year: "numeric", month: "long", day: "numeric", timeZone: "UTC"}), true)
+            .addField("Bot Permissions", `${global.Functions.getUserLevel(message.guild.id, message.member)} (${global.Functions.levelToString(message.guild.id, global.Functions.getUserLevel(message.guild.id, message.member))})`, true)
+            .addField("Roles", member.roles.cache.array().join(", "))
+        message.channel.send(embed)
     }
 }

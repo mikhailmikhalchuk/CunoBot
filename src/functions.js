@@ -1,6 +1,7 @@
 const Discord = require('discord.js')
 const role = require('./data/roles.json');
 const server = require('./data/guilds.json');
+const prefixes = require('./data/prefixes.json');
 var functions = {}
 
 //Returns integer string used for calculating member permissions
@@ -12,21 +13,22 @@ functions.getUserLevel = (guild, member) => {
         return -1
     }
     else {
-    switch (guild) {
-        case server.madcitywiki:
-            if (member.roles.cache.has(role.mcwbureaucrat)) return 2
-            else if (member.roles.cache.has(role.mcwadministrator)) return 1
-        case server.cunobot:
-            if (member.roles.cache.has(role.cbtestrole)) return 2
-        case server.paralleluniverse:
-            if (member.roles.cache.has(role.puadmin)) return 2
-            else if (member.roles.cache.has(role.pumoderator)) return 1
-        case server.breaddimension:
-            if (member.roles.cache.has(role.bdadmin)) return 2
-            else if (member.roles.cache.has(role.bdmoderator)) return 1
+        switch (guild) {
+            case server.madcitywiki:
+                if (member.roles.cache.has(role.mcwbureaucrat)) return 2
+                else if (member.roles.cache.has(role.mcwadministrator)) return 1
+            case server.cunobot:
+                if (member.roles.cache.has(role.cbtestrole)) return 2
+            case server.paralleluniverse:
+                if (member.roles.cache.has(role.puadmin)) return 2
+                else if (member.roles.cache.has(role.pumoderator)) return 1
+            case server.breaddimension:
+                if (member.roles.cache.has(role.bdadmin)) return 2
+                else if (member.roles.cache.has(role.bdmoderator)) return 1
+            default:
+                return 0
+        }
     }
-}
-    return 0
 }
 
 functions.unusedGuildWrite = () => {
@@ -46,16 +48,8 @@ functions.unusedGuildWrite = () => {
 
 //Returns the prefix of the server a command was executed in
 functions.getServerPrefix = (guild) => {
-    switch (guild) {
-        case server.madcitywiki:
-            return "?"
-        case server.cunobot:
-            return "?"
-        case server.paralleluniverse:
-            return "."
-        case server.breaddimension:
-            return "."
-    }
+    if (prefixes[guild] != undefined) return prefixes[guild]
+    else return "?"
 }
 
 //Makes commands non-functional on servers where that is requested
@@ -105,6 +99,14 @@ functions.levelToString = (guild, level) => {
                 [2]: "Administrator",
                 [3]: "Bot Owner"
             }
+        default:
+            var levelStrings = {
+                [-1]: "Error",
+                [0]: "Error",
+                [1]: "Error",
+                [2]: "Error",
+                [3]: "Error"
+            }
             return levelStrings[level]
     }
 }
@@ -145,6 +147,9 @@ functions.BasicEmbed = (type, text, options) => {
     else if (type == "error") {
         embed = embed.setColor('RED')
         .setAuthor("Error")
+    }
+    else if (type == "red") {
+        embed = embed.setColor('RED')
     }
     else {
         embed = embed.setColor('DEFAULT')

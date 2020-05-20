@@ -1,4 +1,5 @@
 ﻿const server = require('./data/guilds.json');
+const logfile = require('./data/logging.json')
 const role = require('./data/roles.json');
 const dateFormat = require('dateformat');
 const auth = require('./data/auth.json');
@@ -17,26 +18,41 @@ var testing = false
 Client.on('ready', async () => {
     console.log('Bot has connected.');
     Client.user.setPresence({game: {name: "you.", type: "Watching"}})
+    fs.readFile('C:/Users/Cuno/Documents/DiscordBot/reports.txt', 'utf8', function(err, data) {
+        if (data == undefined) return
+        var reports = 0
+        var reportmatches = data.match(/New report/g)
+        var x;
+        for (x in reportmatches) {var reports = reports + 1}
+        if (reports == 0) return
+        if (reports == 1) console.log(`----\nYou have ${reports} unresolved report.`)
+        else console.log(`----\nYou have ${reports} unresolved reports.`)
+    })
+})
+
+Client.on('messageDelete', async (message) => {
+    if (message.channel.id != "710892567616815116" && logfile[message.guild.id] != undefined && message.guild.channels.resolve(logfile[message.guild.id]) != undefined && global.Logging == true) {
+        message.guild.channels.resolve(logfile[message.guild.id]).send(f.BasicEmbed("red")
+            .setAuthor(`${message.member.displayName}#${message.member.user.discriminator}`, message.member.user.avatarURL({format: 'png', dynamic: true}))
+            .setDescription(`**Message sent by <@${message.member.id}> deleted in <#${message.channel.id}>**\n${message.content}`))
+    }
 })
 
 //Command listener
 Client.on('message', async (message) => {
-    if (!message.guild) {
-        if (message.author.id == "660856814610677761") {return}
-        else {
-            Client.channels.fetch("708415515122598069").then((m) => {
-                m.send(`${message.author.username}#${message.author.discriminator} » ${message.content}`)
-            })
-            return;
-        }
-    }
-    else if (serverignore.includes(message.guild.id) || testing == true && message.author.id != "287372868814372885") return;
-    else if (message.author.id == "660856814610677761" && message.content.includes("@everyone")) {
+    if (message.author.id == "660856814610677761" && message.content.includes("@everyone")) {
         message.channel.messages.fetch(message.id).then((m) => {
             var d = new Date();
             console.log(`Bot pinged everyone on ${dateFormat(d, 'mmmm d, yyyy "at" h:MM:ss TT')} in ${message.guild.name}, channel #${message.channel.name}. Link: ${m.url}.`)
         })
     }
+    else if (message.author.id == "660856814610677761") return
+    else if (!message.guild) {
+        Client.channels.fetch("708415515122598069").then((m) => {
+            m.send(`${message.author.username}#${message.author.discriminator} » ${message.content}`)
+        })
+    }
+    else if (serverignore.includes(message.guild.id) || testing == true && message.author.id != "287372868814372885") return
     const args = message.content.trim().split(" ")
     comm = args.shift()
     var prefix = f.getServerPrefix(message.guild.id)
@@ -57,9 +73,8 @@ Client.on('message', async (message) => {
             //Await user response (plaintext)
             message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
                 var category = c.first().content.toLowerCase()
-                if (category == "cancel") {
-                    return message.channel.send("Cancelled prompt.")
-                }
+                if (category == "cancel") return message.channel.send("Cancelled prompt.")
+                else if (category.startsWith(prefix)) var category = category.slice(1)
                 //List all commands in category
                 if (commands[category]) {
                     const embed = f.BasicEmbed(("normal"), " ").setTitle(`Commands - ${category}`)
@@ -70,9 +85,7 @@ Client.on('message', async (message) => {
                     return message.channel.send(`Type \`${prefix}help\` followed by the command name for more information on a specific command.`, embed)
                 }
                 //Catch error if category is nonexistent
-                else {
-                    return message.channel.send(f.BasicEmbed(("error"), "That category does not exist!"))
-                }
+                else return message.channel.send(f.BasicEmbed(("error"), "That category does not exist!"))
             })
         }
         //Command help
@@ -122,9 +135,7 @@ Client.on('message', async (message) => {
         group = commands[group]
         for (var command in group) {
             command = group[command]
-            if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.commandServerHidden(message.guild, command.name) == true) {
-                return false
-            }
+            if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.commandServerHidden(message.guild, command.name) == true) return false
             //Test command success - command prefix & name exist and user is at correct level
             else if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.getUserLevel(message.guild.id, message.member) >= command.level) {
                 //Executes command
@@ -137,9 +148,7 @@ Client.on('message', async (message) => {
                 }
             }
             //Catch error if user is in DM
-            else if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.getUserLevel(message.guild.id, message.member) == -1) {
-                return false
-            }
+            else if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.getUserLevel(message.guild.id, message.member) == -1) return false
             //Catch error if user is not at correct level
             else if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.getUserLevel(message.guild.id, message.member) < command.level) {
                 message.channel.send(f.BasicEmbed(("error"), "You do not have the proper permissions to execute this command."))
