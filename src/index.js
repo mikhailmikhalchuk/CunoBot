@@ -1,5 +1,6 @@
 ﻿const server = require('./data/guilds.json');
-const logfile = require('./data/logging.json')
+const logfile = require('./data/logchannels.json');
+const logstat = require('./data/logstatus.json');
 const role = require('./data/roles.json');
 const dateFormat = require('dateformat');
 const auth = require('./data/auth.json');
@@ -16,8 +17,9 @@ var testing = false
 
 //Ready listener
 Client.on('ready', async () => {
-    console.log('Bot has connected.');
-    Client.user.setPresence({game: {name: "you.", type: "Watching"}})
+    console.log('Bot has connected.')
+    if (testing == false) Client.user.setPresence({activity: {name: "you.", type: "WATCHING"}, status: "online"})
+    else if (testing == true) Client.user.setStatus("invisible")
     fs.readFile('C:/Users/Cuno/Documents/DiscordBot/reports.txt', 'utf8', function(err, data) {
         if (data == undefined) return
         var reports = 0
@@ -25,32 +27,60 @@ Client.on('ready', async () => {
         var x;
         for (x in reportmatches) {var reports = reports + 1}
         if (reports == 0) return
-        if (reports == 1) console.log(`----\nYou have ${reports} unresolved report.`)
+        else if (reports == 1) console.log(`----\nYou have ${reports} unresolved report.`)
         else console.log(`----\nYou have ${reports} unresolved reports.`)
     })
 })
 
 Client.on('messageDelete', async (message) => {
-    if (message.channel.id != "710892567616815116" && logfile[message.guild.id] != undefined && message.guild.channels.resolve(logfile[message.guild.id]) != undefined && global.Logging == true) {
-        message.guild.channels.resolve(logfile[message.guild.id]).send(f.BasicEmbed("red")
-            .setAuthor(`${message.member.displayName}#${message.member.user.discriminator}`, message.member.user.avatarURL({format: 'png', dynamic: true}))
-            .setDescription(`**Message sent by <@${message.member.id}> deleted in <#${message.channel.id}>**\n${message.content}`))
+    let logs = await message.guild.fetchAuditLogs({type: 72});
+    let entry = logs.entries.first();
+    if (message.attachments.size > 0) {
+        var Attachment = (message.attachments).array()
+        var attachments = []
+        Attachment.forEach(function (Attachment) {
+            attachments.push(`${Attachment.name}\n`)
+        })
+    }
+    if (message.channel.id != "710892567616815116" && logfile[message.guild.id] != undefined && message.guild.channels.resolve(logfile[message.guild.id]) != undefined && logstat[message.guild.id] == true && !message.member.user.bot && entry.executor.id != "660856814610677761") {
+        message.fetchWebhook().then((m) => {
+            return false
+        })
+        .catch(() => {
+            if (message.attachments.size > 0) {
+                message.guild.channels.resolve(logfile[message.guild.id]).send(f.BasicEmbed("red")
+                .setAuthor(`${message.author.tag}`, message.author.avatarURL({format: 'png', dynamic: true}))
+                .setDescription(`**Message sent by <@${message.member.id}> deleted in <#${message.channel.id}>**\n${message.content}`)
+                .addField("Attachments", attachments))
+            }
+            else {
+                message.guild.channels.resolve(logfile[message.guild.id]).send(f.BasicEmbed("red")
+                .setAuthor(`${message.author.tag}`, message.author.avatarURL({format: 'png', dynamic: true}))
+                .setDescription(`**Message sent by <@${message.member.id}> deleted in <#${message.channel.id}>**\n${message.content}`))
+            }
+        })
+    }
+})
+
+Client.on('guildCreate', async (guild) => {
+    var prefix = f.getServerPrefix(guild.id)
+    if (guild.me.permissions.any("ADMINISTRATOR") == false) {
+        guild.channels.cache.find(text => text.type === "text").send(f.BasicEmbed(("normal"), "It seems I do not have administrative permissions in this server.\nTry inviting me using [this link](https://discord.com/api/oauth2/authorize?client_id=660856814610677761&permissions=8&scope=bot)."))
+        serverignore.push(message.guild.id)
+    }
+    else if (!JSON.stringify(server).includes(guild.id)) {
+        guild.channels.cache.find(text => text.type === "text").send(`Thank you for inviting me.\nUse \`${prefix}help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.`)
     }
 })
 
 //Command listener
 Client.on('message', async (message) => {
-    if (message.author.id == "660856814610677761" && message.content.includes("@everyone")) {
-        message.channel.messages.fetch(message.id).then((m) => {
-            var d = new Date();
-            console.log(`Bot pinged everyone on ${dateFormat(d, 'mmmm d, yyyy "at" h:MM:ss TT')} in ${message.guild.name}, channel #${message.channel.name}. Link: ${m.url}.`)
-        })
-    }
-    else if (message.author.id == "660856814610677761") return
+    if (message.author.id == "660856814610677761") return
     else if (!message.guild) {
         Client.channels.fetch("708415515122598069").then((m) => {
-            m.send(`${message.author.username}#${message.author.discriminator} » ${message.content}`)
+            m.send(`${message.author.tag} » ${message.content}`)
         })
+        return
     }
     else if (serverignore.includes(message.guild.id) || testing == true && message.author.id != "287372868814372885") return
     const args = message.content.trim().split(" ")

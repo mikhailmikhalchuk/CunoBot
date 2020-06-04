@@ -1,24 +1,10 @@
-const dateFormat = require('dateformat');
-
-function get_time_diff( datetime )
-{
+function get_time_diff(datetime) {
     var datetime = typeof datetime !== 'undefined' ? datetime : "2014-01-01 01:02:03.123456";
-
-    var datetime = new Date( datetime ).getTime();
+    var datetime = new Date(datetime).getTime();
     var now = new Date().getTime();
-
-    if( isNaN(datetime) )
-    {
-        return "";
-    }
-
-    if (datetime < now) {
-        var milisec_diff = now - datetime;
-    }
-    else{
-        var milisec_diff = datetime - now;
-    }
-
+    if (isNaN(datetime)) return "";
+    if (datetime < now) var milisec_diff = now - datetime;
+    else var milisec_diff = datetime - now;
     var days = Math.floor(milisec_diff / 1000 / 60 / (60 * 24));
     return days
 }
@@ -58,12 +44,8 @@ module.exports = {
             })
         }
         //Under 1
-        else if (typeof Number(args[0]) == "number" && args < 1) {
-            message.channel.send(global.Functions.BasicEmbed(("error"), "You must assign an amount of messages to delete equal to, or greater than, 1."))
-        }
+        else if (typeof Number(args[0]) == "number" && args < 1) message.channel.send(global.Functions.BasicEmbed(("error"), "You must assign an amount of messages to delete equal to, or greater than, 1."))
         //Not a Number
-        else if (isNaN(Number(args[0]))) {
-            message.channel.send(global.Functions.BasicEmbed(("error"), `${args[0]} is not a number!`))
-        }
+        else if (isNaN(Number(args[0]))) message.channel.send(global.Functions.BasicEmbed(("error"), `${args[0]} is not a number!`))
     }
 }

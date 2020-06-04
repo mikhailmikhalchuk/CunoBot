@@ -63,7 +63,6 @@ functions.commandServerHidden = (guild, name) => {
 
 //Takes a level and returns a string describing the level.
 functions.levelToString = (guild, level) => {
-    //Mad City Wiki
     switch (guild) {
         case server.madcitywiki:
             var levelStrings = {

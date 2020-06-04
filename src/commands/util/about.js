@@ -82,7 +82,7 @@ module.exports = {
             .addField("Status", `${emoji} ${stat}`, true)
             .addField("Account Creation", member.user.createdAt.toLocaleString('en-US', {year: "numeric", month: "long", day: "numeric", timeZone: "UTC"}), true)
             .addField("Joined Server", member.joinedAt.toLocaleString('en-US', {year: "numeric", month: "long", day: "numeric", timeZone: "UTC"}), true)
-            .addField("Bot Permissions", `${global.Functions.getUserLevel(message.guild.id, message.member)} (${global.Functions.levelToString(message.guild.id, global.Functions.getUserLevel(message.guild.id, message.member))})`, true)
+            .addField("Bot Permissions", `${global.Functions.getUserLevel(message.guild.id, member)} (${global.Functions.levelToString(message.guild.id, global.Functions.getUserLevel(message.guild.id, member))})`, true)
             .addField("Roles", member.roles.cache.array().join(", "))
         message.channel.send(embed)
     }
