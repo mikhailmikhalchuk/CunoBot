@@ -15,12 +15,10 @@ module.exports = {
                 status.edit("", global.Functions.BasicEmbed(("error"), "Please enter the name of a valid page."))
             }
             else {
-                if (message.guild.id == global.Server.cunobot || message.guild.id == global.Server.paralleluniverse || message.guild.id == global.Server.breaddimension) {
-                    return status.edit(`https://mariowiki.com/User:${pageName.replace(/ /gi, "_")}`)
+                if (message.guild.id == "665580974364557322") {
+                    return status.edit(`https://mad-city.fandom.com/${pageName.replace(/ /gi, "_")}`)
                 }
-                else if (message.guild.id == global.Server.madcitywiki) {
-                    return status.edit(`https://mad-city.fandom.com/User:${pageName.replace(/ /gi, "_")}`)
-                }
+                else return false
             }
         }
     }

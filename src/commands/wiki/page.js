@@ -11,16 +11,11 @@ module.exports = {
         else {
             var pageName = args.join(' ')
             const status = await message.channel.send("Searching...")
-            if (pageName.includes("@everyone") || pageName.includes("@here")) {
-                status.edit("", global.Functions.BasicEmbed(("error"), "Please enter the name of a valid page."))
-            }
+            if (pageName.includes("@everyone") || pageName.includes("@here")) return status.edit("", global.Functions.BasicEmbed(("error"), "Please enter the name of a valid page."))
+            else if (pageName.toLowerCase() == "github") return status.edit("https://github.com/MikhailMCraft/CunoBot")
             else {
-                if (message.guild.id == global.Server.cunobot || message.guild.id == global.Server.paralleluniverse || message.guild.id == global.Server.breaddimension) {
-                    return status.edit(`https://mariowiki.com/${pageName.replace(/ /gi, "_")}`)
-                }
-                else if (message.guild.id == global.Server.madcitywiki) {
-                    return status.edit(`https://mad-city.fandom.com/${pageName.replace(/ /gi, "_")}`)
-                }
+                if (message.guild.id == "665580974364557322") return status.edit(`https://mad-city.fandom.com/${pageName.replace(/ /gi, "_")}`)
+                else return false
             }
         }
     }

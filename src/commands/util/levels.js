@@ -1,4 +1,3 @@
-const server = require('C:/Users/Cuno/Documents/DiscordBot/src/data/guilds.json');
 const role = require('C:/Users/Cuno/Documents/DiscordBot/src/data/roles.json');
 
 module.exports = {
@@ -10,18 +9,18 @@ module.exports = {
         var level2 = ""
         var level1 = ""
         switch (message.guild.id) {
-            case server.madcitywiki:
+            case "665580974364557322":
                 var level2 = role.mcwbureaucrat
                 var level1 = role.mcwadministrator
                 break
-            case server.cunobot:
+            case "660857785566887976":
                 var level2 = role.cbtestrole
                 break
-            case server.paralleluniverse:
+            case "671923682205237278":
                 var level2 = role.puadmin
                 var level1 = role.pumoderator
                 break
-            case server.breaddimension:
+            case "676158184595128332":
                 var level2 = role.bdadmin
                 var level1 = role.bdmoderator
                 break

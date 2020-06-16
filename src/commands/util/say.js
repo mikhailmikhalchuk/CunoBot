@@ -26,12 +26,9 @@ module.exports = {
                 }
             })
         }
-        else if (args == "" || args == undefined) {
-            message.delete()
-            return false
-        }
+        else if (args == "" || args == undefined) return message.delete()
         else {
-            if (message.mentions.channels != undefined) {
+            if (message.mentions.channels.first() != undefined) {
                 message.guild.channels.resolve(message.mentions.channels.first()).send(args.slice(1).join(" "))
             }
             else {message.channel.send(args.join(" "))}

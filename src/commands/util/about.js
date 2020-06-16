@@ -19,31 +19,39 @@ module.exports = {
         // Presence Data
         const game = member.user.presence.activities[0]
         if (game) {
-            if (game.type == 2) {
+            if (game.type == "LISTENING") {
                 embed = embed.setDescription(`*Listening to ${game.name}: ${game.details} by ${game.state}*`)
             }
-            switch (game.name) {
-                case "Fortnite":
-                    embed = embed.setDescription(`*Playing Fortnite: ${game.details} | ${game.state}*`)
-                    break
-                case "Roblox":
-                    embed = embed.setDescription(`*Playing Roblox: ${game.details}*`)
-                    break
-                case "Paladins":
-                    embed = embed.setDescription(`*Playing Paladins: ${game.state}*`)
-                    break
-                case "Visual Studio Code":
-                    embed = embed.setDescription(`*Visual Studio Code: ${game.details}*\n*${game.state}*`)
-                    break
-                case "Custom Status":
-                    if (game.emoji == null) embed = embed.setDescription(`*${game.state}*`)
-                    else embed = embed.setDescription(`*${game.emoji}${game.state}*`)
-                    break
-                default:
-                    embed = embed.setDescription(`*Playing ${game.name}*`)
-                    break
+            else if (game.type == "WATCHING") {
+                embed = embed.setDescription(`*Watching ${game.name}*`)
+            }
+            else if (game.type == "STREAMING") {
+                embed = embed.setDescription(`*Streaming ${game.name}: ${game.url}*`)
+            }
+            else {
+                switch (game.name) {
+                    case "Fortnite":
+                        embed = embed.setDescription(`*Playing Fortnite: ${game.details} | ${game.state}*`)
+                        break
+                    case "Roblox":
+                        embed = embed.setDescription(`*Playing Roblox: ${game.details}*`)
+                        break
+                    case "Paladins":
+                        embed = embed.setDescription(`*Playing Paladins: ${game.state}*`)
+                        break
+                    case "Visual Studio Code":
+                        embed = embed.setDescription(`*Visual Studio Code: ${game.details}*\n*${game.state}*`)
+                        break
+                    case "Custom Status":
+                        if (game.emoji == null) embed = embed.setDescription(`*${game.state}*`)
+                        else embed = embed.setDescription(`*${game.emoji}${game.state}*`)
+                        break
+                    default:
+                        embed = embed.setDescription(`*Playing ${game.name}*`)
+                        break
                 }
             }
+        }
         // Online/Offline/Idle/DND
         var emoji = ""
         var stat = ""
@@ -83,7 +91,7 @@ module.exports = {
             .addField("Account Creation", member.user.createdAt.toLocaleString('en-US', {year: "numeric", month: "long", day: "numeric", timeZone: "UTC"}), true)
             .addField("Joined Server", member.joinedAt.toLocaleString('en-US', {year: "numeric", month: "long", day: "numeric", timeZone: "UTC"}), true)
             .addField("Bot Permissions", `${global.Functions.getUserLevel(message.guild.id, member)} (${global.Functions.levelToString(message.guild.id, global.Functions.getUserLevel(message.guild.id, member))})`, true)
-            .addField("Roles", member.roles.cache.array().join(", "))
+            .addField("Roles", member.roles.cache.array().filter(role => role.name !== "@everyone").join(", "))
         message.channel.send(embed)
     }
 }

@@ -16,7 +16,7 @@ module.exports = {
             towrite[message.guild.id] = c.first().content
             fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/prefixes.json', JSON.stringify(towrite), function (err) {
                 if (err) return message.channel.send(global.Functions.BasicEmbed(("error"), err))
-                message.channel.send(global.Functions.BasicEmbed(("normal"), `Successfully changed server prefix to \`${c.first().content}\`.\nChanges will take effect on next bot reload.`))
+                message.channel.send(global.Functions.BasicEmbed(("success"), `Successfully changed server prefix to \`${c.first().content}\`.`))
             })
         })
     }

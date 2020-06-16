@@ -1,6 +1,7 @@
-﻿const server = require('./data/guilds.json');
+﻿const ignored = require('./data/ignoredlogchannels.json');
 const logfile = require('./data/logchannels.json');
 const logstat = require('./data/logstatus.json');
+const prefixes = require('./data/prefixes.json');
 const role = require('./data/roles.json');
 const dateFormat = require('dateformat');
 const auth = require('./data/auth.json');
@@ -35,41 +36,46 @@ Client.on('ready', async () => {
 Client.on('messageDelete', async (message) => {
     let logs = await message.guild.fetchAuditLogs({type: 72});
     let entry = logs.entries.first();
-    if (message.attachments.size > 0) {
-        var Attachment = (message.attachments).array()
-        var attachments = []
-        Attachment.forEach(function (Attachment) {
-            attachments.push(`${Attachment.name}\n`)
-        })
-    }
-    if (message.channel.id != "710892567616815116" && logfile[message.guild.id] != undefined && message.guild.channels.resolve(logfile[message.guild.id]) != undefined && logstat[message.guild.id] == true && !message.member.user.bot && entry.executor.id != "660856814610677761") {
-        message.fetchWebhook().then((m) => {
-            return false
-        })
-        .catch(() => {
+    message.fetchWebhook().then(() => {
+        return false
+    })
+    .catch(() => {
+        if (message.channel.id != "710892567616815116" && logfile[message.guild.id] != undefined && message.guild.channels.resolve(logfile[message.guild.id]) != undefined && logstat[message.guild.id] == true && !message.member.user.bot && entry.executor.id != "660856814610677761" && ignored[message.channel.id] != true) {
             if (message.attachments.size > 0) {
-                message.guild.channels.resolve(logfile[message.guild.id]).send(f.BasicEmbed("red")
+                var Attachment = (message.attachments).array()
+                var attachments = []
+                Attachment.forEach(function (Attachment) {
+                    attachments.push(`${Attachment.name}\n`)
+                })
+                message.guild.channels.resolve(logfile[message.guild.id]).send(f.BasicEmbed("RED")
                 .setAuthor(`${message.author.tag}`, message.author.avatarURL({format: 'png', dynamic: true}))
                 .setDescription(`**Message sent by <@${message.member.id}> deleted in <#${message.channel.id}>**\n${message.content}`)
                 .addField("Attachments", attachments))
             }
             else {
-                message.guild.channels.resolve(logfile[message.guild.id]).send(f.BasicEmbed("red")
+                message.guild.channels.resolve(logfile[message.guild.id]).send(f.BasicEmbed("RED")
                 .setAuthor(`${message.author.tag}`, message.author.avatarURL({format: 'png', dynamic: true}))
                 .setDescription(`**Message sent by <@${message.member.id}> deleted in <#${message.channel.id}>**\n${message.content}`))
             }
-        })
-    }
+        }
+    })
 })
 
 Client.on('guildCreate', async (guild) => {
     var prefix = f.getServerPrefix(guild.id)
     if (guild.me.permissions.any("ADMINISTRATOR") == false) {
-        guild.channels.cache.find(text => text.type === "text").send(f.BasicEmbed(("normal"), "It seems I do not have administrative permissions in this server.\nTry inviting me using [this link](https://discord.com/api/oauth2/authorize?client_id=660856814610677761&permissions=8&scope=bot)."))
-        serverignore.push(message.guild.id)
+        guild.channels.cache.find(text => text.type === "text").send(f.BasicEmbed(("normal"), "It seems I do not have administrative permissions in this server.\nI am unable to function correctly without them.\nTry inviting me using [this link](https://discord.com/api/oauth2/authorize?client_id=660856814610677761&permissions=8&scope=bot)."))
+        serverignore.push(guild.id)
     }
-    else if (!JSON.stringify(server).includes(guild.id)) {
-        guild.channels.cache.find(text => text.type === "text").send(`Thank you for inviting me.\nUse \`${prefix}help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.`)
+    else {
+        if (prefixes[guild.id] != undefined) {
+            guild.channels.cache.find(text => text.type === "text").send(`Thank you for inviting me.\nUse \`${prefix}help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.`)
+        }
+        else {
+            fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/prefixes.json', JSON.stringify(prefixes).replace("}", `,"${guild.id}":"?"}`), function (err) {
+                guild.channels.cache.find(text => text.type === "text").send(`Thank you for inviting me.\nUse \`${prefix}help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.`)
+            })
+        }
     }
 })
 
@@ -86,10 +92,6 @@ Client.on('message', async (message) => {
     const args = message.content.trim().split(" ")
     comm = args.shift()
     var prefix = f.getServerPrefix(message.guild.id)
-    if (comm == "?help" && !JSON.stringify(server).includes(message.guild.id)) {
-        message.reply("looks like this server has not been added to the server index. Please contact the bot owner (Cuno#3435).")
-        serverignore.push(message.guild.id)
-    }
     //Help Command
     if (comm == `${prefix}help` || comm == `${prefix}commands`) {
         if (args[0] == undefined || args[0] == "") {
@@ -207,7 +209,6 @@ global.Client = Client
 global.Functions = f
 global.Auth = auth
 global.Role = role
-global.Server = server
 
 //Bot login
 Client.login(auth.token)

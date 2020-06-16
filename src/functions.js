@@ -1,6 +1,5 @@
 const Discord = require('discord.js')
 const role = require('./data/roles.json');
-const server = require('./data/guilds.json');
 const prefixes = require('./data/prefixes.json');
 var functions = {}
 
@@ -14,36 +13,21 @@ functions.getUserLevel = (guild, member) => {
     }
     else {
         switch (guild) {
-            case server.madcitywiki:
+            case "665580974364557322":
                 if (member.roles.cache.has(role.mcwbureaucrat)) return 2
                 else if (member.roles.cache.has(role.mcwadministrator)) return 1
-            case server.cunobot:
+            case "660857785566887976":
                 if (member.roles.cache.has(role.cbtestrole)) return 2
-            case server.paralleluniverse:
+            case "671923682205237278":
                 if (member.roles.cache.has(role.puadmin)) return 2
                 else if (member.roles.cache.has(role.pumoderator)) return 1
-            case server.breaddimension:
+            case "676158184595128332":
                 if (member.roles.cache.has(role.bdadmin)) return 2
                 else if (member.roles.cache.has(role.bdmoderator)) return 1
             default:
                 return 0
         }
     }
-}
-
-functions.unusedGuildWrite = () => {
-    //Convert guilds.json to string
-    var ssave = JSON.stringify(server)
-    //Replace closing bracket with server name & ID plus closing bracket
-    var ssave = ssave.replace("}", `,\"${guild.name.trim().toLowerCase()}\": \"${guild.id}\"\n}`)
-    //Add line breaks and tabs to the end of all commas (converting to string eliminates all line breaks)
-    var ssave = ssave.replace(/,/g, ",\n\t")
-    //Replace opening bracket with opening bracket, line break & tab
-    var ssave = ssave.replace("{", "{\n\t")
-    //Write all this to guilds.json
-    fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/guilds.json', ssave, function (err) {
-        if (err) message.channel.send(global.Functions.BasicEmbed(("error"), err))
-    });
 }
 
 //Returns the prefix of the server a command was executed in
@@ -54,7 +38,7 @@ functions.getServerPrefix = (guild) => {
 
 //Makes commands non-functional on servers where that is requested
 functions.commandServerHidden = (guild, name) => {
-    if (guild.id == server.paralleluniverse) {
+    if (guild.id == "671923682205237278") {
         if (name == "purge") {
             return true
         }
@@ -64,7 +48,7 @@ functions.commandServerHidden = (guild, name) => {
 //Takes a level and returns a string describing the level.
 functions.levelToString = (guild, level) => {
     switch (guild) {
-        case server.madcitywiki:
+        case "665580974364557322":
             var levelStrings = {
                 [-1]: "Bot",
                 [0]: "Normal User",
@@ -73,7 +57,7 @@ functions.levelToString = (guild, level) => {
                 [3]: "Bot Owner"
             }
             return levelStrings[level]
-        case server.cunobot:
+        case "660857785566887976":
             var levelStrings = {
                 [-1]: "Bot",
                 [0]: "Normal User",
@@ -81,7 +65,7 @@ functions.levelToString = (guild, level) => {
                 [3]: "Bot Owner"
             }
             return levelStrings[level]
-        case server.paralleluniverse:
+        case "671923682205237278":
             var levelStrings = {
                 [-1]: "Bot",
                 [0]: "Normal User",
@@ -90,7 +74,7 @@ functions.levelToString = (guild, level) => {
                 [3]: "Bot Owner"
             }
             return levelStrings[level]
-        case server.breaddimension:
+        case "676158184595128332":
             var levelStrings = {
                 [-1]: "Bot",
                 [0]: "Normal User",
@@ -147,8 +131,8 @@ functions.BasicEmbed = (type, text, options) => {
         embed = embed.setColor('RED')
         .setAuthor("Error")
     }
-    else if (type == "red") {
-        embed = embed.setColor('RED')
+    else if (type) {
+        embed = embed.setColor(type)
     }
     else {
         embed = embed.setColor('DEFAULT')

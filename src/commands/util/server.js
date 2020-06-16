@@ -1,11 +1,17 @@
 const dateFormat = require('dateformat');
+var roleSize = 0
+
+function pushNumber() {
+    roleSize = roleSize + 1
+}
 
 module.exports = {
     name: "server",
-    aliases: ["guild"],
+    aliases: ["guild", "serverinfo"],
     desc: "Gets information about this server.",
     level: "0",
     func: async (message) => {
+        roleSize = 0
         //Make sure bot is checking the server command was executed in
         const guild = message.guild
         //Distinguish from bots/humans
@@ -14,6 +20,7 @@ module.exports = {
         const textChannels = guild.channels.cache.filter(channel => channel.type == "text")
         //Grab number of voice channels
         const voiceChannels = guild.channels.cache.filter(channel => channel.type == "voice")
+        guild.roles.cache.forEach(pushNumber)
         //Embed creation
         message.channel.send(global.Functions.BasicEmbed("normal")
             .setAuthor(guild.name, guild.iconURL({format: 'png', dynamic: true}))
@@ -24,6 +31,7 @@ module.exports = {
             .addField("Humans", humans.size, true)
             .addField("Bots", bots.size, true)
             .addField("Text Channels", textChannels.size, true)
-            .addField("Voice Channels", voiceChannels.size, true))
+            .addField("Voice Channels", voiceChannels.size, true)
+            .addField("Roles", roleSize, true))
     }
 }

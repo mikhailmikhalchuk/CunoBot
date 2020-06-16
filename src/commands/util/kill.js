@@ -2,7 +2,7 @@ const dateFormat = require('dateformat');
 
 module.exports = {
     name: "kill",
-    aliases: ["destroy", "disable", "terminate"],
+    aliases: [],
     desc: "Disables the bot.",
     level: "3",
     hidden: true,
