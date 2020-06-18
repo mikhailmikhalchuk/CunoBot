@@ -11,13 +11,9 @@ module.exports = {
         else {
             var pageName = args.join(' ')
             const status = await message.channel.send("Searching...")
-            if (pageName.includes("@everyone") || pageName.includes("@here")) {
-                status.edit("", global.Functions.BasicEmbed(("error"), "Please enter the name of a valid page."))
-            }
+            if (pageName.includes("@everyone") || pageName.includes("@here")) return status.edit("", global.Functions.BasicEmbed(("error"), "Please enter the name of a valid page."))
             else {
-                if (message.guild.id == "665580974364557322") {
-                    return status.edit(`https://mad-city.fandom.com/${pageName.replace(/ /gi, "_")}`)
-                }
+                if (message.guild.id == "665580974364557322") return status.edit(`https://mad-city.fandom.com/wiki/User:${pageName.replace(/ /gi, "_")}`)
                 else return false
             }
         }

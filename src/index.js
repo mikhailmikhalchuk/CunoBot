@@ -40,7 +40,7 @@ Client.on('messageDelete', async (message) => {
         return false
     })
     .catch(() => {
-        if (message.channel.id != "710892567616815116" && logfile[message.guild.id] != undefined && message.guild.channels.resolve(logfile[message.guild.id]) != undefined && logstat[message.guild.id] == true && !message.member.user.bot && entry.executor.id != "660856814610677761" && ignored[message.channel.id] != true) {
+        if (logfile[message.guild.id] != undefined && message.guild.channels.resolve(logfile[message.guild.id]) != undefined && logstat[message.guild.id] == true && !message.member.user.bot && entry.executor.id != "660856814610677761" && ignored[message.channel.id] != true) {
             if (message.attachments.size > 0) {
                 var Attachment = (message.attachments).array()
                 var attachments = []
@@ -61,6 +61,22 @@ Client.on('messageDelete', async (message) => {
     })
 })
 
+Client.on('emojiCreate', async (emoji) => {
+    if (logfile[emoji.guild.id] != undefined && emoji.guild.channels.resolve(logfile[emoji.guild.id]) != undefined && logstat[emoji.guild.id] == true) {
+        emoji.guild.channels.resolve(logfile[emoji.guild.id]).send(f.BasicEmbed("success")
+        .setAuthor("Emoji created")
+        .setDescription(`<:${emoji.name}:${emoji.id}> ${emoji.name}`))
+    }
+})
+
+Client.on('emojiDelete', async (emoji) => {
+    if (logfile[emoji.guild.id] != undefined && emoji.guild.channels.resolve(logfile[emoji.guild.id]) != undefined && logstat[emoji.guild.id] == true) {
+        emoji.guild.channels.resolve(logfile[emoji.guild.id]).send(f.BasicEmbed("RED")
+        .setAuthor("Emoji deleted")
+        .setDescription(emoji.name))
+    }
+})
+
 Client.on('guildCreate', async (guild) => {
     var prefix = f.getServerPrefix(guild.id)
     if (guild.me.permissions.any("ADMINISTRATOR") == false) {
@@ -73,6 +89,7 @@ Client.on('guildCreate', async (guild) => {
         }
         else {
             fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/prefixes.json', JSON.stringify(prefixes).replace("}", `,"${guild.id}":"?"}`), function (err) {
+                if (err) console.log(err + "\nindex.js 91:13")
                 guild.channels.cache.find(text => text.type === "text").send(`Thank you for inviting me.\nUse \`${prefix}help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.`)
             })
         }

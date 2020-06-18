@@ -19,7 +19,7 @@ module.exports = {
                     status.edit("Finished.")
                 })
                 .catch(e => {
-                    global.Functions.BasicEmbed(("error"), e)
+                    return status.edit(null, global.Functions.BasicEmbed('error', e))
                 })
             })
                 .catch(e => {

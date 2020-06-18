@@ -1,5 +1,5 @@
 const logfile = require('C:/Users/Cuno/Documents/DiscordBot/src/data/logchannels.json')
-const ignored = require('C:/Users/Cuno/Documents/DiscordBot/src/data/ignoredlogchannels.json');
+const ignored = require('C:/Users/Cuno/Documents/DiscordBot/src/data/ignoredlogchannels.json')
 const logstat = require('C:/Users/Cuno/Documents/DiscordBot/src/data/logstatus.json')
 var logging = true
 var loggingtext = "Enabled"
@@ -54,6 +54,8 @@ module.exports = {
         }
         // Logging set up and ok
         else {
+            if (logstat[message.guild.id] == false) loggingtext = "Disabled"
+            else loggingtext = "Enabled"
             message.channel.send(global.Functions.BasicEmbed("normal")
                 .setAuthor("Logging")
                 .setDescription(`**Channel: <#${logfile[message.guild.id]}>\nLogging: ${loggingtext}**\n\n\_\_Please select an option:\_\_\nEnable\nDisable\nChange Channel\nIgnore Channel\nRemove Channel\nCancel`))
@@ -124,7 +126,6 @@ module.exports = {
                                 else {
                                     message.channel.send(global.Functions.BasicEmbed(("success"), `Successfully added ${c.first().content} to the ignored list.`))
                                 }
-                                delete require.cache[require.resolve('C:/Users/Cuno/Documents/DiscordBot/src/data/ignoredlogchannels.json')]
                             })
                         }
                     })

@@ -11,14 +11,10 @@ module.exports = {
     level: "0",
     func: async (message, args) => {
         //Global disable
-        if (quotalimit == true) {
-            message.channel.send(global.Functions.BasicEmbed(("error"), "This command has been globally disabled."))
-        }
+        if (quotalimit == true) return message.channel.send(global.Functions.BasicEmbed(("error"), "This command has been globally disabled."))
         //Checks if timeout is in effect
         else if (userCooldown[message.author.id] == false || userCooldown[message.author.id] == undefined || global.Functions.getUserLevel(message.guild.id, message.member) == 3) {
-            if (args == "" || args == undefined) {
-                message.channel.send(global.Functions.BasicEmbed(("error"), "Please enter a search term!"))
-            }
+            if (args == "" || args == undefined) return message.channel.send(global.Functions.BasicEmbed(("error"), "Please enter a search term!"))
             else {
                 try {
                     //Placeholder searching
@@ -28,7 +24,6 @@ module.exports = {
                             results = await youtube.getVideo(args[0]);
                         }
                         catch (e) {
-                            console.log(e)
                             if (e.code == "ERR_INVALID_ARG_TYPE") return message.channel.send(global.Functions.BasicEmbed(("error"), "Please provide a valid link to search for."))
                             else return message.channel.send(global.Functions.BasicEmbed(("error"), e))
                         }
@@ -42,23 +37,17 @@ module.exports = {
                 }
                 //API error
                 catch (e) {
-                    if (e.resp.reason == null || e.resp.reason == undefined) {
-                        message.channel.send(global.Functions.BasicEmbed(("error"), e))
-                    }
+                    if (e.resp.reason == null || e.resp.reason == undefined) return message.channel.send(global.Functions.BasicEmbed(("error"), e))
                     else if (e.resp.reason == "dailyLimitExceeded") {
                         quotalimit = true
                         message.channel.send(global.Functions.BasicEmbed(("error"), "This command is not usable at this time."))
                         console.log("ERROR: YOUTUBE API QUOTA LIMIT EXCEEDED\nCOMMAND AUTOMATICALLY DISABLED GLOBALLY")
                     }
-                    else {
-                        message.channel.send(global.Functions.BasicEmbed(("error"), e))
-                    }
+                    else return message.channel.send(global.Functions.BasicEmbed(("error"), e))
                 }
             }
         }
         //Send message if user attempts to use command on cooldown
-        else if (userCooldown[message.author.id] == true) {
-            message.reply("you must wait 60 seconds before using this command again!")
-        }
+        else if (userCooldown[message.author.id] == true) return message.reply("you must wait 60 seconds before using this command again!")
     }
 }

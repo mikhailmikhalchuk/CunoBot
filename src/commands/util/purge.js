@@ -1,4 +1,4 @@
-function get_time_diff(datetime) {
+function getTimeDiff(datetime) {
     var datetime = typeof datetime !== 'undefined' ? datetime : "2014-01-01 01:02:03.123456";
     var datetime = new Date(datetime).getTime();
     var now = new Date().getTime();
@@ -16,36 +16,34 @@ module.exports = {
     args: "<#>",
     level: "1",
     func: (message, args) => {
+        //Over 100
+        if (Number(args[0]) >= 100) return message.channel.send(global.Functions.BasicEmbed(("error"), "You cannot purge more than 100 messages."))
         //Success
-        if (args >= 1) {
-            if (args == 1) {messages = "message"}
+        else if (args >= 1) {
+            if (args[0] == 1) {messages = "message"}
             else {messages = "messages"}
             message.channel.messages.fetch({limit:Number(args[0] * 1 + 1)}).then((m) => {
-                if (get_time_diff(m.last().createdTimestamp) >= 14) {
+                if (getTimeDiff(m.last().createdTimestamp) >= 14) {
                     message.delete()
                     message.channel.send(global.Functions.BasicEmbed(("error"), "Cannot purge messages older than 14 days."))
-                        .then(msg => {
-                            msg.delete({timeout: 3000})
-                        })
+                        .then(msg => {msg.delete({timeout: 3000})})
                 }
                 else {
                     try {
                         message.channel.bulkDelete(Number(args[0] * 1 + 1))
                         message.channel.send(global.Functions.BasicEmbed(("success"), `Successfully deleted ${Number(args[0])} ${messages}.`)
                             .setAuthor("Purged"))
-                            .then(msg => {
-                                msg.delete({timeout: 3000})
-                            })
+                            .then(msg => {msg.delete({timeout: 3000})})
                     }
                     catch (e) {
-                        message.channel.send(global.Functions.BasicEmbed(("error"), e))
+                        return message.channel.send(global.Functions.BasicEmbed(("error"), e))
                     }
                 }
             })
         }
         //Under 1
-        else if (typeof Number(args[0]) == "number" && args < 1) message.channel.send(global.Functions.BasicEmbed(("error"), "You must assign an amount of messages to delete equal to, or greater than, 1."))
+        else if (typeof Number(args[0]) == "number" && args < 1) return message.channel.send(global.Functions.BasicEmbed(("error"), "You must assign an amount of messages to delete equal to, or greater than, 1."))
         //Not a Number
-        else if (isNaN(Number(args[0]))) message.channel.send(global.Functions.BasicEmbed(("error"), `${args[0]} is not a number!`))
+        else if (isNaN(Number(args[0]))) return message.channel.send(global.Functions.BasicEmbed(("error"), `${args[0]} is not a number!`))
     }
 }
