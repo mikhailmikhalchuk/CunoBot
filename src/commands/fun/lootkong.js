@@ -1,10 +1,17 @@
 let userCooldown = {}
-var normaljson = {0:"<:angrytoad:722917269209874446>", 1:"<:attackysack:722940712642936945>", 2:"<:attackybruh:722940706196553779>", 3:"<:chill:723198520626118657>", 4:"<:broshi:723198528196968528>", 5:"<:concerned:723198514770739290>"}
-var superjson = {0: "<:jazzmusicstops:722915370888855552>", 1:"<:veryrealmario:722915380061798511>", 2:"<:ahthatsagoodpointyes:722917261563658555>", 3:"<:attackysun:722940720297541662>",4:"<:birb:723197669165760582>"}
-var highendjson = {0:"<:aacc:722917254127419433>",1:"<:banhammer:723197677038207006>",2:"<:brian:723197665403469845>"}
-var normaltextjson = {0:"**Angry Toad** (Normal)", 1:"**Attacky Sack** (Normal)", 2:"**Attacky Bruh** (Normal)", 3:"**Chill** (Normal)", 4:"**Broshi** (Normal)", 5:"**Concerned** (Normal)"}
-var supertextjson = {0: "**Jazz Music Stops** (Super)", 1:"**Very Real Mario** (Super)", 2:"**Ah, That's A Good Point, Yes** (Super)", 3:"**Attacky Sun** (Super)", 4:"**Birb** (Super)"}
-var highendtextjson = {0:"**Aacc** (High-End)", 1:"**Ban Hammer** (High-End)", 2:"**Brian Flatulents** (High-End)"}
+
+normalRoll = 6
+superRoll = 5
+highEndRoll = 3
+
+const normaljson = {0:"<:angrytoad:722917269209874446>", 1:"<:attackysack:722940712642936945>", 2:"<:attackybruh:722940706196553779>", 3:"<:chill:723198520626118657>", 4:"<:broshi:723198528196968528>", 5:"<:concerned:723198514770739290>"}
+const normaltextjson = {0:"**Angry Toad** (Normal)", 1:"**Attacky Sack** (Normal)", 2:"**Attacky Bruh** (Normal)", 3:"**Chill** (Normal)", 4:"**Broshi** (Normal)", 5:"**Concerned** (Normal)"}
+
+const superjson = {0: "<:jazzmusicstops:722915370888855552>", 1:"<:veryrealmario:722915380061798511>", 2:"<:ahthatsagoodpointyes:722917261563658555>", 3:"<:attackysun:722940720297541662>",4:"<:birb:723197669165760582>"}
+const supertextjson = {0: "**Jazz Music Stops** (Super)", 1:"**Very Real Mario** (Super)", 2:"**Ah, That's A Good Point, Yes** (Super)", 3:"**Attacky Sun** (Super)", 4:"**Birb** (Super)"}
+
+const highendjson = {0:"<:aacc:722917254127419433>", 1:"<:banhammer:723197677038207006>", 2:"<:brian:723197665403469845>"}
+const highendtextjson = {0:"**Aacc** (High-End)", 1:"**Ban Hammer** (High-End)", 2:"**Brian Flatulents** (High-End)"}
 
 module.exports = {
     name: "lootkong",
@@ -13,46 +20,118 @@ module.exports = {
     level: "0",
     func: async (message) => {
         if (userCooldown[message.author.id] == false || userCooldown[message.author.id] == undefined || global.Functions.getUserLevel(message.guild.id, message.member) == 3) {
-            switch (Math.floor(Math.random() * 2)) {
+            switch (Math.floor(Math.random() * 11)) {
                 case 0:
-                    var random = Math.floor(Math.random() * 6)
+                    var random = Math.floor(Math.random() * normalRoll)
                     var emoji1 = normaljson[random]
                     var text1 = normaltextjson[random]
                 break
                 case 1:
-                    switch (Math.floor(Math.random() * 2)) {
-                        case 0:
-                            var random = Math.floor(Math.random() * 5)
-                            var emoji1 = superjson[random]
-                            var text1 = supertextjson[random]
-                        break
-                        case 1:
-                            var random = Math.floor(Math.random() * 3)
-                            var emoji1 = highendjson[random]
-                            var text1 = highendtextjson[random]
-                        break
-                    }
+                    var random = Math.floor(Math.random() * normalRoll)
+                    var emoji1 = normaljson[random]
+                    var text1 = normaltextjson[random]
+                break
+                case 2:
+                    var random = Math.floor(Math.random() * normalRoll)
+                    var emoji1 = normaljson[random]
+                    var text1 = normaltextjson[random]
+                break
+                case 3:
+                    var random = Math.floor(Math.random() * normalRoll)
+                    var emoji1 = normaljson[random]
+                    var text1 = normaltextjson[random]
+                break
+                case 4:
+                    var random = Math.floor(Math.random() * normalRoll)
+                    var emoji1 = normaljson[random]
+                    var text1 = normaltextjson[random]
+                break
+                case 5:
+                    var random = Math.floor(Math.random() * normalRoll)
+                    var emoji1 = normaljson[random]
+                    var text1 = normaltextjson[random]
+                break
+                case 6:
+                    var random = Math.floor(Math.random() * normalRoll)
+                    var emoji1 = normaljson[random]
+                    var text1 = normaltextjson[random]
+                break
+                case 7:
+                    var random = Math.floor(Math.random() * normalRoll)
+                    var emoji1 = normaljson[random]
+                    var text1 = normaltextjson[random]
+                break
+                case 8:
+                    var random = Math.floor(Math.random() * superRoll)
+                    var emoji1 = superjson[random]
+                    var text1 = supertextjson[random]
+                break
+                case 9:
+                    var random = Math.floor(Math.random() * superRoll)
+                    var emoji1 = superjson[random]
+                    var text1 = supertextjson[random]
+                break
+                case 10:
+                    var random = Math.floor(Math.random() * highEndRoll)
+                    var emoji1 = highendjson[random]
+                    var text1 = highendtextjson[random]
                 break
             }
-            switch (Math.floor(Math.random() * 2)) {
+            switch (Math.floor(Math.random() * 11)) {
                 case 0:
-                    var random = Math.floor(Math.random() * 6)
+                    var random = Math.floor(Math.random() * normalRoll)
                     var emoji2 = normaljson[random]
                     var text2 = normaltextjson[random]
                 break
                 case 1:
-                    switch (Math.floor(Math.random() * 2)) {
-                        case 0:
-                            var random = Math.floor(Math.random() * 5)
-                            var emoji2 = superjson[random]
-                            var text2 = supertextjson[random]
-                        break
-                        case 1:
-                            var random = Math.floor(Math.random() * 3)
-                            var emoji2 = highendjson[random]
-                            var text2 = highendtextjson[random]
-                        break
-                    }
+                    var random = Math.floor(Math.random() * normalRoll)
+                    var emoji2 = normaljson[random]
+                    var text2 = normaltextjson[random]
+                break
+                case 2:
+                    var random = Math.floor(Math.random() * normalRoll)
+                    var emoji2 = normaljson[random]
+                    var text2 = normaltextjson[random]
+                break
+                case 3:
+                    var random = Math.floor(Math.random() * normalRoll)
+                    var emoji2 = normaljson[random]
+                    var text2 = normaltextjson[random]
+                break
+                case 4:
+                    var random = Math.floor(Math.random() * normalRoll)
+                    var emoji2 = normaljson[random]
+                    var text2 = normaltextjson[random]
+                break
+                case 5:
+                    var random = Math.floor(Math.random() * normalRoll)
+                    var emoji2 = normaljson[random]
+                    var text2 = normaltextjson[random]
+                break
+                case 6:
+                    var random = Math.floor(Math.random() * normalRoll)
+                    var emoji2 = normaljson[random]
+                    var text2 = normaltextjson[random]
+                break
+                case 7:
+                    var random = Math.floor(Math.random() * normalRoll)
+                    var emoji2 = normaljson[random]
+                    var text2 = normaltextjson[random]
+                break
+                case 8:
+                    var random = Math.floor(Math.random() * superRoll)
+                    var emoji2 = superjson[random]
+                    var text2 = supertextjson[random]
+                break
+                case 9:
+                    var random = Math.floor(Math.random() * superRoll)
+                    var emoji2 = superjson[random]
+                    var text2 = supertextjson[random]
+                break
+                case 10:
+                    var random = Math.floor(Math.random() * highEndRoll)
+                    var emoji2 = highendjson[random]
+                    var text2 = highendtextjson[random]
                 break
             }
             const lootkong1 = await message.channel.send("Opening Lootkong...")
