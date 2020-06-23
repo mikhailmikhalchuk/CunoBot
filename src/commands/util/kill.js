@@ -8,8 +8,7 @@ module.exports = {
     hidden: true,
     func: async (message) => {
         const d = new Date();
-        const killtime = dateFormat(d, "h:MM:ss TT")
-        console.log(`Bot has disconnected.\nTaken offline at ${killtime}.`)
+        console.log(`Bot has disconnected.\nTaken offline at ${dateFormat(d, "h:MM:ss TT")}.`)
         message.channel.send("Terminating bot...").then(() => {
             Client.destroy()
             process.exit(0)

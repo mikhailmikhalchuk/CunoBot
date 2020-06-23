@@ -8,8 +8,12 @@ module.exports = {
     level: "1",
     func: (message, args) => {
         message.channel.messages.fetch(args[0]).then(m => {
-            if (m.content == "") {content = "."}
-            else {content = m.content}
+            if (m.content == "") {
+                content = "."
+            }
+            else {
+                content = m.content
+            }
             message.channel.send(m.url, global.Functions.BasicEmbed("normal")
             .setAuthor(m.author.username, m.author.avatarURL({format: 'png', dynamic: true}))
             .addField("Content", content)
@@ -17,11 +21,9 @@ module.exports = {
         })
         .catch((e) => {
             if (e.message.startsWith("Unknown") || e.message.startsWith("404")) {
-                message.channel.send(global.Functions.BasicEmbed(("error"), "Message not found."))
+                return message.channel.send(global.Functions.BasicEmbed(("error"), "Message not found."))
             }
-            else {
-                message.channel.send(global.Functions.BasicEmbed(("error"), e))
-            }
+            return message.channel.send(global.Functions.BasicEmbed(("error"), e))
         })
     }
 }

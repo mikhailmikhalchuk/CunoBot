@@ -12,6 +12,5 @@ module.exports = {
             message.member.roles.remove("722555137511653398")
             message.channel.send(global.Functions.BasicEmbed(("success"), "Successfully removed the Bot Updates role."))
         }
-        else return false
     }
 }

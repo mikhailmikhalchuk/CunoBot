@@ -18,8 +18,6 @@ module.exports = {
                 .addField("ID", id, true)
                 .setImage(url))
         }
-        else {
-            return message.channel.send(null, global.Functions.BasicEmbed('error', "Emoji not found. This command only works for custom emojis."))
-        }
+        return message.channel.send(null, global.Functions.BasicEmbed('error', "Emoji not found. This command only works for custom emojis."))
     }
 }

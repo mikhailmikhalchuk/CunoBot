@@ -1,7 +1,7 @@
-var serverlist = []
+const serverList = []
 
-function listthem(server) {
-    serverlist.push(server.name)
+function listGuilds(server) {
+    serverList.push(server.name)
 }
 
 module.exports = {
@@ -10,11 +10,11 @@ module.exports = {
     desc: "Lists all servers the bot is in.",
     level: "3",
     hidden: true,
-    func: async (message, args) => {
-        serverlist.splice(0)
-        global.Client.guilds.cache.forEach(listthem)
+    func: async (message) => {
+        serverList.splice(0)
+        global.Client.guilds.cache.forEach(listGuilds)
         message.channel.send(global.Functions.BasicEmbed("normal")
         .setAuthor("Servers")
-        .setDescription(serverlist.toString().replace(/,/g, "\n")))
+        .setDescription(serverList.toString().replace(/,/g, "\n")))
     }
 }

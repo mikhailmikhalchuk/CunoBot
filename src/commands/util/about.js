@@ -6,11 +6,11 @@ module.exports = {
     level: "0",
     func: async (message, args) => {
         // Grabbing the correct member (and listing if multiple)
-        var memberData = global.Functions.getMember(message, args.join(' '))
+        const memberData = global.Functions.getMember(message, args.join(' '))
         if (!memberData[0]) {
             return message.channel.send(null, global.Functions.BasicEmbed("error", memberData[1]))
         }
-        var member = memberData[1]
+        const member = memberData[1]
         var embed = global.Functions.BasicEmbed("normal")
         //No users by name specified
         if (!member) {

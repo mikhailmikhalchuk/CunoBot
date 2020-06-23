@@ -29,9 +29,7 @@ module.exports = {
                     else if (e.message.startsWith("ENOENT:")) {
                         return status.edit(null, global.Functions.BasicEmbed('error', "Please provide an image or link to an image."))
                     }
-                    else {
-                        return status.edit(null, global.Functions.BasicEmbed('error', e))
-                    }
+                    return status.edit(null, global.Functions.BasicEmbed('error', e))
                 })
         })
             .catch(e => {
@@ -41,9 +39,7 @@ module.exports = {
                 else if (e.message.startsWith("ENOENT:")) {
                     return status.edit(null, global.Functions.BasicEmbed('error', "Please provide an image or link to an image."))
                 }
-                else {
-                    return status.edit(null, global.Functions.BasicEmbed('error', e))
-                }
+                return status.edit(null, global.Functions.BasicEmbed('error', e))
             })
     }
 }
