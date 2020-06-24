@@ -69,7 +69,7 @@ module.exports = {
                     })
                 }
                 else if (res == "disable" && logstat[message.guild.id] == false) {
-                    message.channel.send(global.Functions.BasicEmbed(("error"), "Logging already disabled."))
+                    return message.channel.send(global.Functions.BasicEmbed(("error"), "Logging already disabled."))
                 }
                 else if (res == "enable" && logstat[message.guild.id] == false) {
                     toWrite2[message.guild.id] = true
@@ -79,14 +79,18 @@ module.exports = {
                     })
                 }
                 else if (res == "enable" && logstat[message.guild.id] == true) {
-                    message.channel.send(global.Functions.BasicEmbed(("error"), "Logging already enabled."))
+                    return message.channel.send(global.Functions.BasicEmbed(("error"), "Logging already enabled."))
                 }
                 else if (res == "change channel") {
                     message.channel.send(global.Functions.BasicEmbed(("normal"), `What would you like to change the logging channel to? (Currently <#${logfile[message.guild.id]}>, \`cancel\` to cancel)`))
                     message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
                         var toWrite = logfile
-                        if (c.first().content.toLowerCase() == "cancel") return message.reply("cancelled command.")
-                        else if (c.first().content.startsWith("<#") == -1) return message.channel.send(global.Functions.BasicEmbed(("error"), "Invalid channel. Please mention the channel you would like to change the logging channel to. (EX: #logging)"))
+                        if (c.first().content.toLowerCase() == "cancel") {
+                            return message.reply("cancelled command.")
+                        }
+                        else if (c.first().content.startsWith("<#") == -1) {
+                            return message.channel.send(global.Functions.BasicEmbed(("error"), "Invalid channel. Please mention the channel you would like to change the logging channel to. (EX: #logging)"))
+                        }
                         toWrite[message.guild.id] = c.first().content.slice(2, 20)
                         fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/logchannels.json', JSON.stringify(toWrite), function (err) {
                             if (err) return message.channel.send(global.Functions.BasicEmbed(("error"), err))
