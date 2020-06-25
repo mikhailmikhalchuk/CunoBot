@@ -1,3 +1,8 @@
 node_modules
-src/data/
+src/data/auth.json
+src/data/ignoredlogchannels.json
+src/data/logchannels.json
+src/data/logstatus.json
+src/data/prefixes.json
+src/data/roles.json
 reports.txt
