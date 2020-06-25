@@ -17,10 +17,10 @@ module.exports = {
             return false
         }
         else if (args.join(" ").toLowerCase() == "cuno's bot" || args.join(" ").toLowerCase() == "you" || args.join(" ").toLowerCase() == "yourself" || men == "660856814610677761" || args.join(" ") == "660856814610677761") {
-            message.reply("I'd give myself a 10/10")
+            return message.reply("I'd give myself a 10/10")
         }
         else if (args.join(" ").toLowerCase() == "cuno" || args.join(" ").toLowerCase() == "mikhailmcraft" || men == "287372868814372885" || args.join(" ") == "287372868814372885") {
-            message.reply(`I'd give ${args.join(" ")} a 10/10`)
+            return message.reply(`I'd give ${args.join(" ")} a 10/10`)
         }
         else if (args.join(" ").toLowerCase() == "me" || args.join(" ").toLowerCase() == "myself" || args.join(" ").toLowerCase() == message.author.username.toLowerCase() || men == message.author.id) {
             if (message.author.id == "287372868814372885") {
@@ -31,15 +31,13 @@ module.exports = {
             }
             var random = Math.floor(Math.random() * 11)
             message.reply(`I'd give you a ${random}/10`)
-            cachedRatings = JSON.parse(JSON.stringify(cachedRatings).replace("}", `,"${message.member.id}":"${random}"}`))
+            return cachedRatings = JSON.parse(JSON.stringify(cachedRatings).replace("}", `,"${message.member.id}":"${random}"}`))
         }
-        else {
-            if (cachedRatings[args.join(" ")] != undefined) {
-                return message.reply(`I'd give ${args.join(" ")} a ${cachedRatings[args.join(" ")]}/10`)
-            }
-            var random = Math.floor(Math.random() * 11)
-            message.reply(`I'd give ${args.join(" ")} a ${random}/10`)
-            cachedRatings = JSON.parse(JSON.stringify(cachedRatings).replace("}", `,"${args.join(" ")}":"${random}"}`))
+        if (cachedRatings[args.join(" ")] != undefined) {
+            return message.reply(`I'd give ${args.join(" ")} a ${cachedRatings[args.join(" ")]}/10`)
         }
+        var random = Math.floor(Math.random() * 11)
+        message.reply(`I'd give ${args.join(" ")} a ${random}/10`)
+        return cachedRatings = JSON.parse(JSON.stringify(cachedRatings).replace("}", `,"${args.join(" ")}":"${random}"}`))
     }
 }

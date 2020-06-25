@@ -31,7 +31,7 @@ module.exports = {
                 if (c.first().content.toLowerCase() == "cancel") {
                     return message.reply("cancelled command.")
                 }
-                else if (c.first().content.startsWith("<#") == -1) {
+                else if (c.first().content.startsWith("<#") == false) {
                     return message.channel.send(global.Functions.BasicEmbed(("error"), "Invalid channel. Please mention the channel you would like to change the logging channel to. (EX: #logging)"))
                 }
                 if (logfile[message.guild.id] == undefined) {
@@ -88,8 +88,11 @@ module.exports = {
                         if (c.first().content.toLowerCase() == "cancel") {
                             return message.reply("cancelled command.")
                         }
-                        else if (c.first().content.startsWith("<#") == -1) {
+                        else if (c.first().content.startsWith("<#") == false) {
                             return message.channel.send(global.Functions.BasicEmbed(("error"), "Invalid channel. Please mention the channel you would like to change the logging channel to. (EX: #logging)"))
+                        }
+                        else if (c.first().content.slice(2, 20) == toWrite[message.guild.id]) {
+                            return message.channel.send(global.Functions.BasicEmbed(("error"), "Please choose a different channel."))
                         }
                         toWrite[message.guild.id] = c.first().content.slice(2, 20)
                         fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/logchannels.json', JSON.stringify(toWrite), function (err) {
@@ -102,21 +105,14 @@ module.exports = {
                     channelList = []
                     realList = []
                     message.guild.channels.cache.forEach(listids)
-                    if (realList.toString() == "") {
-                        var prints = "None"
-                    }
-                    else {
-                        var prints = realList.toString().replace(/,/g, ">, <#")
-                        prints = "<#" + prints + ">"
-                    }
-                    message.channel.send(global.Functions.BasicEmbed(("normal"), `What channel would you like to add to the ignore list? (mention a channel already in the ignore list to remove it, \`cancel\` to cancel).\nChannels currently in the ignored list: ${prints}`))
+                    message.channel.send(global.Functions.BasicEmbed(("normal"), `What channel would you like to add to the ignore list? (mention a channel already in the ignore list to remove it, \`cancel\` to cancel).\nChannels currently in the ignored list: ${realList.toString() == "" ? "None" : "<#" + realList.toString().replace(/,/g, ">, <#") + ">"}`))
                     message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
                         var toWrite = ignored
                         if (c.first().content.toLowerCase() == "cancel") {
                             return message.reply("cancelled command.")
                         }
-                        else if (c.first().content.startsWith("<#") == -1 || !channelList.includes(c.first().content.slice(2, 20))) {
-                            return message.channel.send(global.Functions.BasicEmbed(("error"), "Invalid channel. Please mention the channel you would like to change the logging channel to. (EX: #logging)"))
+                        else if (c.first().content.startsWith("<#") == false || !channelList.includes(c.first().content.slice(2, 20))) {
+                            return message.channel.send(global.Functions.BasicEmbed(("error"), "Invalid channel. Please mention the channel you would like to ignore/unignore. (EX: #logging)"))
                         }
                         const re = new RegExp(c.first().content.slice(2, 20))
                         if (JSON.stringify(ignored).search(re) != -1) {
@@ -150,7 +146,9 @@ module.exports = {
                 else if (res == "cancel") {
                     return message.reply("cancelled command.")
                 }
-                return message.channel.send(global.Functions.BasicEmbed(("error"), "Please select a valid option."))
+                else {
+                    return message.channel.send(global.Functions.BasicEmbed(("error"), "Please select a valid option."))
+                }
             })
         }
     }

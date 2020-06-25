@@ -1,7 +1,5 @@
-﻿const ignored = require('./data/ignoredlogchannels.json');
-const logfile = require('./data/logchannels.json');
-const logstat = require('./data/logstatus.json');
-const prefixes = require('./data/prefixes.json');
+﻿const prefixes = require('./data/prefixes.json');
+const listeners = require('./listeners.js');
 const readline = require('readline');
 const roles = require('./data/roles.json');
 const dateFormat = require('dateformat');
@@ -43,50 +41,9 @@ Client.on('ready', async () => {
     })
 })
 
-//Message deletion logger
-Client.on('messageDelete', async (message) => {
-    let logs = await message.guild.fetchAuditLogs({type: 72});
-    let entry = logs.entries.first();
-    message.fetchWebhook().then(() => {
-        return false
-    })
-    .catch(() => {
-        if (logfile[message.guild.id] != undefined && message.guild.channels.resolve(logfile[message.guild.id]) != undefined && logstat[message.guild.id] == true && !message.member.user.bot && entry.executor.id != "660856814610677761" && ignored[message.channel.id] != true) {
-            if (message.attachments.size > 0) {
-                var Attachment = (message.attachments).array()
-                var attachments = []
-                Attachment.forEach(function (Attachment) {
-                    attachments.push(`${Attachment.name}\n`)
-                })
-                return message.guild.channels.resolve(logfile[message.guild.id]).send(f.BasicEmbed("RED")
-                .setAuthor(`${message.author.tag}`, message.author.avatarURL({format: 'png', dynamic: true}))
-                .setDescription(`**Message sent by <@${message.member.id}> deleted in <#${message.channel.id}>**\n${message.content}`)
-                .addField("Attachments", attachments))
-            }
-            return message.guild.channels.resolve(logfile[message.guild.id]).send(f.BasicEmbed("RED")
-            .setAuthor(`${message.author.tag}`, message.author.avatarURL({format: 'png', dynamic: true}))
-            .setDescription(`**Message sent by <@${message.member.id}> deleted in <#${message.channel.id}>**\n${message.content}`))
-        }
-    })
-})
-
-//Emoji creation logger
-Client.on('emojiCreate', async (emoji) => {
-    if (logfile[emoji.guild.id] != undefined && emoji.guild.channels.resolve(logfile[emoji.guild.id]) != undefined && logstat[emoji.guild.id] == true) {
-        emoji.guild.channels.resolve(logfile[emoji.guild.id]).send(f.BasicEmbed("success")
-        .setAuthor("Emoji created")
-        .setDescription(`<:${emoji.name}:${emoji.id}> ${emoji.name}`))
-    }
-})
-
-//Emoji deletion logger
-Client.on('emojiDelete', async (emoji) => {
-    if (logfile[emoji.guild.id] != undefined && emoji.guild.channels.resolve(logfile[emoji.guild.id]) != undefined && logstat[emoji.guild.id] == true) {
-        emoji.guild.channels.resolve(logfile[emoji.guild.id]).send(f.BasicEmbed("RED")
-        .setAuthor("Emoji deleted")
-        .setDescription(emoji.name))
-    }
-})
+for (event in listeners) {
+    Client.on(event, listeners[event].bind(null, Client));
+}
 
 //Guild join logger
 Client.on('guildCreate', async (guild) => {
@@ -241,6 +198,7 @@ global.Client = Client
 global.Functions = f
 global.Auth = auth
 global.Roles = roles
+module.exports = { Client }
 
 //Bot login
 Client.login(auth.token)

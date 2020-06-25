@@ -7,16 +7,10 @@ module.exports = {
     args: "<id>",
     level: "1",
     func: (message, args) => {
-        message.channel.messages.fetch(args[0]).then(m => {
-            if (m.content == "") {
-                content = "."
-            }
-            else {
-                content = m.content
-            }
+        message.channel.messages.fetch(args[0]).then(m => { 
             message.channel.send(m.url, global.Functions.BasicEmbed("normal")
             .setAuthor(m.author.username, m.author.avatarURL({format: 'png', dynamic: true}))
-            .addField("Content", content)
+            .addField("Content", m.content == "" ? "_ _" : m.content)
             .addField("Date sent", dateFormat(m.createdAt, "mmmm dS, yyyy 'at' h:MM TT '(EST)'")))
         })
         .catch((e) => {
