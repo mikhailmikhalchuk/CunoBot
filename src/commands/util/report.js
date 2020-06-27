@@ -19,7 +19,7 @@ module.exports = {
             const d = new Date();
             //Check for empty message
             if (args == "" || args == undefined) {
-                return m.edit("", global.Functions.BasicEmbed(("error"), "Please provide a message to add to the bug list!"))
+                return m.edit("", global.Functions.BasicEmbed(("error"), "Please provide a message to add to the bug list."))
             }
             //Append message to local file (C:\Users\Cuno\Documents\DiscordBot\reports.txt)
             fs.appendFile('reports.txt', `New report by ${message.member.user.tag} (id: ${message.member.id}) from ${message.guild.name} (id: ${message.guild.id}) on ${dateFormat(d, 'mmmm d, yyyy "at" h:MM:ss TT')}: ${args.join(" ")}\n`, async function (err) {

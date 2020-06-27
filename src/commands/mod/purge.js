@@ -13,9 +13,9 @@ function getTimeDiff(datetime) {
 
 function oldMessages(message) {
     if (getTimeDiff(message.createdTimestamp) >= 14) {
-        return noDelete = noDelete + 1
+        return noDelete++
     }
-    return toDelete = toDelete + 1
+    return toDelete++
 }
 
 module.exports = {

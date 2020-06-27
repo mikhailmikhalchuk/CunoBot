@@ -1,5 +1,5 @@
 ﻿const prefixes = require('./data/prefixes.json');
-const listeners = require('./listeners.js');
+const events = require('./events.js');
 const readline = require('readline');
 const roles = require('./data/roles.json');
 const dateFormat = require('dateformat');
@@ -30,9 +30,8 @@ Client.on('ready', async () => {
         }
         var reports = 0
         var reportmatches = data.match(/New report/g)
-        var x;
         for (x in reportmatches) {
-            var reports = reports + 1
+            reports++
         }
         if (reports == 0) {
             return false
@@ -41,8 +40,8 @@ Client.on('ready', async () => {
     })
 })
 
-for (event in listeners) {
-    Client.on(event, listeners[event].bind(null, Client));
+for (event in events) {
+    Client.on(event, events[event].bind(null, Client));
 }
 
 //Guild join logger
@@ -123,7 +122,7 @@ Client.on('message', async (message) => {
                             .addField("Aliases", commandData.aliases.join(", ") || "N/A", true)
                             .addField('\u200b', '\u200b', true)
                             .addField("Arguments", commandData.args || "N/A", true)
-                            .addField("Level", `${commandData.level} (${f.levelToString(message.guild.id, commandData.level)})`, true)
+                            .addField("Level", `${commandData.level} (${commandData.level == 3 ? "Bot Owner" : commandData.level == 0 ? "Normal User" : commandData.level == -1 ? "Bot" : message.guild.roles.resolve(roles[`${message.guild.id}level${commandData.level}`]).name})`, true)
                             .addField("Description", commandData.desc))
                     }
                     else if (searchCommand == "help" || searchCommand == "commands") {
@@ -179,26 +178,25 @@ Client.on('message', async (message) => {
 })
 
 //Load amount of commands
-    global.CommandCount = 0
-    fs.readdir('src/commands', (_err, groups) => {
-        groups.forEach(group => {
-            commands[group] = []
-            fs.readdir(`src/commands/${group}`, (_groupErr, comms) => {
-                comms.forEach(async (command) => {
-                    const commandData = require(`./commands/${group}/${command}`)
-                    commands[group].push(commandData)
-                    global.CommandCount++
-                })
+global.CommandCount = 0
+fs.readdir('src/commands', (_err, groups) => {
+    groups.forEach(group => {
+        commands[group] = []
+        fs.readdir(`src/commands/${group}`, (_groupErr, comms) => {
+            comms.forEach(async (command) => {
+                const commandData = require(`./commands/${group}/${command}`)
+                commands[group].push(commandData)
+                global.CommandCount++
             })
         })
     })
+})
 
 //Global functions
 global.Client = Client
 global.Functions = f
 global.Auth = auth
 global.Roles = roles
-module.exports = { Client }
 
 //Bot login
 Client.login(auth.token)

@@ -18,7 +18,7 @@ module.exports = {
         })
         .catch((e) => {
             console.log(e)
-            if(e.message.startsWith("Invalid Form Body")) {
+            if (e.message.startsWith("Invalid Form Body")) {
                 return message.channel.send(global.Functions.BasicEmbed(("error"), "Could not find user based on provided ID."))
             }
             return message.channel.send(global.Functions.BasicEmbed(("error"), e))

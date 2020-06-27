@@ -10,10 +10,10 @@ functions.getUserLevel = (guild, member) => {
     else if (member.user.bot) {
         return -1
     }
-    if (member.roles.cache.has(roles[`${guild.id}level1`])) {
+    if (member.roles.cache.has(roles[`${guild}level1`])) {
         return 1
     }
-    else if (member.roles.cache.has(roles[`${guild.id}level2`])) {
+    else if (member.roles.cache.has(roles[`${guild}level2`])) {
         return 2
     }
     return 0
@@ -26,57 +26,6 @@ functions.commandServerHidden = (guild, name) => {
             return true
         }
     }
-}
-
-//Takes a level and returns a string describing the level.
-functions.levelToString = (guild, level) => {
-    switch (guild) {
-        case "665580974364557322":
-            var levelStrings = {
-                [-1]: "Bot",
-                [0]: "Normal User",
-                [1]: "Administrator",
-                [2]: "Bureaucrat",
-                [3]: "Bot Owner"
-            }
-            break
-        case "660857785566887976":
-            var levelStrings = {
-                [-1]: "Bot",
-                [0]: "Normal User",
-                [2]: "Test Role",
-                [3]: "Bot Owner"
-            }
-            break
-        case "671923682205237278":
-            var levelStrings = {
-                [-1]: "Bot",
-                [0]: "Normal User",
-                [1]: "Moderator",
-                [2]: "Administrator",
-                [3]: "Bot Owner"
-            }
-            break
-        case "676158184595128332":
-            var levelStrings = {
-                [-1]: "Bot",
-                [0]: "Normal User",
-                [1]: "Moderator",
-                [2]: "Administrator",
-                [3]: "Bot Owner"
-            }
-            break
-        default:
-            var levelStrings = {
-                [-1]: "Error",
-                [0]: "Error",
-                [1]: "Error",
-                [2]: "Error",
-                [3]: "Error"
-            }
-            break
-    }
-    return levelStrings[level]
 }
 
 //Check if the command being requested exists

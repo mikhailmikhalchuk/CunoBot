@@ -12,12 +12,12 @@ module.exports = {
     func: async (message, args) => {
         //Global disable
         if (quotaLimit == true) {
-            return message.channel.send(global.Functions.BasicEmbed(("error"), "This command has been globally disabled."))
+            return message.channel.send(global.Functions.BasicEmbed(("error"), "This command is not usable at this time."))
         }
         //Checks if timeout is in effect
         else if (userCooldown[message.author.id] == false || userCooldown[message.author.id] == undefined || global.Functions.getUserLevel(message.guild.id, message.member) == 3) {
             if (args == "" || args == undefined) {
-                return message.channel.send(global.Functions.BasicEmbed(("error"), "Please enter a search term!"))
+                return message.channel.send(global.Functions.BasicEmbed(("error"), "Please enter a search term."))
             }
             try {
                 //Placeholder searching

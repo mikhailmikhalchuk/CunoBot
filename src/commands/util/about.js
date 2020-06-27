@@ -1,3 +1,5 @@
+const roles = require('C:/Users/Cuno/Documents/DiscordBot/src/data/roles.json');
+
 module.exports = {
     name: "about",
     aliases: ["user", "member"],
@@ -83,6 +85,7 @@ module.exports = {
             stat = `[Streaming](${game.url})` 
         }
         //Embed
+        var level = global.Functions.getUserLevel(message.guild.id, member)
         embed = embed
             .setAuthor(member.displayName, member.user.avatarURL({format: 'png', dynamic: true}))
             .addField("Username", member.user.tag, true)
@@ -90,8 +93,8 @@ module.exports = {
             .addField("Status", `${emoji} ${stat}`, true)
             .addField("Account Creation", member.user.createdAt.toLocaleString('en-US', {year: "numeric", month: "long", day: "numeric", timeZone: "UTC"}), true)
             .addField("Joined Server", member.joinedAt.toLocaleString('en-US', {year: "numeric", month: "long", day: "numeric", timeZone: "UTC"}), true)
-            .addField("Bot Permissions", `${global.Functions.getUserLevel(message.guild.id, member)} (${global.Functions.levelToString(message.guild.id, global.Functions.getUserLevel(message.guild.id, member))})`, true)
-            .addField("Roles", member.roles.cache.array().filter(role => role.name !== "@everyone").join(", "))
+            .addField("Bot Permissions", `${level} (${level == 3 ? "Bot Owner" : level == 0 ? "Normal User" : level == -1 ? "Bot" : message.guild.roles.resolve(roles[`${message.guild.id}level${level}`]).name})`, true)
+            .addField("Roles", member.roles.cache.array().join(", "))
         message.channel.send(embed)
     }
 }

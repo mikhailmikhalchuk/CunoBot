@@ -19,12 +19,7 @@ module.exports = {
     func: async (message) => {
         // Never set up logging or channel was deleted
         if (logfile[message.guild.id] == undefined || message.guild.channels.resolve(logfile[message.guild.id]) == undefined) {
-            if (logfile[message.guild.id] == undefined) {
-                message.reply("looks like there isn't a logging channel for this server. Please reply with a channel to set logging to. (\`cancel\` to cancel)")
-            }
-            else {
-                message.reply("looks like the old logging channel was deleted. Please reply with a channel to set logging to. (\`cancel\` to cancel)")
-            }
+            message.reply("I cannot find a logging channel for this server in my database. Please mention a channel to set logging to. (\`cancel\` to cancel)")
             message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
                 var toWrite = logfile
                 var toWrite2 = logstat
