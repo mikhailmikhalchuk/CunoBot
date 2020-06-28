@@ -4,7 +4,7 @@ module.exports = {
     name: "getmessage",
     aliases: ["getm"],
     desc: "Gets a message based on ID.",
-    args: "<id>",
+    args: "<messageid>",
     level: "1",
     func: (message, args) => {
         message.channel.messages.fetch(args[0]).then(m => { 

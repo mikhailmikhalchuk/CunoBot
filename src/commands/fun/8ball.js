@@ -4,7 +4,7 @@ module.exports = {
     name: "8ball",
     aliases: [],
     desc: "Has the bot rate the occurance of something.",
-    args: "[message]",
+    args: "<message>",
     level: "0",
     func: async (message, args) => {
         if (args == "" || args == undefined) {

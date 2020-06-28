@@ -1,7 +1,7 @@
 module.exports = {
     name: "userpage",
     aliases: [],
-    args: "<pageName|keyword>",
+    args: "<pageName>",
     desc: "Returns a link to a user's page on the wiki.",
     level: "0",
     func: async (message, args) => {

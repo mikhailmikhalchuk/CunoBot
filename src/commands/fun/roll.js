@@ -38,6 +38,6 @@ module.exports = {
                 .setAuthor("Rolled")
                 .addField("Sides", roll)
                 .addField("Result", Math.ceil(Math.random() * roll)))
-        }, 1500)
+        }, 1000)
     }
 }

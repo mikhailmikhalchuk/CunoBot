@@ -1,8 +1,11 @@
 const ignored = require('./data/ignoredlogchannels.json');
+const prefixes = require('./data/prefixes.json');
 const logfile = require('./data/logchannels.json');
 const logstat = require('./data/logstatus.json');
+const dateFormat = require('dateformat');
 const Discord = require('discord.js')
 const f = require('./functions.js')
+const fs = require('fs');
 const events = {}
 
 //Message Deleted
@@ -116,6 +119,47 @@ events.channelUpdate = (client, oldChannel, newChannel) => {
             .addField("Before:", `${oldChannel.name != newChannel.name ? `**Name:** ${oldChannel.name}` : ""}${oldChannel.topic != newChannel.topic ? `\n**Topic:** ${oldChannel.topic}` : ""}${oldChannel.parent != newChannel.parent ? `**Category:** ${oldChannel.parent == null ? "None" : oldChannel.parent.name.charAt(0).toUpperCase() + oldChannel.parent.name.slice(1)}` : ""}`, true)
             .addField("After:", `${oldChannel.name != newChannel.name ? `**Name:** ${newChannel.name}` : ""}${oldChannel.topic != newChannel.topic ? `\n**Topic:** ${newChannel.topic}` : ""}${oldChannel.parent != newChannel.parent ? `**Category:** ${newChannel.parent == null ? "None" : newChannel.parent.name.charAt(0).toUpperCase() + newChannel.parent.name.slice(1)}` : ""}`, true))
     }
+}
+
+//Guild join logger
+events.guildCreate = (client, guild) => {
+    var prefix = prefixes[guild.id]
+    if (guild.me.permissions.any("ADMINISTRATOR") == false) {
+        guild.channels.cache.find(text => text.type === "text").send(f.BasicEmbed(("normal"), "It seems I do not have administrative permissions in this server.\nI am unable to function correctly without them.\nTry inviting me using [this link](https://discord.com/api/oauth2/authorize?client_id=660856814610677761&permissions=8&scope=bot)."))
+        return serverIgnore.push(guild.id)
+    }
+    if (prefixes[guild.id] != undefined) {
+        return guild.channels.cache.find(text => text.type === "text").send(`Thank you for inviting me.\nUse \`${prefix}help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.`)
+    }
+    fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/prefixes.json', JSON.stringify(prefixes).replace("}", `,"${guild.id}":"?"}`), function (err) {
+        if (err) console.log(err + "\nindex.js 91:13")
+        guild.channels.cache.find(text => text.type === "text").send(`Thank you for inviting me.\nUse \`?help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.`)
+    })
+}
+
+//Bot session invalidated
+events.invalidated = (client) => {
+    const d = new Date();
+    console.log(`Bot session invalidated.\nOccurred at ${dateFormat(d, "h:MM:ss TT")}.`).then(() => {
+        process.exit(0)
+    })
+}
+
+//Bot error encountered
+events.error = (client, error) => {
+    console.error(error)
+}
+
+//Bot warning encountered
+events.warn = (client, info) => {
+    console.warn(info)
+}
+
+//Rate limit hit
+events.rateLimit = (client, rateLimitInfo) => {
+    const d = new Date();
+    console.warn(`Client hit rate limit at ${dateFormat(d, "h:MM:ss TT")}.\nEmitting general info...`)
+    console.warn(rateLimitInfo)
 }
 
 module.exports = events

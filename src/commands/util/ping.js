@@ -9,11 +9,10 @@ module.exports = {
         //Sends the message
         message.channel.send("Pinging...").then(async (m) => {
             //Creates a new date and calculates time taken
-            const ping = Math.round(Date.now() - t)
             m.edit("", global.Functions.BasicEmbed("normal")
                 .setAuthor("Pong!")
                 .addField("Bot Ping", `${Math.round(global.Client.ws.ping)} ms`)
-                .addField("Server Ping", `${ping} ms`))
+                .addField("Server Ping", `${Math.round(Date.now() - t)} ms`))
         })
     }
 }

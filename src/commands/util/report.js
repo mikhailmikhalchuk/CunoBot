@@ -6,7 +6,7 @@ module.exports = {
     name: "report",
     aliases: [],
     desc: "Adds a report to the bot's bug list. Do not abuse this command.",
-    args: "[message]",
+    args: "<message>",
     level: "0",
     func: async (message, args) => {
         //Check if user is on cooldown or can bypass

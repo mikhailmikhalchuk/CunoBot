@@ -5,7 +5,8 @@ const roles = require('./data/roles.json');
 const dateFormat = require('dateformat');
 const auth = require('./data/auth.json');
 const Discord = require('discord.js');
-const Client = new Discord.Client();
+const Intents = require('discord.js');
+const Client = new Discord.Client({ ws: {intents: Intents.ALL}});
 const f = require('./functions.js')
 const fs = require('fs');
 const serverIgnore = []
@@ -44,22 +45,6 @@ for (event in events) {
     Client.on(event, events[event].bind(null, Client));
 }
 
-//Guild join logger
-Client.on('guildCreate', async (guild) => {
-    var prefix = prefixes[guild.id]
-    if (guild.me.permissions.any("ADMINISTRATOR") == false) {
-        guild.channels.cache.find(text => text.type === "text").send(f.BasicEmbed(("normal"), "It seems I do not have administrative permissions in this server.\nI am unable to function correctly without them.\nTry inviting me using [this link](https://discord.com/api/oauth2/authorize?client_id=660856814610677761&permissions=8&scope=bot)."))
-        return serverIgnore.push(guild.id)
-    }
-    if (prefixes[guild.id] != undefined) {
-        return guild.channels.cache.find(text => text.type === "text").send(`Thank you for inviting me.\nUse \`${prefix}help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.`)
-    }
-    fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/prefixes.json', JSON.stringify(prefixes).replace("}", `,"${guild.id}":"?"}`), function (err) {
-        if (err) console.log(err + "\nindex.js 91:13")
-        guild.channels.cache.find(text => text.type === "text").send(`Thank you for inviting me.\nUse \`?help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.`)
-    })
-})
-
 //Command listener
 Client.on('message', async (message) => {
     if (!message.guild) {
@@ -68,7 +53,7 @@ Client.on('message', async (message) => {
         })
         return false
     }
-    else if (serverIgnore.includes(message.guild.id) || testing == true && message.author.id != "287372868814372885" || message.author.bot) {
+    else if (serverIgnore.includes(message.guild.id) || testing == true && message.author.id != "287372868814372885" || message.author.bot || message.webhookID) {
         return false
     }
     const args = message.content.trim().split(" ")
@@ -131,7 +116,7 @@ Client.on('message', async (message) => {
                             .addField("Name", "help", true)
                             .addField("Aliases", "commands", true)
                             .addField('\u200b', '\u200b', true)
-                            .addField("Arguments", "<command>", true)
+                            .addField("Arguments", "[command]", true)
                             .addField("Level", "0 (Normal User)", true)
                             .addField("Description", "Returns a list of commands from a category, or provides more information on a command."))
                     }

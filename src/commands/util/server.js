@@ -16,10 +16,6 @@ module.exports = {
         const guild = message.guild
         //Distinguish from bots/humans
         const [bots, humans] = guild.members.cache.partition(member => member.user.bot == true)
-        //Grab number of text channels
-        const textChannels = guild.channels.cache.filter(channel => channel.type == "text")
-        //Grab number of voice channels
-        const voiceChannels = guild.channels.cache.filter(channel => channel.type == "voice")
         guild.roles.cache.forEach(pushNumber)
         //Embed creation
         message.channel.send(global.Functions.BasicEmbed("normal")
@@ -30,8 +26,8 @@ module.exports = {
             .addField("Members", guild.memberCount, true)
             .addField("Humans", humans.size, true)
             .addField("Bots", bots.size, true)
-            .addField("Text Channels", textChannels.size, true)
-            .addField("Voice Channels", voiceChannels.size, true)
+            .addField("Text Channels", guild.channels.cache.filter(channel => channel.type == "text").size, true)
+            .addField("Voice Channels", guild.channels.cache.filter(channel => channel.type == "voice").size, true)
             .addField("Roles", roleSize, true))
     }
 }

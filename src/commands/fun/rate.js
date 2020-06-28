@@ -4,7 +4,7 @@ module.exports = {
     name: "rate",
     aliases: [],
     desc: "Has the bot rate a message on a scale of 0 to 10.",
-    args: "[message]",
+    args: "<message>",
     level: "0",
     func: async (message, args) => {
         if (message.mentions.members.first() != undefined && args.length == 1) {

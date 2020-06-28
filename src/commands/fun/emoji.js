@@ -11,12 +11,11 @@ module.exports = {
         const groups = regex.exec(msg)
         if (groups) {
             const id = groups[3]
-            const url = `https://cdn.discordapp.com/emojis/${id}.${groups[1] == "a" ? "gif" : "png"}`
             return message.channel.send(null, global.Functions.BasicEmbed('normal', ' ', ['nothumbnail'])
                 .setTitle("Emoji")
                 .addField("Name", groups[2], true)
                 .addField("ID", id, true)
-                .setImage(url))
+                .setImage(`https://cdn.discordapp.com/emojis/${id}.${groups[1] == "a" ? "gif" : "png"}`))
         }
         return message.channel.send(null, global.Functions.BasicEmbed('error', "Emoji not found. This command only works for custom emojis."))
     }

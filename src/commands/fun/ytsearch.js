@@ -7,9 +7,10 @@ module.exports = {
     name: "ytsearch",
     aliases: [],
     desc: "Searches for a video on YouTube and returns the results.",
-    args: "<video>",
+    args: "<keyword(s)/URL>",
     level: "0",
     func: async (message, args) => {
+        var pattern = new RegExp('^(https?:\\/\\/)?'+'((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+'((\\d{1,3}\\.){3}\\d{1,3}))'+'(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+'(\\?[;&a-z\\d%_.~+=-]*)?'+'(\\#[-a-z\\d_]*)?$','i')
         //Global disable
         if (quotaLimit == true) {
             return message.channel.send(global.Functions.BasicEmbed(("error"), "This command is not usable at this time."))
@@ -22,7 +23,7 @@ module.exports = {
             try {
                 //Placeholder searching
                 const m = await message.channel.send("Searching...")
-                if (args[0].includes("https:")) {
+                if (!!pattern.test(args[0])) {
                     try {
                         results = await youtube.getVideo(args[0]);
                     }

@@ -1,7 +1,7 @@
 module.exports = {
     name: "pfp",
     aliases: ["avatar"],
-    args: "<@mention|username>",
+    args: "[@mention|username]",
     desc: "Returns a user's avatar.",
     level: "0",
     func: async (message, args) => {

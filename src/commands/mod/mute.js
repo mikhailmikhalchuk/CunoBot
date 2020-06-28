@@ -5,7 +5,7 @@ module.exports = {
     name: "mute",
     aliases: [],
     desc: "Mutes a user.",
-    args: "<username>",
+    args: "<@mention|username>",
     level: "1",
     func: async (message, args) => {
         const memberData = global.Functions.getMember(message, args.join(' '))
