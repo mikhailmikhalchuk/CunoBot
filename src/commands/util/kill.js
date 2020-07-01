@@ -3,7 +3,7 @@ const dateFormat = require('dateformat');
 module.exports = {
     name: "kill",
     aliases: [],
-    desc: "Disables the bot.",
+    desc: "Forces a bot disconnection and terminates the process.",
     level: "3",
     hidden: true,
     func: async (message) => {

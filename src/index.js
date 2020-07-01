@@ -6,25 +6,20 @@ const dateFormat = require('dateformat');
 const auth = require('./data/auth.json');
 const Discord = require('discord.js');
 const Intents = require('discord.js');
-const Client = new Discord.Client({ ws: {intents: Intents.ALL}});
+const Client = new Discord.Client({disableMentions: "everyone", ws: {intents: Intents.ALL}});
 const f = require('./functions.js')
 const fs = require('fs');
 const serverIgnore = []
 const commands = []
 
-//SET TO TRUE IF TESTING COMMANDS TO IGNORE ALL MESSAGES NOT FROM YOU
-var testing = false
-//SET TO TRUE IF TESTING COMMANDS TO IGNORE ALL MESSAGES NOT FROM YOU
+//SET TO TRUE TO IGNORE ALL MESSAGES NOT FROM YOU
+var disabled = false
+//SET TO TRUE TO IGNORE ALL MESSAGES NOT FROM YOU
 
 //Ready listener
 Client.on('ready', async () => {
     console.log('Bot has connected.')
-    if (testing == false) {
-        Client.user.setPresence({activity: {name: "you.", type: "WATCHING"}, status: "online"})
-    }
-    else if (testing == true) {
-        Client.user.setStatus("invisible")
-    }
+    Client.user.setPresence({activity: {name: "you.", type: "WATCHING"}, status: "online"})
     fs.readFile('C:/Users/Cuno/Documents/DiscordBot/reports.txt', 'utf8', function(_err, data) {
         if (data == undefined) {
             return false
@@ -41,19 +36,20 @@ Client.on('ready', async () => {
     })
 })
 
+//Pull events from events.js
 for (event in events) {
     Client.on(event, events[event].bind(null, Client));
 }
 
 //Command listener
 Client.on('message', async (message) => {
-    if (!message.guild) {
+    if (!message.guild && message.author.id != "660856814610677761") {
         Client.channels.fetch("708415515122598069").then((m) => {
             m.send(`${message.author.tag} » ${message.content}`)
         })
         return false
     }
-    else if (serverIgnore.includes(message.guild.id) || testing == true && message.author.id != "287372868814372885" || message.author.bot || message.webhookID) {
+    else if (global.Disabled == true && message.author.id != "287372868814372885" || message.author.bot || message.webhookID || serverIgnore.includes(message.guild.id)) {
         return false
     }
     const args = message.content.trim().split(" ")
@@ -182,6 +178,7 @@ global.Client = Client
 global.Functions = f
 global.Auth = auth
 global.Roles = roles
+global.Disabled = disabled
 
 //Bot login
 Client.login(auth.token)

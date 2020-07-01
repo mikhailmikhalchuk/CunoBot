@@ -13,9 +13,6 @@ module.exports = {
         if (args == "" || args == undefined) {
             return message.channel.send(global.Functions.BasicEmbed(("error"), "Please provide a message to rate."))
         }
-        else if (args.join(" ").includes("@everyone") || args.join(" ").includes("@here")) {
-            return false
-        }
         else if (args.join(" ").toLowerCase() == "cuno's bot" || args.join(" ").toLowerCase() == "you" || args.join(" ").toLowerCase() == "yourself" || men == "660856814610677761" || args.join(" ") == "660856814610677761") {
             return message.reply("I'd give myself a 10/10")
         }
