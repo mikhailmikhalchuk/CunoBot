@@ -41,7 +41,7 @@ functions.commandMatch = (commandData, str) => {
     return false
 }
 
-//Creates embed color
+//Embed creator
 functions.BasicEmbed = (type, text, options) => {
     if (typeof type == "object") options = type
     var embed = new Discord.MessageEmbed()

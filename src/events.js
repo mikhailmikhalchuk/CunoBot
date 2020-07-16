@@ -12,7 +12,7 @@ const events = {}
 events.messageDelete = async (client, message) => {
     let logs = await message.guild.fetchAuditLogs({type: 72});
     let entry = logs.entries.first();
-    if (logfile[message.guild.id] != undefined && message.guild.channels.resolve(logfile[message.guild.id]) != undefined && logstat[message.guild.id] == true && !message.author.bot && entry.executor.id != "660856814610677761" && ignored[message.channel.id] != true && !message.webhookID) {
+    if (logfile[message.guild.id] != undefined && message.guild.channels.resolve(logfile[message.guild.id]) != undefined && logstat[message.guild.id] == true && !message.author.bot && entry.executor.id != "660856814610677761" && ignored[message.channel.id] != true && !message.webhookID && message.system == false) {
         if (message.attachments.size > 0) {
             var Attachment = (message.attachments).array()
             var attachments = []
@@ -46,21 +46,24 @@ events.messageDeleteBulk = async (client, messages) => {
 events.messageUpdate = async (client, oldMessage, newMessage) => {
     let logs = await oldMessage.guild.fetchAuditLogs({type: 72});
     let entry = logs.entries.first();
-    if (logfile[oldMessage.guild.id] != undefined && oldMessage.guild.channels.resolve(logfile[oldMessage.guild.id]) != undefined && logstat[oldMessage.guild.id] == true && !oldMessage.member.user.bot && entry.executor.id != "660856814610677761" && ignored[oldMessage.channel.id] != true && !message.webhookID) {
-            if (oldMessage.attachments.size > 0) {
-                var Attachment = (oldMessage.attachments).array()
-                var attachments = []
-                Attachment.forEach(function (Attachment) {
-                    attachments.push(`${Attachment.name}\n`)
-                })
-                return oldMessage.guild.channels.resolve(logfile[oldMessage.guild.id]).send(f.BasicEmbed("RED")
+    if (newMessage.embeds.length != 0 || oldMessage.pinned != true && newMessage.pinned == true) {
+        return false
+    }
+    else if (logfile[oldMessage.guild.id] != undefined && oldMessage.guild.channels.resolve(logfile[oldMessage.guild.id]) != undefined && logstat[oldMessage.guild.id] == true && !oldMessage.author.bot && entry.executor.id != "660856814610677761" && ignored[oldMessage.channel.id] != true && !oldMessage.webhookID) {
+        if (oldMessage.attachments.size > 0) {
+            var Attachment = (oldMessage.attachments).array()
+            var attachments = []
+            Attachment.forEach(function (Attachment) {
+                attachments.push(`${Attachment.name}\n`)
+            })
+            return oldMessage.guild.channels.resolve(logfile[oldMessage.guild.id]).send(f.BasicEmbed("RED")
                 .setAuthor(`${oldMessage.author.tag}`, oldMessage.author.avatarURL({format: 'png', dynamic: true}))
                 .setDescription(`**Message sent by <@${oldMessage.member.id}> edited in <#${oldMessage.channel.id}>**\n**Before:** ${oldMessage.content}\n**After:** ${newMessage.content}`)
                 .addField("Attachments", attachments))
-            }
-            return oldMessage.guild.channels.resolve(logfile[oldMessage.guild.id]).send(f.BasicEmbed("RED")
-                .setAuthor(`${oldMessage.author.tag}`, oldMessage.author.avatarURL({format: 'png', dynamic: true}))
-                .setDescription(`**Message sent by <@${oldMessage.member.id}> edited in <#${oldMessage.channel.id}>**\n**Before:** ${oldMessage.content}\n**After:** ${newMessage.content}`))
+        }
+        return oldMessage.guild.channels.resolve(logfile[oldMessage.guild.id]).send(f.BasicEmbed("RED")
+            .setAuthor(`${oldMessage.author.tag}`, oldMessage.author.avatarURL({format: 'png', dynamic: true}))
+            .setDescription(`**Message sent by <@${oldMessage.member.id}> edited in <#${oldMessage.channel.id}>**\n**Before:** ${oldMessage.content}\n**After:** ${newMessage.content}`))
     }
 }
 
@@ -147,20 +150,20 @@ events.userUpdate = (client, oldUser, newUser) => {
         if (gm != null) {
             if (logfile[gm.guild.id] != undefined && gm.guild.channels.resolve(logfile[gm.guild.id]) != undefined && logstat[gm.guild.id] == true) {
                 if (oldUser.username != newUser.username) {
-                    gm.guild.channels.resolve(logfile[gm.guild.id]).send(f.BasicEmbed("normal")
+                    return gm.guild.channels.resolve(logfile[gm.guild.id]).send(f.BasicEmbed("normal")
                         .setAuthor(`${newUser.tag}`, newUser.avatarURL({format: 'png', dynamic: true}))
                         .setTitle("Name change")
                         .setDescription(`**Before**: ${oldUser.username}\n**After:** ${newUser.username}`))
                 }
                 else if (oldUser.avatar != newUser.avatar) {
-                    gm.guild.channels.resolve(logfile[gm.guild.id]).send(f.BasicEmbed("normal")
+                    return gm.guild.channels.resolve(logfile[gm.guild.id]).send(f.BasicEmbed("normal")
                         .setAuthor(`${newUser.tag}`, newUser.avatarURL({format: 'png', dynamic: true}))
                         .setTitle("Avatar updated")
                         .setThumbnail(newUser.avatarURL())
                         .setDescription(`<@${newUser.id}>`))
                 }
                 else if (oldUser.discriminator != newUser.discriminator) {
-                    gm.guild.channels.resolve(logfile[gm.guild.id]).send(f.BasicEmbed("normal")
+                    return gm.guild.channels.resolve(logfile[gm.guild.id]).send(f.BasicEmbed("normal")
                         .setAuthor(`${newUser.tag}`, newUser.avatarURL({format: 'png', dynamic: true}))
                         .setTitle("Discriminator change")
                         .setDescription(`**Before**: ${oldUser.discriminator}\n**After:** ${newUser.discriminator}`))
@@ -208,12 +211,11 @@ events.guildMemberAdd = (client, member) => {
 
 //Guild member left/kicked
 events.guildMemberRemove = (client, member) => {
-    var d = Date.now()
     if (logfile[member.guild.id] != undefined && member.guild.channels.resolve(logfile[member.guild.id]) != undefined && logstat[member.guild.id] == true) {
         member.guild.channels.resolve(logfile[member.guild.id]).send(f.BasicEmbed("RED")
             .setAuthor(`${member.user.tag}`, member.user.avatarURL({format: 'png', dynamic: true}))
             .setTitle("Member left")
-            .setDescription(`<@${member.user.id}> joined ${dateFormat(d - member.joinedTimestamp, `m 'months,' d 'days,' h 'hours'`)} ago.\n**Roles:** ${member.roles.cache.array().join(", ")}`))
+            .setDescription(`<@${member.user.id}> joined ${dateFormat(member.joinedTimestamp, "longDate")}.\n**Roles:** ${member.roles.cache.array().join(", ")}`))
     }
 }
 
@@ -233,13 +235,6 @@ events.error = (client, error) => {
 //Bot warning encountered
 events.warn = (client, info) => {
     console.warn(info)
-}
-
-//Rate limit hit
-events.rateLimit = (client, rateLimitInfo) => {
-    const d = new Date()
-    console.warn(`Client hit rate limit at ${dateFormat(d, "h:MM:ss TT")}.\nEmitting general info...`)
-    console.warn(rateLimitInfo)
 }
 
 module.exports = events

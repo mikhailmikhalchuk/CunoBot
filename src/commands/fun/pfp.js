@@ -5,7 +5,6 @@ module.exports = {
     desc: "Returns a user's avatar.",
     level: "0",
     func: async (message, args) => {
-        // Grabbing the correct member (and listing if multiple)
         const memberData = global.Functions.getMember(message, args.join(' '))
         if (!memberData[0]) {
             return message.channel.send(null, global.Functions.BasicEmbed("error", memberData[1]))

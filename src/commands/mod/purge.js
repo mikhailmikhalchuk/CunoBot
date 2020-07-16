@@ -25,12 +25,10 @@ module.exports = {
     args: "<#>",
     level: "1",
     func: (message, args) => {
-        //Over 100
         if (Number(args[0]) >= 100) {
             message.delete()
             return message.channel.send(global.Functions.BasicEmbed(("error"), "You cannot purge more than 100 messages.")).then(msg => {msg.delete({timeout: 3000})})
         }
-        //Success
         else if (args >= 1) {
             message.channel.messages.fetch({limit:Number(args[0] * 1 + 1)}).then((m) => {
                 toDelete = 0
@@ -52,11 +50,9 @@ module.exports = {
                     .then(msg => {msg.delete({timeout: 3000})})
             })
         }
-        //Under 1
         else if (typeof Number(args[0]) == "number" && args < 1) {
             return message.channel.send(global.Functions.BasicEmbed(("error"), "You must assign an amount of messages to delete equal to or greater than 1."))
         }
-        //Not a Number
         else if (isNaN(Number(args[0]))) {
             return message.channel.send(global.Functions.BasicEmbed(("error"), `${args[0]} is not a number!`))
         }

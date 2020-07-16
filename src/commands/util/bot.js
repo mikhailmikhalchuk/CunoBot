@@ -9,7 +9,6 @@ module.exports = {
     desc: "Gets information about the bot.",
     level: "0",
     func: async (message) => {
-        // Embed Creation
         message.channel.send(global.Functions.BasicEmbed("normal")
             .setAuthor("CunoBot", "https://cdn.discordapp.com/attachments/660857785566887979/662058292520157227/discorddefaultavatar.png")
             .addField("Owner", "<@287372868814372885>", true)

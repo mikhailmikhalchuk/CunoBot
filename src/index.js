@@ -7,7 +7,7 @@ const auth = require('./data/auth.json');
 const Discord = require('discord.js');
 const Intents = require('discord.js');
 const Client = new Discord.Client({disableMentions: "everyone", ws: {intents: Intents.ALL}});
-const f = require('./functions.js')
+const f = require('./functions.js');
 const fs = require('fs');
 const serverIgnore = []
 const commands = []
@@ -15,6 +15,10 @@ const commands = []
 //SET TO TRUE TO IGNORE ALL MESSAGES NOT FROM YOU
 var disabled = false
 //SET TO TRUE TO IGNORE ALL MESSAGES NOT FROM YOU
+
+//SET TO FALSE TO NOT LOG
+var log = true
+//SET TO FALSE TO NOT LOG
 
 //Ready listener
 Client.on('ready', async () => {
@@ -41,6 +45,14 @@ for (event in events) {
     Client.on(event, events[event].bind(null, Client));
 }
 
+//Log errors to file
+process.on('unhandledRejection', (reason, promise) => {
+    console.log('UnhandledPromiseRejectionWarning:', reason)
+    if (log == true) {
+        fs.appendFile('C:/Users/Cuno/Documents/DiscordBot/errors.txt', 'UnhandledPromiseRejectionWarning: ' + reason.stack + "\n----\n", 'utf8', function(_err, data) {})
+    }
+});
+
 //Command listener
 Client.on('message', async (message) => {
     if (!message.guild && message.author.id != "660856814610677761") {
@@ -59,13 +71,10 @@ Client.on('message', async (message) => {
     if (comm == `${prefix}help` || comm == `${prefix}commands`) {
         if (args[0] == undefined || args[0] == "") {
             var categories = []
-            //Finds all categories (folders in src/commands)
             for (var i in commands) { 
                 categories.push(i)
             }
-            //List available categories
             message.channel.send("Please pick a category from the following (type \`cancel\` to cancel).", f.BasicEmbed(("normal"), categories.join("\n")))
-            //Await user response (plaintext)
             message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
                 var category = c.first().content.toLowerCase()
                 if (category == "cancel") {
@@ -74,7 +83,6 @@ Client.on('message', async (message) => {
                 else if (category.startsWith(prefix)) {
                     var category = category.slice(1)
                 }
-                //List all commands in category
                 if (commands[category]) {
                     const embed = f.BasicEmbed(("normal"), " ").setTitle(`Commands - ${category}`)
                     for (var command in commands[category]) {
@@ -91,12 +99,10 @@ Client.on('message', async (message) => {
         //Command help
         else {
             const searchCommand = args[0]
-            //Find if command exists
             for (var group in commands) {
                 for (var command in commands[group]) {
                     var commandData = commands[group][command]
                     if (f.commandMatch(commandData, searchCommand) && !commandData.hidden && !f.commandServerHidden(message.guild, commandData.name)) {
-                        //Lists command data
                         return message.channel.send(f.BasicEmbed("normal")
                             .setTitle(`Command Help: ${commandData.name}`)
                             .addField("Name", commandData.name, true)
@@ -118,7 +124,7 @@ Client.on('message', async (message) => {
                     }
                 }
             }
-            if (commands[searchCommand]) { // Group
+            if (commands[searchCommand]) {
                 const embed = f.BasicEmbed("normal", " ").setTitle("Commands")
                 for (var command in commands[searchCommand]) {
                     var commandData = commands[searchCommand][command]
@@ -131,7 +137,7 @@ Client.on('message', async (message) => {
             return message.channel.send(f.BasicEmbed("error", "Command not found."))
         }
     }
-    //Other commands
+    //Command executor
     for (var group in commands) {
         group = commands[group]
         for (var command in group) {
@@ -139,18 +145,15 @@ Client.on('message', async (message) => {
             if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.commandServerHidden(message.guild, command.name) == true || f.getUserLevel(message.guild.id, message.member) == -1) {
                 return false
             }
-            //Test command success - command prefix & name exist and user is at correct level
             else if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.getUserLevel(message.guild.id, message.member) >= command.level) {
                 //Executes command
                 try {
                     command.func(message, args)
                 }
-                //Catch error on miscellaneous command failure
                 catch (e) {
                     message.channel.send(f.BasicEmbed(("error"), e))
                 }
             }
-            //Catch error if user is not at correct level
             else if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.getUserLevel(message.guild.id, message.member) < command.level) {
                 return message.channel.send(f.BasicEmbed(("error"), "You do not have the proper permissions to execute this command."))
             }

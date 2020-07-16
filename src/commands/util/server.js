@@ -12,12 +12,9 @@ module.exports = {
     level: "0",
     func: async (message) => {
         roleSize = 0
-        //Make sure bot is checking the server command was executed in
         const guild = message.guild
-        //Distinguish from bots/humans
         const [bots, humans] = guild.members.cache.partition(member => member.user.bot == true)
         guild.roles.cache.forEach(pushNumber)
-        //Embed creation
         message.channel.send(global.Functions.BasicEmbed("normal")
             .setAuthor(guild.name, guild.iconURL({format: 'png', dynamic: true}))
             .addField("Owner", guild.owner, true)

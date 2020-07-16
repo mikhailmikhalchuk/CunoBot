@@ -7,18 +7,16 @@ module.exports = {
     args: "<@mention|username>",
     level: "0",
     func: async (message, args) => {
-        // Grabbing the correct member (and listing if multiple)
         const memberData = global.Functions.getMember(message, args.join(' '))
         if (!memberData[0]) {
             return message.channel.send(null, global.Functions.BasicEmbed("error", memberData[1]))
         }
         const member = memberData[1]
         var embed = global.Functions.BasicEmbed("normal")
-        //No users by name specified
         if (!member) {
             return message.channel.send(global.Functions.BasicEmbed(("error"), "No users found!"))
         }
-        // Presence Data
+        //Presence Data
         const game = member.user.presence.activities[0]
         if (game) {
             if (game.type == "LISTENING") {
@@ -54,7 +52,7 @@ module.exports = {
                 }
             }
         }
-        // Online/Offline/Idle/DND
+        //Status
         var emoji = ""
         var stat = ""
         switch (member.presence.status) {
@@ -79,12 +77,10 @@ module.exports = {
                 stat = "Unknown"
                 break
         }
-        // Streaming
         if (game && game.type == 1) {
             emoji = "<:streaming:671128707603103799>"
             stat = `[Streaming](${game.url})` 
         }
-        //Embed
         var level = global.Functions.getUserLevel(message.guild.id, member)
         embed = embed
             .setAuthor(member.displayName, member.user.avatarURL({format: 'png', dynamic: true}))
