@@ -17,7 +17,7 @@ var disabled = false
 //SET TO TRUE TO IGNORE ALL MESSAGES NOT FROM YOU
 
 //SET TO FALSE TO NOT LOG
-var log = true
+var log = false
 //SET TO FALSE TO NOT LOG
 
 //Ready listener
