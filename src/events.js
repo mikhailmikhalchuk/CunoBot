@@ -2,6 +2,7 @@ const ignored = require('./data/ignoredlogchannels.json');
 const prefixes = require('./data/prefixes.json');
 const logfile = require('./data/logchannels.json');
 const logstat = require('./data/logstatus.json');
+const roles = require('./data/roles.json');
 const dateFormat = require('dateformat');
 const Discord = require('discord.js')
 const f = require('./functions.js')
@@ -128,19 +129,57 @@ events.channelUpdate = (client, oldChannel, newChannel) => {
 }
 
 //Guild join logger
-events.guildCreate = (client, guild) => {
+events.guildCreate = async (client, guild) => {
     var prefix = prefixes[guild.id]
+    var schannel = guild.channels.cache.find(text => text.type === "text")
     if (guild.me.permissions.any("ADMINISTRATOR") == false) {
-        guild.channels.cache.find(text => text.type === "text").send(f.BasicEmbed(("normal"), "It seems I do not have administrative permissions in this server.\nI am unable to function correctly without them.\nTry inviting me using [this link](https://discord.com/api/oauth2/authorize?client_id=660856814610677761&permissions=8&scope=bot)."))
+        schannel.send(f.BasicEmbed(("normal"), "It seems I do not have administrative permissions in this server.\nI am unable to function correctly without them.\nTry inviting me using [this link](https://discord.com/api/oauth2/authorize?client_id=660856814610677761&permissions=8&scope=bot)."))
         return serverIgnore.push(guild.id)
     }
-    if (prefixes[guild.id] != undefined) {
-        return guild.channels.cache.find(text => text.type === "text").send(`Thank you for inviting me.\nUse \`${prefix}help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.`)
+    if (roles[`${guild.id}level1`] == undefined) {
+        schannel.send("Hello!\nIt looks like I do not have administration and moderation roles setup in this server.\nPlease mention or paste the ID of a role to set **Level 1** permissions for it.")
+        while (true) {
+            await schannel.awaitMessages(m => m.member.permissions.any("ADMINISTRATOR") == true, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
+                if (c.first().author.bot || c.first().system) {
+                    return true
+                }
+                else if (c.first().content.mentions != undefined) {
+                    var level1 = c.first().content
+                }
+                else if (!isNaN(Number(c.first().content.slice(3, 20)))) {
+                    var level1 = c.first().content.slice(3, 20)
+                }
+                else {
+                    return schannel.send("Please mention or paste the ID of a valid role.")
+                }
+                schannel.send("Please mention or paste the ID of a role to set **Level 2** permissions for it.")
+                while (true) {
+                    await schannel.awaitMessages(m => m.member.permissions.any("ADMINISTRATOR") == true, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
+                        if (c.first().author.bot || c.first().system) {
+                            return true
+                        }
+                        else if (c.first().content.mentions != undefined) {
+                            var level2 = c.first().content.mentions.id
+                        }
+                        else if (!isNaN(Number(c.first().content.slice(3, 20)))) {
+                            var level2 = c.first().content.slice(3, 20)
+                        }
+                        else {
+                            return schannel.send("Please mention or paste the ID of a valid role.")
+                        }
+                        fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/roles.json', JSON.stringify(roles).replace("}", `,"${guild.id}level1":"${level1}", "${guild.id}level2":"${level2}"}`), function (err) {
+                            fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/prefixes.json', JSON.stringify(prefixes).replace("}", `,"${guild.id}":"?"}`), function (err) {
+                                return schannel.send("I'm all set up!\nUse \`?help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.")
+                            })
+                        })
+                    })
+                }
+            })
+        }
     }
-    fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/prefixes.json', JSON.stringify(prefixes).replace("}", `,"${guild.id}":"?"}`), function (err) {
-        if (err) console.log(err + "\nindex.js 91:13")
-        guild.channels.cache.find(text => text.type === "text").send(`Thank you for inviting me.\nUse \`?help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.`)
-    })
+    else {
+        schannel.send(`Thank you for inviting me.\nUse \`${prefix}help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.`)
+    }
 }
 
 //User details updated
