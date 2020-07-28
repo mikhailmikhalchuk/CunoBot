@@ -144,10 +144,10 @@ events.guildCreate = async (client, guild) => {
                     return true
                 }
                 else if (c.first().content.mentions != undefined) {
-                    var level1 = c.first().content
+                    var level1 = c.first().content.mentions.id
                 }
-                else if (!isNaN(Number(c.first().content.slice(3, 20)))) {
-                    var level1 = c.first().content.slice(3, 20)
+                else if (!isNaN(Number(c.first().content))) {
+                    var level1 = c.first().content
                 }
                 else {
                     return schannel.send("Please mention or paste the ID of a valid role.")
@@ -161,8 +161,8 @@ events.guildCreate = async (client, guild) => {
                         else if (c.first().content.mentions != undefined) {
                             var level2 = c.first().content.mentions.id
                         }
-                        else if (!isNaN(Number(c.first().content.slice(3, 20)))) {
-                            var level2 = c.first().content.slice(3, 20)
+                        else if (!isNaN(Number(c.first().content))) {
+                            var level2 = c.first().content
                         }
                         else {
                             return schannel.send("Please mention or paste the ID of a valid role.")
