@@ -55,10 +55,7 @@ process.on('unhandledRejection', (reason, promise) => {
 
 //Command listener
 Client.on('message', async (message) => {
-    if (!message.guild && message.author.id != "660856814610677761") {
-        Client.channels.fetch("708415515122598069").then((m) => {
-            m.send(`${message.author.tag} » ${message.content}`)
-        })
+    if (!message.guild) {
         return false
     }
     else if (global.Disabled == true && message.author.id != "287372868814372885" || message.author.bot || message.webhookID || serverIgnore.includes(message.guild.id)) {
@@ -151,7 +148,7 @@ Client.on('message', async (message) => {
                     command.func(message, args)
                 }
                 catch (e) {
-                    message.channel.send(f.BasicEmbed(("error"), e))
+                    message.channel.send(f.BasicEmbed(("error"), e.stack))
                 }
             }
             else if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.getUserLevel(message.guild.id, message.member) < command.level) {

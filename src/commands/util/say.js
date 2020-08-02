@@ -13,15 +13,15 @@ module.exports = {
             Attachment.forEach(function (attachment) {
                 const att = new Discord.MessageAttachment(attachment.url);
                 if (args == "") {
-                    if (message.mentions.channels != undefined) {
-                        message.guild.channels.resolve(message.mentions.channels.first()).send((" ", att))
+                    if (message.mentions.channels.first() != undefined && args[0].slice(2, 20) == message.mentions.channels.first().id) {
+                        message.guild.channels.resolve(message.mentions.channels.first()).send((att))
                     }
                     else {
-                        message.channel.send(" ", att)
+                        message.channel.send(att)
                     }
                 }
                 else {
-                    if (message.mentions.channels != undefined) {
+                    if (message.mentions.channels.first() != undefined && args[0].slice(2, 20) == message.mentions.channels.first().id) {
                         message.guild.channels.resolve(message.mentions.channels.first()).send((args.slice(1).join(" "), att))
                     }
                     else {
@@ -30,17 +30,17 @@ module.exports = {
                 }
             })
         }
-        else if (args == "" || args == undefined) {
+        else if (args == "" || args == undefined || message.mentions.channels.first() != undefined && args[1] == undefined) {
             return message.delete()
         }
         else {
-            if (message.mentions.channels.first() != undefined) {
+            if (message.mentions.channels.first() != undefined && args[0].slice(2, 20) == message.mentions.channels.first().id) {
                 message.guild.channels.resolve(message.mentions.channels.first()).send(args.slice(1).join(" "))
             }
             else {
                 message.channel.send(args.join(" "))
             }
         }
-            message.delete()
-        }
+        message.delete()
+    }
 }

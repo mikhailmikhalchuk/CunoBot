@@ -10,11 +10,11 @@ functions.getUserLevel = (guild, member) => {
     else if (member.user.bot) {
         return -1
     }
-    if (member.roles.cache.has(roles[`${guild}level1`])) {
-        return 1
-    }
     else if (member.roles.cache.has(roles[`${guild}level2`]) || member.permissions.any("ADMINISTRATOR")) {
         return 2
+    }
+    else if (member.roles.cache.has(roles[`${guild}level1`])) {
+        return 1
     }
     return 0
 }

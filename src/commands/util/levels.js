@@ -41,7 +41,13 @@ module.exports = {
                         message.reply("cancelled command.")
                         return loop = false
                     }
+                    else if (c.first().content == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
+                        return message.channel.send("Please mention or paste the ID of a different role.")
+                    }
                     else if (c.first().content.mentions != undefined) {
+                        if (c.first().content.mentions.id == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
+                            return schannel.send("Please mention or paste the ID of a different role.")
+                        }
                         toWrite[`${message.guild.id}level1`] = c.first().content.mentions.id
                     }
                     else if (!isNaN(Number(c.first().content.slice(3, 20)))) {
@@ -60,7 +66,13 @@ module.exports = {
                                 message.reply("cancelled command.")
                                 return loop = false
                             }
+                            else if (level1 == level2 || c.first().content == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
+                                return message.channel.send("Please mention or paste the ID of a different role.")
+                            }
                             else if (c.first().content.mentions != undefined) {
+                                if (c.first().content.mentions.id == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
+                                    return schannel.send("Please mention or paste the ID of a different role.")
+                                }
                                 toWrite[`${message.guild.id}level2`] = c.first().content.mentions.id
                             }
                             else if (!isNaN(Number(c.first().content.slice(3, 20)))) {
