@@ -30,7 +30,7 @@ module.exports = {
             message.reply(`I'd give you a ${random}/10`)
             return cachedRatings = JSON.parse(JSON.stringify(cachedRatings).replace("}", `,"${message.member.id}":"${random}"}`))
         }
-        if (cachedRatings[args.join(" ")] != undefined) {
+        else if (cachedRatings[args.join(" ")] != undefined) {
             return message.reply(`I'd give ${args.join(" ")} a ${cachedRatings[args.join(" ")]}/10`)
         }
         var random = Math.floor(Math.random() * 11)

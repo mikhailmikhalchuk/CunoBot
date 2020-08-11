@@ -63,10 +63,63 @@ Client.on('message', async (message) => {
     }
     const args = message.content.trim().split(" ")
     comm = args.shift()
-    var prefix = prefixes[message.guild.id]
+    prefixes[message.guild.id] == undefined ? prefix = "?" : prefix = prefixes[message.guild.id]
     //Help Command
     if (comm == `${prefix}help` || comm == `${prefix}commands`) {
-        if (args[0] == undefined || args[0] == "") {
+        if (roles[`${message.guild.id}level2`] == undefined) {
+            message.channel.send("Hello!\nIt looks like I do not have administration and moderation roles setup in this server.\nPlease mention or paste the ID of a role to set **Level 1** permissions for it.")
+            while (true) {
+                await message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
+                    if (c.first().author.bot || c.first().system) {
+                        return true
+                    }
+                    else if (c.first().content == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
+                        return message.channel.send("Please mention or paste the ID of a different role.")
+                    }
+                    else if (c.first().content.mentions != undefined) {
+                        if (c.first().content.mentions.id == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
+                            return message.channel.send("Please mention or paste the ID of a different role.")
+                        }
+                        var level1 = c.first().content.mentions.id
+                    }
+                    else if (!isNaN(Number(c.first().content))) {
+                        var level1 = c.first().content
+                    }
+                    else {
+                        return message.channel.send("Please mention or paste the ID of a valid role.")
+                    }
+                    message.channel.send("Please mention or paste the ID of a role to set **Level 2** permissions for it.")
+                    while (true) {
+                        await message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
+                            if (c.first().author.bot || c.first().system) {
+                                return true
+                            }
+                            else if (level1 == level2 || c.first().content == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
+                                return message.channel.send("Please mention or paste the ID of a different role.")
+                            }
+                            else if (c.first().content.mentions != undefined) {
+                                if (c.first().content.mentions.id == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
+                                    return message.channel.send("Please mention or paste the ID of a different role.")
+                                }
+                                var level2 = c.first().content.mentions.id
+                            }
+                            else if (!isNaN(Number(c.first().content))) {
+                                var level2 = c.first().content
+                            }
+                            else {
+                                return message.channel.send("Please mention or paste the ID of a valid role.")
+                            }
+                            fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/roles.json', JSON.stringify(roles).replace("}", `,"${message.guild.id}level1":"${level1}", "${message.guild.id}level2":"${level2}"}`), function (err) {
+                                fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/prefixes.json', JSON.stringify(prefixes).replace("}", `,"${message.guild.id}":"?"}`), function (err) {
+                                    return message.channel.send("I'm all set up!\nUse \`?help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.")
+                                })
+                            })
+                        })
+                    }
+                })
+            }
+        }
+        else if (args[0] == undefined || args[0] == "") {
             var categories = []
             for (var i in commands) { 
                 categories.push(i)
@@ -139,7 +192,7 @@ Client.on('message', async (message) => {
         group = commands[group]
         for (var command in group) {
             command = group[command]
-            if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.commandServerHidden(message.guild, command.name) == true || f.getUserLevel(message.guild.id, message.member) == -1) {
+            if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.commandServerHidden(message.guild, command.name) == true || f.getUserLevel(message.guild.id, message.member) == -1 || roles[`${message.guild.id}level2`] == undefined) {
                 return false
             }
             else if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.getUserLevel(message.guild.id, message.member) >= command.level) {
