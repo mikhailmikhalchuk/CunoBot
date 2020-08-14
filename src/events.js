@@ -48,6 +48,9 @@ events.messageDeleteBulk = async (client, messages) => {
 
 //Message Updated
 events.messageUpdate = async (client, oldMessage, newMessage) => {
+    if (oldMessage.channel.type == "dm") {
+        return false
+    }
     let logs = await oldMessage.guild.fetchAuditLogs({type: 72});
     let entry = logs.entries.first();
     if (newMessage.embeds.length != 0 || oldMessage.pinned != true && newMessage.pinned == true) {

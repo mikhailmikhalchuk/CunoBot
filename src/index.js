@@ -124,26 +124,30 @@ Client.on('message', async (message) => {
             for (var i in commands) { 
                 categories.push(i)
             }
-            message.channel.send("Please pick a category from the following (type \`cancel\` to cancel).", f.BasicEmbed(("normal"), categories.join("\n")))
-            message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
-                var category = c.first().content.toLowerCase()
-                if (category == "cancel") {
-                    return message.reply("cancelled command.")
-                }
-                else if (category.startsWith(prefix)) {
-                    var category = category.slice(1)
-                }
-                if (commands[category]) {
-                    const embed = f.BasicEmbed(("normal"), " ").setTitle(`Commands - ${category}`)
-                    for (var command in commands[category]) {
-                        var commandData = commands[category][command]
-                        if (!commandData.hidden) {
-                            embed.setDescription(embed.description + `**${prefix + commandData.name} ${commandData.args ? commandData.args : ""}** - ${commandData.desc}\n`)
-                        }
+            message.author.send("Please pick a category from the following (type \`cancel\` to cancel).", f.BasicEmbed(("normal"), categories.join("\n"))).then((i) => {
+                Client.channels.resolve(i.channel.id).awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
+                    var category = c.first().content.toLowerCase()
+                    if (category == "cancel") {
+                        return message.reply("cancelled command.")
                     }
-                    return message.channel.send(`Type \`${prefix}help\` followed by the command name for more information on a specific command.`, embed)
-                }
-                return message.channel.send(f.BasicEmbed(("error"), "That category does not exist!"))
+                    else if (category.startsWith(prefix)) {
+                        var category = category.slice(1)
+                    }
+                    if (commands[category]) {
+                        const embed = f.BasicEmbed(("normal"), " ").setTitle(`Commands - ${category}`)
+                        for (var command in commands[category]) {
+                            var commandData = commands[category][command]
+                            if (!commandData.hidden) {
+                                embed.setDescription(embed.description + `**${prefix + commandData.name} ${commandData.args ? commandData.args : ""}** - ${commandData.desc}\n`)
+                            }
+                        }
+                        return message.author.send(`Type \`${prefix}help\` followed by the command name for more information on a specific command.`, embed)
+                    }
+                    return message.author.send(f.BasicEmbed(("error"), "That category does not exist!"))
+                })
+            })
+            .catch(() => {
+                message.reply("there was an error sending you the help DM. Make sure you do not have the bot blocked.")
             })
         }
         //Command help
