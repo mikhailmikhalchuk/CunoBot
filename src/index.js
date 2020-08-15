@@ -46,7 +46,7 @@ for (event in events) {
 }
 
 //Log errors to file
-process.on('unhandledRejection', (reason, promise) => {
+process.on('unhandledRejection', (reason) => {
     console.log('UnhandledPromiseRejectionWarning:', reason)
     if (log == true) {
         fs.appendFile('C:/Users/Cuno/Documents/DiscordBot/errors.txt', 'UnhandledPromiseRejectionWarning: ' + reason.stack + "\n----\n", 'utf8', function(_err, data) {})
@@ -66,6 +66,7 @@ Client.on('message', async (message) => {
     prefixes[message.guild.id] == undefined ? prefix = "?" : prefix = prefixes[message.guild.id]
     //Help Command
     if (comm == `${prefix}help` || comm == `${prefix}commands`) {
+        //Check if roles set
         if (roles[`${message.guild.id}level2`] == undefined) {
             message.channel.send("Hello!\nIt looks like I do not have administration and moderation roles setup in this server.\nPlease mention or paste the ID of a role to set **Level 1** permissions for it.")
             while (true) {
@@ -119,11 +120,13 @@ Client.on('message', async (message) => {
                 })
             }
         }
+        //Help cats
         else if (args[0] == undefined || args[0] == "") {
             var categories = []
             for (var i in commands) { 
                 categories.push(i)
             }
+            message.reply("check your DMs.")
             message.author.send("Please pick a category from the following (type \`cancel\` to cancel).", f.BasicEmbed(("normal"), categories.join("\n"))).then((i) => {
                 Client.channels.resolve(i.channel.id).awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
                     var category = c.first().content.toLowerCase()
@@ -157,7 +160,8 @@ Client.on('message', async (message) => {
                 for (var command in commands[group]) {
                     var commandData = commands[group][command]
                     if (f.commandMatch(commandData, searchCommand) && !commandData.hidden && !f.commandServerHidden(message.guild, commandData.name)) {
-                        return message.channel.send(f.BasicEmbed("normal")
+                        message.reply("check your DMs.")
+                        return message.author.send(f.BasicEmbed("normal")
                             .setTitle(`Command Help: ${commandData.name}`)
                             .addField("Name", commandData.name, true)
                             .addField("Aliases", commandData.aliases.join(", ") || "N/A", true)
@@ -165,9 +169,13 @@ Client.on('message', async (message) => {
                             .addField("Arguments", commandData.args || "N/A", true)
                             .addField("Level", `${commandData.level} (${commandData.level == 3 ? "Bot Owner" : commandData.level == 0 ? "Normal User" : commandData.level == -1 ? "Bot" : message.guild.roles.resolve(roles[`${message.guild.id}level${commandData.level}`]).name})`, true)
                             .addField("Description", commandData.desc))
+                        .catch(() => {
+                            message.reply("there was an error sending you the help DM. Make sure you do not have the bot blocked.")
+                        })
                     }
                     else if (searchCommand == "help" || searchCommand == "commands") {
-                        return message.channel.send(f.BasicEmbed("normal")
+                        message.reply("check your DMs.")
+                        return message.author.send(f.BasicEmbed("normal")
                             .setTitle("Command Help: help")
                             .addField("Name", "help", true)
                             .addField("Aliases", "commands", true)
@@ -175,6 +183,9 @@ Client.on('message', async (message) => {
                             .addField("Arguments", "[command]", true)
                             .addField("Level", "0 (Normal User)", true)
                             .addField("Description", "Returns a list of commands from a category, or provides more information on a command."))
+                        .catch(() => {
+                            message.reply("there was an error sending you the help DM. Make sure you do not have the bot blocked.")
+                        })
                     }
                 }
             }
