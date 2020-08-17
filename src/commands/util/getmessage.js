@@ -15,15 +15,15 @@ module.exports = {
                     attachments.push(`[${Attachment.name}](${Attachment.url})\n`)
                 })
                 return message.channel.send(m.url, global.Functions.BasicEmbed("normal")
-                .setAuthor(m.author.username, m.author.avatarURL({format: 'png', dynamic: true}))
-                .addField("Content", m.content == "" ? "_ _" : m.content)
-                .addField("Attachments", attachments)
-                .addField("Date sent", dateFormat(m.createdAt, "mmmm dS, yyyy 'at' h:MM TT '(EST)'")))
+                    .setAuthor(m.author.username, m.author.avatarURL({format: 'png', dynamic: true}))
+                    .addField("Content", m.content == "" ? "_ _" : m.content)
+                    .addField("Attachments", attachments)
+                    .addField("Date sent", dateFormat(m.createdAt, "mmmm dS, yyyy 'at' h:MM TT '(EST)'")))
             }
             return message.channel.send(m.url, global.Functions.BasicEmbed("normal")
-            .setAuthor(m.author.username, m.author.avatarURL({format: 'png', dynamic: true}))
-            .addField("Content", m.content == "" ? "_ _" : m.content)
-            .addField("Date sent", dateFormat(m.createdAt, "mmmm dS, yyyy 'at' h:MM TT '(EST)'")))
+                .setAuthor(m.author.username, m.author.avatarURL({format: 'png', dynamic: true}))
+                .addField("Content", m.content == "" ? "_ _" : m.content)
+                .addField("Date sent", dateFormat(m.createdAt, "mmmm dS, yyyy 'at' h:MM TT '(EST)'")))
         })
         .catch((e) => {
             if (e.message.startsWith("Unknown") || e.message.startsWith("404")) {

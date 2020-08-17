@@ -14,6 +14,7 @@ module.exports = {
             .addField("Owner", "<@287372868814372885>", true)
             .addField("Servers", global.Client.guilds.cache.size, true)
             .addField("Commands", global.CommandCount, true)
-            .addField("Uptime", `${moment.duration(global.Client.uptime).format(" D [days], H [hrs], m [mins], s [secs]")} (since ${timeup})`, true))
+            .addField("Uptime", `${moment.duration(global.Client.uptime).format(" D [days], H [hrs], m [mins], s [secs]")} (since ${timeup})`, true)
+        )
     }
 }

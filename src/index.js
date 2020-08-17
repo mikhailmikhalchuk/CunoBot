@@ -17,7 +17,7 @@ var disabled = false
 //SET TO TRUE TO IGNORE ALL MESSAGES NOT FROM YOU
 
 //SET TO FALSE TO NOT LOG
-var log = false
+var log = true
 //SET TO FALSE TO NOT LOG
 
 //Ready listener
@@ -131,7 +131,7 @@ Client.on('message', async (message) => {
                 Client.channels.resolve(i.channel.id).awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
                     var category = c.first().content.toLowerCase()
                     if (category == "cancel") {
-                        return message.reply("cancelled command.")
+                        return message.author.send("Cancelled command.")
                     }
                     else if (category.startsWith(prefix)) {
                         var category = category.slice(1)

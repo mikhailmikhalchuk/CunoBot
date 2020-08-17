@@ -22,16 +22,6 @@ module.exports = {
                     return status.edit(null, global.Functions.BasicEmbed('error', e))
                 })
             })
-                .catch(e => {
-                    if (e.message == undefined) {
-                        return status.edit(null, global.Functions.BasicEmbed('error', e))
-                    }
-                    else if (e.message.startsWith("ENOENT:")) {
-                        return status.edit(null, global.Functions.BasicEmbed('error', "Please provide an image or link to an image."))
-                    }
-                    return status.edit(null, global.Functions.BasicEmbed('error', e))
-                })
-        })
             .catch(e => {
                 if (e.message == undefined) {
                     return status.edit(null, global.Functions.BasicEmbed('error', e))
@@ -41,5 +31,15 @@ module.exports = {
                 }
                 return status.edit(null, global.Functions.BasicEmbed('error', e))
             })
+        })
+        .catch(e => {
+            if (e.message == undefined) {
+                return status.edit(null, global.Functions.BasicEmbed('error', e))
+            }
+            else if (e.message.startsWith("ENOENT:")) {
+                return status.edit(null, global.Functions.BasicEmbed('error', "Please provide an image or link to an image."))
+            }
+            return status.edit(null, global.Functions.BasicEmbed('error', e))
+        })
     }
 }
