@@ -19,15 +19,6 @@ functions.getUserLevel = (guild, member) => {
     return 0
 }
 
-//Makes commands non-functional on servers where that is requested
-functions.commandServerHidden = (guild, name) => {
-    if (guild.id == "671923682205237278") {
-        if (name == "purge") {
-            return true
-        }
-    }
-}
-
 //Check if the command being requested exists
 functions.commandMatch = (commandData, str) => {
     if (commandData.name == str) {

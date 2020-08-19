@@ -159,7 +159,7 @@ Client.on('message', async (message) => {
             for (var group in commands) {
                 for (var command in commands[group]) {
                     var commandData = commands[group][command]
-                    if (f.commandMatch(commandData, searchCommand) && !commandData.hidden && !f.commandServerHidden(message.guild, commandData.name)) {
+                    if (f.commandMatch(commandData, searchCommand) && !commandData.hidden) {
                         message.reply("check your DMs.")
                         return message.author.send(f.BasicEmbed("normal")
                             .setTitle(`Command Help: ${commandData.name}`)
@@ -193,7 +193,7 @@ Client.on('message', async (message) => {
                 const embed = f.BasicEmbed("normal", " ").setTitle("Commands")
                 for (var command in commands[searchCommand]) {
                     var commandData = commands[searchCommand][command]
-                    if (!commandData.hidden && !f.commandServerHidden(message.guild, commandData.name)) {
+                    if (!commandData.hidden) {
                         embed.setDescription(embed.description + `**${prefix + commandData.name} ${commandData.args ? commandData.args : ""}** - ${commandData.desc}\n`)
                     }
                 }
@@ -207,7 +207,7 @@ Client.on('message', async (message) => {
         group = commands[group]
         for (var command in group) {
             command = group[command]
-            if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.commandServerHidden(message.guild, command.name) == true || f.getUserLevel(message.guild.id, message.member) == -1 || roles[`${message.guild.id}level2`] == undefined) {
+            if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.getUserLevel(message.guild.id, message.member) == -1 || roles[`${message.guild.id}level2`] == undefined) {
                 return false
             }
             else if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.getUserLevel(message.guild.id, message.member) >= command.level) {

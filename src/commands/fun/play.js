@@ -10,7 +10,7 @@ module.exports = {
     level: "3",
     func: async (message, args) => {
         var pattern = new RegExp('^(https?:\\/\\/)?'+'((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+'((\\d{1,3}\\.){3}\\d{1,3}))'+'(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+'(\\?[;&a-z\\d%_.~+=-]*)?'+'(\\#[-a-z\\d_]*)?$','i')
-        if (args[0] == undefined || args[0] == null || !!pattern.test(args[0]) == false) {
+        if (args[0] == undefined || args[0] == null || !!pattern.test(args[0]) == false || !args[0].includes("youtube")) {
             return message.channel.send(global.Functions.BasicEmbed(("error"), "Please provide a YouTube link in which to broadcast."))
         }
         var results = await youtube.getVideo(args[0]);
