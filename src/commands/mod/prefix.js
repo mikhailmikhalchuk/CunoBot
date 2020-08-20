@@ -15,6 +15,9 @@ module.exports = {
             if (result === prefixes[message.guild.id]) {
                 return message.channel.send(global.Functions.BasicEmbed(("error"), "Please choose a new prefix."))
             }
+            else if (result.length > 10) {
+                return message.channel.send(global.Functions.BasicEmbed(("error"), "Please choose a prefix no more than 10 characters long."))
+            }
             else if (result.toLowerCase() == "cancel") {
                 return message.reply("cancelled command.")
             }

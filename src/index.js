@@ -6,7 +6,7 @@ const dateFormat = require('dateformat');
 const auth = require('./data/auth.json');
 const Discord = require('discord.js');
 const Intents = require('discord.js');
-const Client = new Discord.Client({disableMentions: "everyone", ws: {intents: Intents.ALL}});
+const Client = new Discord.Client({disableMentions: "everyone", ws: {intents: Intents.ALL}, presence: {activity: {name: "you.", type: "WATCHING"}, status: "online"}});
 const f = require('./functions.js');
 const fs = require('fs');
 const serverIgnore = []
@@ -23,7 +23,6 @@ var log = true
 //Ready listener
 Client.on('ready', async () => {
     console.log('Bot has connected.')
-    Client.user.setPresence({activity: {name: "you.", type: "WATCHING"}, status: "online"})
     fs.readFile('C:/Users/Cuno/Documents/DiscordBot/reports.txt', 'utf8', function(_err, data) {
         if (data == undefined) {
             return false
