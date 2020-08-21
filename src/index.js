@@ -80,7 +80,7 @@ Client.on('message', async (message) => {
                         if (c.first().content.mentions.id == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
                             return message.channel.send("Please mention or paste the ID of a different role.")
                         }
-                        var level1 = c.first().content.mentions.id
+                        var level1 = c.first().content.mentions.roles.first().id
                     }
                     else if (!isNaN(Number(c.first().content))) {
                         var level1 = c.first().content
@@ -101,7 +101,7 @@ Client.on('message', async (message) => {
                                 if (c.first().content.mentions.id == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
                                     return message.channel.send("Please mention or paste the ID of a different role.")
                                 }
-                                var level2 = c.first().content.mentions.id
+                                var level2 = c.first().content.mentions.roles.first().id
                             }
                             else if (!isNaN(Number(c.first().content))) {
                                 var level2 = c.first().content

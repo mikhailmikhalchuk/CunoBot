@@ -5,12 +5,6 @@ const fs = require('fs');
 var channelList = []
 var realList = []
 
-function listids(channel) {
-    if (JSON.stringify(ignored).search(channel.id) == -1) return channelList.push(channel.id)
-    realList.push(channel.id)
-    channelList.push(channel.id)
-}
-
 module.exports = {
     name: "log",
     aliases: ["logs", "logging"],
@@ -99,7 +93,11 @@ module.exports = {
                 else if (res == "ignore channel") {
                     channelList = []
                     realList = []
-                    message.guild.channels.cache.forEach(listids)
+                    message.guild.channels.cache.forEach((channel) => {
+                        if (JSON.stringify(ignored).search(channel.id) == -1) return channelList.push(channel.id)
+                        realList.push(channel.id)
+                        channelList.push(channel.id)
+                    })
                     message.channel.send(global.Functions.BasicEmbed(("normal"), `What channel would you like to add to the ignore list? (mention a channel already in the ignore list to remove it, \`cancel\` to cancel).\nChannels currently in the ignored list: ${realList.toString() == "" ? "None" : "<#" + realList.toString().replace(/,/g, ">, <#") + ">"}`))
                     message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
                         var toWrite = ignored
