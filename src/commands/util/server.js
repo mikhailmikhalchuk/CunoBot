@@ -1,9 +1,4 @@
 const dateFormat = require('dateformat');
-var roleSize = 0
-
-function pushNumber() {
-    roleSize = roleSize + 1
-}
 
 module.exports = {
     name: "server",
@@ -11,10 +6,10 @@ module.exports = {
     desc: "Gets information about this server.",
     level: "0",
     func: async (message) => {
-        roleSize = 0
+        var roleSize = 0
         const guild = message.guild
         const [bots, humans] = guild.members.cache.partition(member => member.user.bot == true)
-        guild.roles.cache.forEach(pushNumber)
+        guild.roles.cache.forEach(() => roleSize = roleSize + 1)
         message.channel.send(global.Functions.BasicEmbed("normal")
             .setAuthor(guild.name, guild.iconURL({format: 'png', dynamic: true}))
             .addField("Owner", guild.owner, true)

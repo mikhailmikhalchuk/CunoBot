@@ -63,6 +63,10 @@ Client.on('message', async (message) => {
     const args = message.content.trim().split(" ")
     comm = args.shift()
     prefixes[message.guild.id] == undefined ? prefix = "?" : prefix = prefixes[message.guild.id]
+    // AutoMod checks
+    /*if (message.content.includes("discord.gg/" || "discordapp.com/invite/") && f.getUserLevel < 1) {
+        message.delete()
+    }*/
     //Help Command
     if (comm == `${prefix}help` || comm == `${prefix}commands`) {
         //Check if roles set
