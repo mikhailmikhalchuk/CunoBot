@@ -17,6 +17,12 @@ module.exports = {
         if (!member) {
             return message.channel.send(global.Functions.BasicEmbed(("error"), "No users found!"))
         }
+        else if (args[0] == undefined || args[0] == "") {
+            return message.channel.send(global.Functions.BasicEmbed(("error"), "Please specify the user to mute."))
+        }
+        if (message.member.roles.highest.position <= member.roles.highest.position) {
+            return message.channel.send(global.Functions.BasicEmbed(("error"), "Cannot mute users ranked the same or higher than you."))
+        }
         if (mutedroles[message.guild.id] == undefined) {
             const mutechat = await message.channel.send("No muted role detected, creating one...")
             message.guild.roles.create({data: {name: 'Muted', color: 'GRAY', position: getRole, permissions: ['VIEW_CHANNEL', 'READ_MESSAGE_HISTORY', 'CONNECT']}, reason: 'No existing muted role'}).then((r) => {
