@@ -20,7 +20,7 @@ module.exports = {
         if (args.slice(1).join(" ") != undefined) {
             var res = args.slice(1).join(" ")
         }
-        if (message.member.roles.highest.position <= member.roles.highest.position) {
+        if (message.member.roles.highest.position <= member.roles.highest.position && message.author.id != message.guild.ownerID) {
             return message.channel.send(global.Functions.BasicEmbed(("error"), "Cannot ban users ranked the same or higher than you."))
         }
         member.ban({reason: res}).then((d) => {

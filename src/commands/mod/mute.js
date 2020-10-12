@@ -20,7 +20,7 @@ module.exports = {
         else if (args[0] == undefined || args[0] == "") {
             return message.channel.send(global.Functions.BasicEmbed(("error"), "Please specify the user to mute."))
         }
-        if (message.member.roles.highest.position <= member.roles.highest.position) {
+        if (message.member.roles.highest.position <= member.roles.highest.position && message.author.id != message.guild.ownerID) {
             return message.channel.send(global.Functions.BasicEmbed(("error"), "Cannot mute users ranked the same or higher than you."))
         }
         if (mutedroles[message.guild.id] == undefined) {
@@ -57,7 +57,7 @@ module.exports = {
         })
         .catch((e) => {
             if (e.message == "Missing Permissions") {
-                return message.channel.send(global.Functions.BasicEmbed(("error"), "The Muted role is above my role in this server's role hierarchy.\nPlease move it below my role and try again."))
+                return message.channel.send(global.Functions.BasicEmbed(("error"), "The muted role is above my role in this server's role hierarchy.\nPlease move it below my role and try again."))
             }
         })
     }

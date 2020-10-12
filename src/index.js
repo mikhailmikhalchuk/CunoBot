@@ -17,7 +17,7 @@ var disabled = false
 //SET TO TRUE TO IGNORE ALL MESSAGES NOT FROM YOU
 
 //SET TO FALSE TO NOT LOG
-var log = true
+var log = false
 //SET TO FALSE TO NOT LOG
 
 //Ready listener
@@ -40,8 +40,8 @@ Client.on('ready', async () => {
 })
 
 //Pull events from events.js
-for (event in events) {
-    Client.on(event, events[event].bind(null, Client));
+for (logger in events) {
+    Client.on(logger, events[logger].bind(null, Client));
 }
 
 //Log errors to file

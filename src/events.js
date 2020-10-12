@@ -79,9 +79,15 @@ events.messageUpdate = async (client, oldMessage, newMessage) => {
 //Emoji Added
 events.emojiCreate = (client, emoji) => {
     if (logfile[emoji.guild.id] != undefined && emoji.guild.channels.resolve(logfile[emoji.guild.id]) != undefined && logstat[emoji.guild.id] == true) {
-        emoji.guild.channels.resolve(logfile[emoji.guild.id]).send(f.BasicEmbed("success")
+        if (emoji.animated == false) {
+            return emoji.guild.channels.resolve(logfile[emoji.guild.id]).send(f.BasicEmbed("success")
+                .setAuthor("Emoji created")
+                .setDescription(`<:${emoji.name}:${emoji.id}> ${emoji.name}`)
+            )
+        }
+        return emoji.guild.channels.resolve(logfile[emoji.guild.id]).send(f.BasicEmbed("success")
             .setAuthor("Emoji created")
-            .setDescription(`<:${emoji.name}:${emoji.id}> ${emoji.name}`)
+            .setDescription(`<a:${emoji.name}:${emoji.id}> ${emoji.name}`)
         )
     }
 }
@@ -99,10 +105,16 @@ events.emojiDelete = (client, emoji) => {
 //Emoji Updated
 events.emojiUpdate = (client, oldEmoji, newEmoji) => {
     if (logfile[oldEmoji.guild.id] != undefined && oldEmoji.guild.channels.resolve(logfile[oldEmoji.guild.id]) != undefined && logstat[oldEmoji.guild.id] == true) {
+        if (newEmoji.animated == false) {
+            return oldEmoji.guild.channels.resolve(logfile[oldEmoji.guild.id]).send(f.BasicEmbed("normal")
+                .setAuthor("Emoji updated")
+                .setDescription(`<:${oldEmoji.name}:${oldEmoji.id}> ${oldEmoji.name} -> <:${newEmoji.name}:${newEmoji.id}> ${newEmoji.name}`)
+            )
+        }
         oldEmoji.guild.channels.resolve(logfile[oldEmoji.guild.id]).send(f.BasicEmbed("normal")
-            .setAuthor("Emoji updated")
-            .setDescription(`<:${oldEmoji.name}:${oldEmoji.id}> ${oldEmoji.name} -> <:${newEmoji.name}:${newEmoji.id}> ${newEmoji.name}`)
-        )
+                .setAuthor("Emoji updated")
+                .setDescription(`<a:${oldEmoji.name}:${oldEmoji.id}> ${oldEmoji.name} -> <a:${newEmoji.name}:${newEmoji.id}> ${newEmoji.name}`)
+            )
     }
 }
 
