@@ -1,4 +1,4 @@
-const roles = require('C:/Users/Cuno/Documents/DiscordBot/src/data/roles.json');
+const roles = require('../../data/roles.json');
 
 module.exports = {
     name: "about",

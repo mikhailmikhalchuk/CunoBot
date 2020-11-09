@@ -205,8 +205,8 @@ events.guildCreate = async (client, guild) => {
                         else {
                             return schannel.send("Please mention or paste the ID of a valid role.")
                         }
-                        fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/roles.json', JSON.stringify(roles).replace("}", `,"${guild.id}level1":"${level1}", "${guild.id}level2":"${level2}"}`), function (err) {
-                            fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/prefixes.json', JSON.stringify(prefixes).replace("}", `,"${guild.id}":"?"}`), function (err) {
+                        fs.writeFile('./data/roles.json', JSON.stringify(roles).replace("}", `,"${guild.id}level1":"${level1}", "${guild.id}level2":"${level2}"}`), function (err) {
+                            fs.writeFile('./data/prefixes.json', JSON.stringify(prefixes).replace("}", `,"${guild.id}":"?"}`), function (err) {
                                 return schannel.send("I'm all set up!\nUse \`?help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.")
                             })
                         })

@@ -1,4 +1,4 @@
-const roles = require('C:/Users/Cuno/Documents/DiscordBot/src/data/roles.json');
+const roles = require('../../data/roles.json');
 const fs = require('fs');
 var loop = true
 
@@ -81,7 +81,7 @@ module.exports = {
                             else {
                                 return message.channel.send("Please mention or paste the ID of a valid role.")
                             }
-                            fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/roles.json', JSON.stringify(toWrite), function (err) {
+                            fs.writeFile('../../data/roles.json', JSON.stringify(toWrite), function (err) {
                                 return message.channel.send("Successfully changed level 1 and level 2 bot permissions.")
                             })
                         })

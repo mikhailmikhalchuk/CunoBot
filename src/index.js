@@ -17,13 +17,13 @@ var disabled = false
 //SET TO TRUE TO IGNORE ALL MESSAGES NOT FROM YOU
 
 //SET TO FALSE TO NOT LOG
-var log = false
+var log = true
 //SET TO FALSE TO NOT LOG
 
 //Ready listener
 Client.on('ready', async () => {
     console.log('Bot has connected.')
-    fs.readFile('C:/Users/Cuno/Documents/DiscordBot/reports.txt', 'utf8', function(_err, data) {
+    fs.readFile('./reports.txt', 'utf8', function(_err, data) {
         if (data == undefined) {
             return false
         }
@@ -48,7 +48,7 @@ for (logger in events) {
 process.on('unhandledRejection', (reason) => {
     console.log('UnhandledPromiseRejectionWarning:', reason)
     if (log == true) {
-        fs.appendFile('C:/Users/Cuno/Documents/DiscordBot/errors.txt', 'UnhandledPromiseRejectionWarning: ' + reason.stack + "\n----\n", 'utf8', function(_err, data) {})
+        fs.appendFile('./errors.txt', 'UnhandledPromiseRejectionWarning: ' + reason.stack + "\n----\n", 'utf8', function(_err, data) {})
     }
 });
 
@@ -67,6 +67,9 @@ Client.on('message', async (message) => {
     /*if (message.content.includes("discord.gg/" || "discordapp.com/invite/") && f.getUserLevel < 1) {
         message.delete()
     }*/
+    if (args.join(" ").toLowerCase().includes("dead") || args.join(" ").toLowerCase().includes("ded") && message.author.id == "480950899511001090") {
+        message.reply("ok buddy")
+    }
     //Help Command
     if (comm == `${prefix}help` || comm == `${prefix}commands`) {
         //Check if roles set
@@ -113,8 +116,8 @@ Client.on('message', async (message) => {
                             else {
                                 return message.channel.send("Please mention or paste the ID of a valid role.")
                             }
-                            fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/roles.json', JSON.stringify(roles).replace("}", `,"${message.guild.id}level1":"${level1}", "${message.guild.id}level2":"${level2}"}`), function (err) {
-                                fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/prefixes.json', JSON.stringify(prefixes).replace("}", `,"${message.guild.id}":"?"}`), function (err) {
+                            fs.writeFile('./data/roles.json', JSON.stringify(roles).replace("}", `,"${message.guild.id}level1":"${level1}", "${message.guild.id}level2":"${level2}"}`), function (err) {
+                                fs.writeFile('./data/prefixes.json', JSON.stringify(prefixes).replace("}", `,"${message.guild.id}":"?"}`), function (err) {
                                     return message.channel.send("I'm all set up!\nUse \`?help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.")
                                 })
                             })

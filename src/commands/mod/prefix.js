@@ -1,5 +1,5 @@
 const fs = require('fs');
-const prefixes = require('C:/Users/Cuno/Documents/DiscordBot/src/data/prefixes.json');
+const prefixes = require('../../data/prefixes.json');
 
 module.exports = {
     name: "prefix",
@@ -22,7 +22,7 @@ module.exports = {
                 return message.reply("cancelled command.")
             }
             toWrite[message.guild.id] = result
-            fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/prefixes.json', JSON.stringify(toWrite), function (err) {
+            fs.writeFile('../../data/prefixes.json', JSON.stringify(toWrite), function (err) {
                 if (err) return message.channel.send(global.Functions.BasicEmbed(("error"), err))
                 message.channel.send(global.Functions.BasicEmbed(("success"), `Successfully changed server prefix to \`${result}\`.`))
             })

@@ -1,4 +1,4 @@
-const mutedroles = require('C:/Users/Cuno/Documents/DiscordBot/src/data/mutedroles.json');
+const mutedroles = require('../../data/mutedroles.json');
 const fs = require('fs');
 
 module.exports = {
