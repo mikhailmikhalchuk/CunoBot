@@ -12,14 +12,6 @@ const fs = require('fs');
 const serverIgnore = []
 const commands = []
 
-//SET TO TRUE TO IGNORE ALL MESSAGES NOT FROM YOU
-var disabled = false
-//SET TO TRUE TO IGNORE ALL MESSAGES NOT FROM YOU
-
-//SET TO FALSE TO NOT LOG
-var log = true
-//SET TO FALSE TO NOT LOG
-
 //Ready listener
 Client.on('ready', async () => {
     console.log('Bot has connected.')
@@ -44,32 +36,17 @@ for (logger in events) {
     Client.on(logger, events[logger].bind(null, Client));
 }
 
-//Log errors to file
-process.on('unhandledRejection', (reason) => {
-    console.log('UnhandledPromiseRejectionWarning:', reason)
-    if (log == true) {
-        fs.appendFile('./errors.txt', 'UnhandledPromiseRejectionWarning: ' + reason.stack + "\n----\n", 'utf8', function(_err, data) {})
-    }
-});
-
 //Command listener
 Client.on('message', async (message) => {
     if (!message.guild) {
         return false
     }
-    else if (global.Disabled == true && message.author.id != "287372868814372885" || message.author.bot || message.webhookID || serverIgnore.includes(message.guild.id)) {
+    else if (message.author.bot || message.webhookID || serverIgnore.includes(message.guild.id)) {
         return false
     }
     const args = message.content.trim().split(" ")
     comm = args.shift()
     prefixes[message.guild.id] == undefined ? prefix = "?" : prefix = prefixes[message.guild.id]
-    // AutoMod checks
-    /*if (message.content.includes("discord.gg/" || "discordapp.com/invite/") && f.getUserLevel < 1) {
-        message.delete()
-    }*/
-    if (args.join(" ").toLowerCase().includes("dead") || args.join(" ").toLowerCase().includes("ded") && message.author.id == "480950899511001090") {
-        message.reply("ok buddy")
-    }
     //Help Command
     if (comm == `${prefix}help` || comm == `${prefix}commands`) {
         //Check if roles set
@@ -176,7 +153,7 @@ Client.on('message', async (message) => {
                             .addField("Level", `${commandData.level} (${commandData.level == 3 ? "Bot Owner" : commandData.level == 0 ? "Normal User" : commandData.level == -1 ? "Bot" : message.guild.roles.resolve(roles[`${message.guild.id}level${commandData.level}`]).name})`, true)
                             .addField("Description", commandData.desc))
                         .catch(() => {
-                            message.reply("there was an error sending you the help DM. Make sure you do not have the bot blocked.")
+                            message.reply("there was an error sending you the help DM. Make sure you do not have the bot blocked and your DMs are open.")
                         })
                     }
                     else if (searchCommand == "help" || searchCommand == "commands") {
@@ -190,7 +167,7 @@ Client.on('message', async (message) => {
                             .addField("Level", "0 (Normal User)", true)
                             .addField("Description", "Returns a list of commands from a category, or provides more information on a command."))
                         .catch(() => {
-                            message.reply("there was an error sending you the help DM. Make sure you do not have the bot blocked.")
+                            message.reply("there was an error sending you the help DM. Make sure you do not have the bot blocked and your DMs are open.")
                         })
                     }
                 }

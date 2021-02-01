@@ -19,14 +19,14 @@ module.exports = {
         }
         message.guild.channels.cache.filter(channel => channel.type === "voice").each(c => {
             if (c.members.find(user => user.id === message.author.id)) {
-                c.join().then((connection) => {
-                    const dispatcher = connection.play(ytdl(args[0], {quality: 'highestaudio'}))
-                    dispatcher.on('speaking', async (value) => {
-                        if (value == false) {
-                            connection.disconnect()
-                        }
+                if (c.full == false) {
+                    c.join().then((connection) => {
+                        connection.play(ytdl(args[0]))
                     })
-                })
+                }
+                else {
+                    return message.channel.send(global.Functions.BasicEmbed(("error"), "The voice channel you are in is full."))
+                }
             }
             else {
                 return message.channel.send(global.Functions.BasicEmbed(("error"), "Please join a voice channel."))

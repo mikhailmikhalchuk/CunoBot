@@ -10,7 +10,6 @@ module.exports = {
     args: "<keyword(s)/URL>",
     level: "0",
     func: async (message, args) => {
-        var pattern = new RegExp('^(https?:\\/\\/)?'+'((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+'((\\d{1,3}\\.){3}\\d{1,3}))'+'(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+'(\\?[;&a-z\\d%_.~+=-]*)?'+'(\\#[-a-z\\d_]*)?$','i')
         if (quotaLimit == true) {
             return message.channel.send(global.Functions.BasicEmbed(("error"), "This command is not usable at this time."))
         }
@@ -20,17 +19,6 @@ module.exports = {
             }
             try {
                 const m = await message.channel.send("Searching...")
-                if (!!pattern.test(args[0])) {
-                    try {
-                        results = await youtube.getVideo(args[0]);
-                    }
-                    catch (e) {
-                        if (e.code == "ERR_INVALID_ARG_TYPE") {
-                            return message.channel.send(global.Functions.BasicEmbed(("error"), "Please provide a valid link to search for."))
-                        }
-                        return message.channel.send(global.Functions.BasicEmbed(("error"), e))
-                    }
-                }
                 results = await youtube.searchVideos(args);
                 m.edit(`Here's what I found:\n${results.url}`)
                 userCooldown[message.author.id] = true

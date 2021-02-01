@@ -1,4 +1,5 @@
-const Discord = require('discord.js')
+const Discord = require('discord.js');
+const { composite } = require('jimp');
 const roles = require('./data/roles.json');
 const functions = {}
 

@@ -11,9 +11,10 @@ const events = {}
 
 //Message Deleted
 events.messageDelete = async (client, message) => {
-    let logs = await message.guild.fetchAuditLogs({type: 72});
-    let entry = logs.entries.first();
-    if (logfile[message.guild.id] != undefined && message.guild.channels.resolve(logfile[message.guild.id]) != undefined && logstat[message.guild.id] == true && !message.author.bot && entry.executor.id != "660856814610677761" && ignored[message.channel.id] != true && !message.webhookID && message.system == false) {
+    if (message.channel.type == "dm") {
+        return false
+    }
+    if (logfile[message.guild.id] != undefined && message.guild.channels.resolve(logfile[message.guild.id]) != undefined && logstat[message.guild.id] == true && !message.author.bot && ignored[message.channel.id] != true && !message.webhookID && message.system == false) {
         if (message.attachments.size > 0) {
             var Attachment = (message.attachments).array()
             var attachments = []
@@ -51,12 +52,10 @@ events.messageUpdate = async (client, oldMessage, newMessage) => {
     if (oldMessage.channel.type == "dm") {
         return false
     }
-    let logs = await oldMessage.guild.fetchAuditLogs({type: 72});
-    let entry = logs.entries.first();
-    if (newMessage.embeds.length != 0 || oldMessage.pinned != true && newMessage.pinned == true) {
+    if (newMessage.embeds.length != 0 || oldMessage.embeds.length != newMessage.embeds.length || oldMessage.pinned != true && newMessage.pinned == true || oldMessage.pinned == true && newMessage.pinned != true) {
         return false
     }
-    else if (logfile[oldMessage.guild.id] != undefined && oldMessage.guild.channels.resolve(logfile[oldMessage.guild.id]) != undefined && logstat[oldMessage.guild.id] == true && !oldMessage.author.bot && entry.executor.id != "660856814610677761" && ignored[oldMessage.channel.id] != true && !oldMessage.webhookID) {
+    else if (logfile[oldMessage.guild.id] != undefined && oldMessage.guild.channels.resolve(logfile[oldMessage.guild.id]) != undefined && logstat[oldMessage.guild.id] == true && !oldMessage.author.bot && ignored[oldMessage.channel.id] != true && !oldMessage.webhookID) {
         if (oldMessage.attachments.size > 0) {
             var Attachment = (oldMessage.attachments).array()
             var attachments = []
