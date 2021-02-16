@@ -1,4 +1,4 @@
-const roles = require('../../data/roles.json');
+const roles = require('C:/Users/Cuno/Documents/DiscordBot/src/data/roles.json');
 const fs = require('fs');
 var loop = true
 
@@ -12,7 +12,7 @@ module.exports = {
         var level1 = roles[`${message.guild.id}level1`] != undefined ? roles[`${message.guild.id}level1`] : ""
         var level2 = roles[`${message.guild.id}level2`] != undefined ? roles[`${message.guild.id}level2`] : ""
         if (args[0] == undefined || args[0] == "") {
-            return message.channel.send(global.Functions.BasicEmbed(("error"), "Please choose a valid option."))
+            return message.channel.send(global.Functions.BasicEmbed(("error"), "Please choose a valid option: `list`, `change`."))
         }
         else if (args[0].toLowerCase() == "list") {
             if (level1 == "") {
@@ -81,7 +81,7 @@ module.exports = {
                             else {
                                 return message.channel.send("Please mention or paste the ID of a valid role.")
                             }
-                            fs.writeFile('../../data/roles.json', JSON.stringify(toWrite), function (err) {
+                            fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/roles.json', JSON.stringify(toWrite, null, "\t"), function (err) {
                                 return message.channel.send("Successfully changed level 1 and level 2 bot permissions.")
                             })
                         })

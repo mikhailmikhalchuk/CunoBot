@@ -99,8 +99,11 @@ Client.on('message', async (message) => {
                             else {
                                 return message.channel.send("Please mention or paste the ID of a valid role.")
                             }
-                            fs.writeFile('./data/roles.json', JSON.stringify(roles).replace("}", `,"${message.guild.id}level1":"${level1}", "${message.guild.id}level2":"${level2}"}`), function (err) {
-                                fs.writeFile('./data/prefixes.json', JSON.stringify(prefixes).replace("}", `,"${message.guild.id}":"?"}`), function (err) {
+                            roles[`${message.guild.id}level1`] = level1
+                            roles[`${message.guild.id}level2`] = level2
+                            prefixes[message.guild.id] = "?"
+                            fs.writeFile('./data/roles.json', JSON.stringify(roles, null, "\t"), function (err) {
+                                fs.writeFile('./data/prefixes.json', JSON.stringify(prefixes, null, "\t"), function (err) {
                                     return message.channel.send("I'm all set up!\nUse \`?help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.")
                                 })
                             })
@@ -197,7 +200,7 @@ Client.on('message', async (message) => {
         for (var command in group) {
             command = group[command]
             if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && message.guild.me.permissions.any("ADMINISTRATOR") == false && command.admin == true) {
-                return message.channel.send(f.BasicEmbed(("error"), "This command is disabled in this server."))
+                return message.channel.send(f.BasicEmbed(("error"), "This command is disabled in this server. [Learn more](https://mikhailmcraft.github.io/CunoBot/qna)"))
             }
             else if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.getUserLevel(message.guild.id, message.member) == -1 || roles[`${message.guild.id}level2`] == undefined) {
                 return false

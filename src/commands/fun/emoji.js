@@ -2,11 +2,14 @@ const regex = /<(a?):(.*?):(.*?)>/i
 
 module.exports = {
     name: "emoji",
-    aliases: [],
+    aliases: ["emote"],
     args: "<emoji>",
     desc: "Takes an emoji and returns its image, as well as some data.",
     level: "0",
     func: async (message, args) => {
+        if (args[0] == undefined) {
+            return message.channel.send(global.Functions.BasicEmbed('error', "Please provide an emoji."))
+        }
         const msg = args[0]
         const groups = regex.exec(msg)
         if (groups) {

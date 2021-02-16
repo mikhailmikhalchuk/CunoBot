@@ -29,7 +29,8 @@ module.exports = {
             message.guild.roles.create({data: {name: 'Muted', color: 'GRAY', position: getRole, permissions: ['VIEW_CHANNEL', 'READ_MESSAGE_HISTORY', 'CONNECT']}, reason: 'No existing muted role'}).then((r) => {
                 mutechat.edit("Successfully created muted role.")
                 message.guild.members.resolve(member).roles.add(r.id, "Mute command used").then(() => {
-                    fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/mutedroles.json', JSON.stringify(mutedroles).replace("}", `,"${message.guild.id}":"${r.id}"}`), function (err) {
+                    mutedroles[message.guild.id] = r.id
+                    fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/mutedroles.json', JSON.stringify(mutedroles, null, "\t"), function (err) {
                         if (err) return message.channel.send(global.Functions.BasicEmbed(("error"), err))
                         return message.channel.send(global.Functions.BasicEmbed(("success"), "Successfully muted user."))
                     })
@@ -43,7 +44,7 @@ module.exports = {
                 toWrite = mutedroles
                 toWrite[message.guild.id] = r.id
                 message.guild.members.resolve(member).roles.add(r.id, "Mute command used").then(() => {
-                    fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/mutedroles.json', JSON.stringify(toWrite), function (err) {
+                    fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/mutedroles.json', JSON.stringify(toWrite, null, "\t"), function (err) {
                         if (err) return message.channel.send(global.Functions.BasicEmbed(("error"), err))
                         return message.channel.send(global.Functions.BasicEmbed(("success"), "Successfully muted user."))
                     })

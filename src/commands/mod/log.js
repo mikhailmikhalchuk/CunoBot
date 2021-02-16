@@ -23,19 +23,11 @@ module.exports = {
                 else if (c.first().content.startsWith("<#") == false) {
                     return message.channel.send(global.Functions.BasicEmbed(("error"), "Invalid channel. Please mention the channel you would like to change the logging channel to. (EX: #logging)"))
                 }
-                if (logfile[message.guild.id] == undefined) {
-                    toWrite = JSON.stringify(toWrite).replace("}", `,"${message.guild.id}":"${c.first().content.slice(2, 20)}"}`)
-                    toWrite2 = JSON.stringify(toWrite2).replace("}", `,"${message.guild.id}":true}`)
-                }
-                else if (message.guild.channels.resolve(logfile[message.guild.id]) == undefined) {
-                    toWrite[message.guild.id] = c.first().content.slice(2, 20)
-                    toWrite = JSON.stringify(toWrite)
-                    toWrite2[message.guild.id] = true
-                    toWrite2 = JSON.stringify(toWrite2)
-                }
-                fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/logchannels.json', toWrite, function (err) {
+                toWrite[message.guild.id] = c.first().content.slice(2, 20)
+                toWrite2[message.guild.id] = true
+                fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/logchannels.json', JSON.stringify(toWrite, null, "\t"), function (err) {
                     if (err) return message.channel.send(global.Functions.BasicEmbed(("error"), err))
-                    fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/logstatus.json', toWrite2, function (err) {
+                    fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/logstatus.json', JSON.stringify(toWrite2, null, "\t"), function (err) {
                         if (err) return message.channel.send(global.Functions.BasicEmbed(("error"), err))
                         return message.channel.send(global.Functions.BasicEmbed(("success"), `Successfully set logging channel to ${c.first().content}.`))
                     })
@@ -52,7 +44,7 @@ module.exports = {
                 var toWrite2 = logstat
                 if (res == "disable" && logstat[message.guild.id] == true) {
                     toWrite2[message.guild.id] = false
-                    fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/logstatus.json', JSON.stringify(toWrite2), function (err) {
+                    fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/logstatus.json', JSON.stringify(toWrite2, null, "\t"), function (err) {
                         if (err) return message.channel.send(global.Functions.BasicEmbed(("error"), err))
                         return message.channel.send(global.Functions.BasicEmbed(("success"), "Successfully disabled logging."))
                     })
@@ -62,7 +54,7 @@ module.exports = {
                 }
                 else if (res == "enable" && logstat[message.guild.id] == false) {
                     toWrite2[message.guild.id] = true
-                    fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/logstatus.json', JSON.stringify(toWrite2), function (err) {
+                    fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/logstatus.json', JSON.stringify(toWrite2, null, "\t"), function (err) {
                         if (err) return message.channel.send(global.Functions.BasicEmbed(("error"), err))
                         message.channel.send(global.Functions.BasicEmbed(("success"), "Successfully enabled logging."))
                     })
@@ -84,7 +76,7 @@ module.exports = {
                             return message.channel.send(global.Functions.BasicEmbed(("error"), "Please choose a different channel."))
                         }
                         toWrite[message.guild.id] = c.first().content.slice(2, 20)
-                        fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/logchannels.json', JSON.stringify(toWrite), function (err) {
+                        fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/logchannels.json', JSON.stringify(toWrite, null, "\t"), function (err) {
                             if (err) return message.channel.send(global.Functions.BasicEmbed(("error"), err))
                             return message.channel.send(global.Functions.BasicEmbed(("success"), `Successfully changed logging channel to ${c.first().content}.`))
                         })
@@ -107,17 +99,15 @@ module.exports = {
                         else if (c.first().content.startsWith("<#") == false || !channelList.includes(c.first().content.slice(2, 20))) {
                             return message.channel.send(global.Functions.BasicEmbed(("error"), "Invalid channel. Please mention the channel you would like to ignore/unignore. (EX: #logging)"))
                         }
-                        const re = new RegExp(c.first().content.slice(2, 20))
-                        if (JSON.stringify(ignored).search(re) != -1) {
+                        if (ignored[c.first().content.slice(2,20)] != undefined) {
                             var removed = true
                             delete toWrite[c.first().content.slice(2, 20)]
-                            toWrite = JSON.stringify(toWrite)
                         }
                         else {
                             var removed = false
-                            toWrite = JSON.stringify(toWrite).replace("}", `,"${c.first().content.slice(2, 20)}":true}`)
+                            toWrite[c.first().content.slice(2,20)] = true
                         }
-                        fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/ignoredlogchannels.json', toWrite, function (err) {
+                        fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/ignoredlogchannels.json', JSON.stringify(toWrite, null, "\t"), function (err) {
                             if (err) {
                                 return message.channel.send(global.Functions.BasicEmbed(("error"), err))
                             }
@@ -131,7 +121,7 @@ module.exports = {
                 else if (res == "remove channel") {
                     var toWrite = logfile
                     delete toWrite[message.guild.id]
-                    fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/logchannels.json', JSON.stringify(toWrite), function (err) {
+                    fs.writeFile('C:/Users/Cuno/Documents/DiscordBot/src/data/logchannels.json', JSON.stringify(toWrite, null, "\t"), function (err) {
                         if (err) return message.channel.send(global.Functions.BasicEmbed(("error"), err))
                         return message.channel.send(global.Functions.BasicEmbed(("success"), "Successfully removed logging channel."))
                     })

@@ -1,5 +1,3 @@
-const roles = require('../../data/roles.json');
-
 module.exports = {
     name: "about",
     aliases: ["user", "member"],
