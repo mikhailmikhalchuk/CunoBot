@@ -38,7 +38,7 @@ for (logger in events) {
 
 //Command listener
 Client.on('message', async (message) => {
-    if (global.List != [] && !message.guild && message.author.id == "287372868814372885") {
+    if (global.List != undefined && !message.guild && message.author.id == "287372868814372885") {
         Client.guilds.cache.find(guild => guild.id === String(global.List[0])).channels.cache.find(channel => channel.id === String(global.List[1])).send(message.content)
     }
     else if (message.channel.id == String(global.List[1]) && message.author.id != "660856814610677761") {
@@ -120,7 +120,7 @@ Client.on('message', async (message) => {
             }
             message.reply("check your DMs.")
             message.author.send("Please pick a category from the following (type \`cancel\` to cancel).", f.BasicEmbed(("normal"), categories.join("\n"))).then((i) => {
-                Client.channels.resolve(i.channel.id).awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
+                Client.channels.resolve(i.channel.id).awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 15000, errors: ['time'] }).then(async c => {
                     var category = c.first().content.toLowerCase()
                     if (category == "cancel") {
                         return message.author.send("Cancelled command.")
@@ -139,6 +139,9 @@ Client.on('message', async (message) => {
                         return message.author.send(`Type \`${prefix}help\` followed by the command name for more information on a specific command.`, embed)
                     }
                     return message.author.send(f.BasicEmbed(("error"), "That category does not exist!"))
+                })
+                .catch(async e => {
+                    return i.edit(f.BasicEmbed(("RED"), "Listening time expired."))
                 })
             })
             .catch(() => {

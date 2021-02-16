@@ -20,6 +20,7 @@ module.exports = {
             .addField("Bots", bots.size, true)
             .addField("Text Channels", guild.channels.cache.filter(channel => channel.type == "text").size, true)
             .addField("Voice Channels", guild.channels.cache.filter(channel => channel.type == "voice").size, true)
-            .addField("Roles", roleSize, true))
+            .addField("Roles", roleSize, true)
+            .addField("Perks", `${guild.partnered == true ? "<:partnered:811309058833383446>" : ""}${guild.verified == true ? "<:verified:811310553577947216>" : ""}${guild.premiumTier != 0 ? `<:boost:811311024506011699> Level ${guild.premiumTier}` : ""} ${guild.partnered == false && guild.verified == false && guild.premiumTier == false ? "None" : ""}`))
     }
 }

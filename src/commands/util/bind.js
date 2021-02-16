@@ -1,4 +1,3 @@
-const Discord = require('discord.js');
 var binded = false
 
 module.exports = {
@@ -7,6 +6,7 @@ module.exports = {
     desc: "Binds the current channel to the DM.",
     level: "3",
     hidden: true,
+    admin: true,
     func: (message, args) => {
         if (binded == false) {
             message.delete()
