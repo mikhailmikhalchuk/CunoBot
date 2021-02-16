@@ -9,8 +9,8 @@ const Intents = require('discord.js');
 const Client = new Discord.Client({disableMentions: "everyone", ws: {intents: Intents.ALL}, presence: {activity: {name: "you.", type: "WATCHING"}, status: "online"}});
 const f = require('./functions.js');
 const fs = require('fs');
-const serverIgnore = []
 const commands = []
+var listeningForMessages = []
 
 //Ready listener
 Client.on('ready', async () => {
@@ -38,10 +38,16 @@ for (logger in events) {
 
 //Command listener
 Client.on('message', async (message) => {
-    if (!message.guild) {
-        return false
+    if (global.List != [] && !message.guild && message.author.id == "287372868814372885") {
+        Client.guilds.cache.find(guild => guild.id === String(global.List[0])).channels.cache.find(channel => channel.id === String(global.List[1])).send(message.content)
     }
-    else if (message.author.bot || message.webhookID || serverIgnore.includes(message.guild.id)) {
+    else if (message.channel.id == String(global.List[1]) && message.author.id != "660856814610677761") {
+        Client.users.resolve("287372868814372885").send(`**${message.author.username}#${message.author.discriminator}:** ${message.content}`)
+        message.attachments.forEach(async a => {
+            Client.users.resolve("287372868814372885").send({files: [a]})
+        })
+    }
+    if (!message.guild || message.author.bot || message.webhookID) {
         return false
     }
     const args = message.content.trim().split(" ")
@@ -190,7 +196,10 @@ Client.on('message', async (message) => {
         group = commands[group]
         for (var command in group) {
             command = group[command]
-            if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.getUserLevel(message.guild.id, message.member) == -1 || roles[`${message.guild.id}level2`] == undefined) {
+            if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && message.guild.me.permissions.any("ADMINISTRATOR") == false && command.admin == true) {
+                return message.channel.send(f.BasicEmbed(("error"), "This command is disabled in this server."))
+            }
+            else if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.getUserLevel(message.guild.id, message.member) == -1 || roles[`${message.guild.id}level2`] == undefined) {
                 return false
             }
             else if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.getUserLevel(message.guild.id, message.member) >= command.level) {
@@ -229,7 +238,7 @@ global.Client = Client
 global.Functions = f
 global.Auth = auth
 global.Roles = roles
-global.Disabled = disabled
+global.List = listeningForMessages
 
 //Bot login
 Client.login(auth.token)

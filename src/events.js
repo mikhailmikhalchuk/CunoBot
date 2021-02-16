@@ -157,9 +157,11 @@ events.channelUpdate = (client, oldChannel, newChannel) => {
 events.guildCreate = async (client, guild) => {
     var prefix = prefixes[guild.id]
     var schannel = guild.channels.cache.find(text => text.type === "text")
-    if (guild.me.permissions.any("ADMINISTRATOR") == false) {
-        schannel.send(f.BasicEmbed(("normal"), "It seems I do not have administrative permissions in this server.\nI am unable to function correctly without them.\nTry inviting me using [this link](https://discord.com/api/oauth2/authorize?client_id=660856814610677761&permissions=8&scope=bot)."))
-        return serverIgnore.push(guild.id)
+    if (guild.me.permissions.any("SEND_MESSAGES") == false) {
+        guild.leave()
+    }
+    else if (guild.me.permissions.any("ADMINISTRATOR") == false) {
+        return schannel.send(f.BasicEmbed(("normal"), "I have not been invited with administrative permissions.\nSome features will be made unavailable unless I am reinvited with administrative permissions."))
     }
     else if (roles[`${guild.id}level1`] == undefined) {
         schannel.send("Hello!\nIt looks like I do not have administration and moderation roles setup in this server.\nPlease mention or paste the ID of a role to set **Level 1** permissions for it.")

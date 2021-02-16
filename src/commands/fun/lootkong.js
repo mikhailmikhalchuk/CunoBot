@@ -1,5 +1,4 @@
 const userCooldown = {}
-const inventories = require('../../data/lkinventories.json')
 
 const normaljson = {0:"<:angrytoad:722917269209874446>", 1:"<:attackysack:722940712642936945>", 2:"<:attackybruh:722940706196553779>", 3:"<:chill:723198520626118657>", 4:"<:broshi:723198528196968528>", 5:"<:concerned:723198514770739290>", 6:"<:doh:723253419099554022>", 7:"<:goomba:723559972973314059>"}
 const normaltextjson = {0:"**Angry Toad** (Normal)", 1:"**Attacky Sack** (Normal)", 2:"**Attacky Bruh** (Normal)", 3:"**Chill** (Normal)", 4:"**Broshi** (Normal)", 5:"**Concerned** (Normal)", 6:"**D'OH** (Normal)", 7:"**Goomba** (Normal)"}
@@ -61,9 +60,6 @@ module.exports = {
                 lootkong1.edit(`<:dk1:722914445554352280>${emoji1}<:dk2:722914439610892298>\n<:dk3:722914431809486910>${emoji2}<:dk4:722914419239026729>`)
                 lootkong2.edit(`**Lootkong opened!**\nYou got:\n-${text1}\n-${text2}`)
             }, 2000)
-            if (lkinventories[message.author.id] == undefined) {
-                toWrite = JSON.stringify(lkinventories).replace("}", `,"${message.author.id}":"[${t}]"}`)
-            }
             userCooldown[message.author.id] = true
             setTimeout(() => {userCooldown[message.author.id] = false}, 60000)
         }

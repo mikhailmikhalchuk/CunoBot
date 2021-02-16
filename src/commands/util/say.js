@@ -7,6 +7,7 @@ module.exports = {
     args: "[channel] <text>",
     level: "2",
     hidden: true,
+    admin: true,
     func: (message, args) => {
         if (message.attachments.size > 0) {
             var Attachment = (message.attachments).array();

@@ -7,6 +7,7 @@ module.exports = {
     desc: "Mutes a user.",
     args: "<@mention|username>",
     level: "1",
+    admin: true,
     func: async (message, args) => {
         var getRole = message.guild.roles.cache.find(role => role.name === "Cuno's Bot").position
         const memberData = global.Functions.getMember(message, args.join(' '))
