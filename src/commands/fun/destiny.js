@@ -37,7 +37,7 @@ module.exports = {
             })
             if (res1.data.Response.itemType == 3) {
                 embed = embed
-                    .setAuthor(`${res.data.Response.results.results[0].displayProperties.name} (result: ${page + 1}/${res.data.Response.results.totalResults})`)
+                    .setTitle(`${res.data.Response.results.results[0].displayProperties.name} (result: ${page + 1}/${res.data.Response.results.totalResults})`)
                     .setDescription(`*${res1.data.Response.flavorText != "" ? res1.data.Response.flavorText : res1.data.Response.displayProperties.description != "" ? res1.data.Response.displayProperties.description : "No description provided"}*`)
                     .addField("Tier", res1.data.Response.inventory.tierTypeName, true)
                     .addField("Impact", res1.data.Response.stats.stats['4043523819'].value, true)
@@ -47,7 +47,7 @@ module.exports = {
             }
             else {
                 embed = embed
-                    .setAuthor(`${res.data.Response.results.results[0].displayProperties.name} (result: ${page + 1}/${res.data.Response.results.totalResults})`)
+                    .setTitle(`${res.data.Response.results.results[0].displayProperties.name} (result: ${page + 1}/${res.data.Response.results.totalResults})`)
                     .setDescription(`*${res1.data.Response.flavorText != "" ? res1.data.Response.flavorText : res1.data.Response.displayProperties.description != "" ? res1.data.Response.displayProperties.description : "No description provided"}*`)
                     .addField("Tier", res1.data.Response.inventory.tierTypeName, true)
                     .setImage(`https://www.bungie.net${res.data.Response.results.results[0].displayProperties.icon}`, true)
@@ -83,7 +83,7 @@ module.exports = {
                         })
                         if (res1.data.Response.itemType == 3) {
                             m.edit("", global.Functions.BasicEmbed("normal")
-                                .setAuthor(`${res.data.Response.results.results[0].displayProperties.name} (result: ${page + 1}/${res.data.Response.results.totalResults})`)
+                                .setTitle(`${res.data.Response.results.results[0].displayProperties.name} (result: ${page + 1}/${res.data.Response.results.totalResults})`)
                                 .setDescription(`*${res1.data.Response.flavorText != "" ? res1.data.Response.flavorText : res1.data.Response.displayProperties.description != "" ? res1.data.Response.displayProperties.description : "No description provided"}*`)
                                 .addField("Tier", res1.data.Response.inventory.tierTypeName, true)
                                 .addField("Impact", res1.data.Response.stats.stats['4043523819'].value, true)
@@ -93,7 +93,7 @@ module.exports = {
                         }
                         else {
                             m.edit("", global.Functions.BasicEmbed("normal")
-                            .setAuthor(`${res.data.Response.results.results[0].displayProperties.name} (result: ${page + 1}/${res.data.Response.results.totalResults})`)
+                            .setTitle(`${res.data.Response.results.results[0].displayProperties.name} (result: ${page + 1}/${res.data.Response.results.totalResults})`)
                             .setDescription(`*${res1.data.Response.flavorText != "" ? res1.data.Response.flavorText : res1.data.Response.displayProperties.description != "" ? res1.data.Response.displayProperties.description : "No description provided"}*`)
                             .addField("Tier", res1.data.Response.inventory.tierTypeName, true)
                             .setImage(`https://www.bungie.net${res.data.Response.results.results[page].displayProperties.icon}`, true))
@@ -219,20 +219,20 @@ module.exports = {
                             case 3382391785:
                                 subclass = "Sentinel"
                                 break
-                            case 2958378809:
-                                subclass = "Striker"
-                                break
                             case 3105935002:
                                 subclass = "Sunbreaker"
+                                break
+                            case 2958378809:
+                                subclass = "Striker"
                                 break
                             case 613647804:
                                 subclass = "Behemoth"
                                 break
-                            case 447268699:
-                                subclass = "Dawnblade"
-                                break
                             case 3887892656:
                                 subclass = "Voidwalker"
+                                break
+                            case 447268699:
+                                subclass = "Dawnblade"
                                 break
                             case 1751782730:
                                 subclass = "Stormcaller"
@@ -240,14 +240,14 @@ module.exports = {
                             case 3291545503:
                                 subclass = "Shadebinder"
                                 break
+                            case 3225959819:
+                                subclass = "Nightstalker"
+                                break
                             case 3635991036:
                                 subclass = "Gunslinger"
                                 break
                             case 1334959255:
                                 subclass = "Arcstrider"
-                                break
-                            case 3225959819:
-                                subclass = "Nightstalker"
                                 break
                             case 873720784:
                                 subclass = "Revenant"
@@ -255,7 +255,8 @@ module.exports = {
                         }
                     }
                     embed = embed
-                        .setAuthor(args[2], `https://bungie.net${res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].emblemPath}`)
+                        .setTitle(args[2])
+                        .setThumbnail(`https://bungie.net${res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].emblemPath}`)
                         .addField("Race", race, true)
                         .addField("Class", userClass, true)
                         .addField("Subclass", subclass, true)
@@ -282,7 +283,8 @@ module.exports = {
                         return m.edit("", global.Functions.BasicEmbed(("error"), "Unable to fetch stats for this player."))
                     }
                     embed = embed
-                        .setAuthor(`${args[2]}'s PvP Stats`, `https://bungie.net${res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].emblemPath}`)
+                        .setTitle(`${args[2]}'s PvP Stats`)
+                        .setThumbnail(`https://bungie.net${res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].emblemPath}`)
                         .addField("PvP Kills", res2.data.Response.characters[0].results.allPvP.allTime.kills.basic.value, true)
                         .addField("PvP Deaths", res2.data.Response.characters[0].results.allPvP.allTime.deaths.basic.value, true)
                         .addField("PvP Precision Kills", res2.data.Response.characters[0].results.allPvP.allTime.precisionKills.basic.value, true)
@@ -314,7 +316,8 @@ module.exports = {
                                 }
                                 if (page == 1) {
                                     m.edit("", global.Functions.BasicEmbed("normal")
-                                    .setAuthor(`${args[2]}'s PvE Stats`, `https://bungie.net${res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].emblemPath}`)
+                                    .setTitle(`${args[2]}'s PvE Stats`)
+                                    .setThumbnail(`https://bungie.net${res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].emblemPath}`)
                                     .addField("PvE Kills", res2.data.Response.characters[0].results.allPvE.allTime.kills.basic.value, true)
                                     .addField("PvE Deaths", res2.data.Response.characters[0].results.allPvE.allTime.deaths.basic.value, true)
                                     .addField("PvE Precision Kills", res2.data.Response.characters[0].results.allPvE.allTime.precisionKills.basic.value, true)
@@ -323,7 +326,8 @@ module.exports = {
                                 }
                                 else {
                                     m.edit("", global.Functions.BasicEmbed("normal")
-                                    .setAuthor(`${args[2]}'s PvP Stats`, `https://bungie.net${res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].emblemPath}`)
+                                    .setTitle(`${args[2]}'s PvP Stats`)
+                                    .setThumbnail(`https://bungie.net${res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].emblemPath}`)
                                     .addField("PvP Kills", res2.data.Response.characters[0].results.allPvP.allTime.kills.basic.value, true)
                                     .addField("PvP Deaths", res2.data.Response.characters[0].results.allPvP.allTime.deaths.basic.value, true)
                                     .addField("PvP Precision Kills", res2.data.Response.characters[0].results.allPvP.allTime.precisionKills.basic.value, true)
