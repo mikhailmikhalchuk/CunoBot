@@ -5,6 +5,7 @@
     "main": "src/index.js",
     "author": "Cuno",
     "dependencies": {
+        "axios": "^0.21.1",
         "dateformat": "^3.0.3",
         "discord.js": "^12.2.0",
         "jimp": "^0.9.7",

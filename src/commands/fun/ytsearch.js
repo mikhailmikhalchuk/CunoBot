@@ -11,7 +11,6 @@ module.exports = {
             return message.channel.send(global.Functions.BasicEmbed(("error"), "Please enter a search term."))
         }
         const m = await message.channel.send("Searching...")
-        console.log(args.join(" "))
         youtubedl.getInfo(`ytsearch:${args.join(" ")}`, function (err, info) {
             m.edit(`Here's what I found:\nhttps://youtube.com/watch?v=${info.id}`)
         })

@@ -1,3 +1,5 @@
+const roles = require('C:/Users/Cuno/Documents/DiscordBot/src/data/roles.json');
+
 module.exports = {
     name: "about",
     aliases: ["user", "member"],
