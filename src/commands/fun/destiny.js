@@ -1,5 +1,7 @@
 const axios = require('axios');
 const dateFormat = require("dateformat");
+var fetchFailed = false
+var OGType = 0
 var listen = true
 var page = 0
 
@@ -10,6 +12,7 @@ module.exports = {
     desc: "Queries the Destiny API.",
     level: "0",
     func: async (message, args) => {
+        fetchFailed = false
         if (args[0] == undefined) {
             return message.channel.send(global.Functions.BasicEmbed('error', "Please choose a valid option: `item`, `player`."))
         }
@@ -35,7 +38,7 @@ module.exports = {
                     'User-Agent': global.Auth.destinyUserAgent
                 }
             })
-            if (res1.data.Response.itemType == 3) {
+            if (res1.data.Response.itemType == 3 && res1.data.Response.traitIds[1] != 'weapon_type.rocket_launcher') {
                 embed = embed
                     .setTitle(`${res.data.Response.results.results[0].displayProperties.name} (result: ${page + 1}/${res.data.Response.results.totalResults})`)
                     .setDescription(`*${res1.data.Response.flavorText != "" ? res1.data.Response.flavorText : res1.data.Response.displayProperties.description != "" ? res1.data.Response.displayProperties.description : "No description provided"}*`)
@@ -83,7 +86,7 @@ module.exports = {
                         })
                         if (res1.data.Response.itemType == 3) {
                             m.edit("", global.Functions.BasicEmbed("normal")
-                                .setTitle(`${res.data.Response.results.results[0].displayProperties.name} (result: ${page + 1}/${res.data.Response.results.totalResults})`)
+                                .setTitle(`${res.data.Response.results.results[page].displayProperties.name} (result: ${page + 1}/${res.data.Response.results.totalResults})`)
                                 .setDescription(`*${res1.data.Response.flavorText != "" ? res1.data.Response.flavorText : res1.data.Response.displayProperties.description != "" ? res1.data.Response.displayProperties.description : "No description provided"}*`)
                                 .addField("Tier", res1.data.Response.inventory.tierTypeName, true)
                                 .addField("Impact", res1.data.Response.stats.stats['4043523819'].value, true)
@@ -93,7 +96,7 @@ module.exports = {
                         }
                         else {
                             m.edit("", global.Functions.BasicEmbed("normal")
-                            .setTitle(`${res.data.Response.results.results[0].displayProperties.name} (result: ${page + 1}/${res.data.Response.results.totalResults})`)
+                            .setTitle(`${res.data.Response.results.results[page].displayProperties.name} (result: ${page + 1}/${res.data.Response.results.totalResults})`)
                             .setDescription(`*${res1.data.Response.flavorText != "" ? res1.data.Response.flavorText : res1.data.Response.displayProperties.description != "" ? res1.data.Response.displayProperties.description : "No description provided"}*`)
                             .addField("Tier", res1.data.Response.inventory.tierTypeName, true)
                             .setImage(`https://www.bungie.net${res.data.Response.results.results[page].displayProperties.icon}`, true))
@@ -118,10 +121,27 @@ module.exports = {
                 if (args[1].toLowerCase() != "xbox" && args[1].toLowerCase() != "psn" && args[1].toLowerCase() != "steam" && args[1].toLowerCase() != "stadia") {
                     return m.edit("", global.Functions.BasicEmbed(("error"), "Please choose a valid platform: `xbox`, `psn`, `steam`, `stadia`."))
                 }
+                if (args[2] == undefined) {
+                    return m.edit("", global.Functions.BasicEmbed(("error"), "Please specifiy a username to search with."))
+                }
                 if (args[3] == undefined) {
                     return m.edit("", global.Functions.BasicEmbed(("error"), "Please choose a return type: `general`, `stats`."))
                 }
-                const res = await axios.get(`https://www.bungie.net/Platform/Destiny2/SearchDestinyPlayer/Tiger${args[1].toLowerCase().charAt(0).toUpperCase() + args[1].toLowerCase().slice(1)}/${args[2]}`, {
+                switch (args[1].toLowerCase()) {
+                    case "xbox":
+                        OGType = 1
+                        break
+                    case "psn":
+                        OGType = 2
+                        break
+                    case "steam":
+                        OGType = 3
+                        break
+                    case "stadia":
+                        OGType = 5
+                        break
+                }
+                const res = await axios.get(`https://www.bungie.net/Platform/Destiny2/SearchDestinyPlayer/Tiger${args[1].toLowerCase().charAt(0).toUpperCase() + args[1].toLowerCase().slice(1)}/${args[2]}/`, {
                     headers: {
                         'X-API-Key': global.Auth.destinyAPI,
                         'User-Agent': global.Auth.destinyUserAgent
@@ -130,15 +150,22 @@ module.exports = {
                 if (res.data.Response[0] == undefined) {
                     return m.edit("", global.Functions.BasicEmbed(("error"), "Could not find user."))
                 }
-                const res1 = await axios.get(`https://www.bungie.net/Platform/Destiny2/Tiger${args[1].toLowerCase().charAt(0).toUpperCase() + args[1].toLowerCase().slice(1)}/Profile/${res.data.Response[0].membershipId}/?components=CharacterEquipment,Characters,CharacterActivities`, {
+                const res1 = await axios.get(`https://www.bungie.net/Platform/Destiny2/${res.data.Response[0].membershipType}/Profile/${res.data.Response[0].membershipId}/?components=CharacterEquipment,Characters,CharacterActivities`, {
                     headers: {
                         'X-API-Key': global.Auth.destinyAPI,
                         'User-Agent': global.Auth.destinyUserAgent
                     }
                 })
+                .catch(c => {
+                    fetchFailed = true
+                })
+                if (fetchFailed == true) {
+                    return m.edit("", global.Functions.BasicEmbed(("error"), "An error occurred while grabbing character data."))
+                }
                 var embed = global.Functions.BasicEmbed("normal")
                 if (args[3].toLowerCase() == "general") {
                     var res9 = "Unknown"
+                    var res10 = "Unknown"
                     const res2 = await axios.get(`https://www.bungie.net/Platform/Destiny2/Manifest/DestinyInventoryItemDefinition/${res1.data.Response.characterEquipment.data[Object.keys(res1.data.Response.characterEquipment.data)[0]].items[0].itemHash}`, {
                         headers: {
                             'X-API-Key': global.Auth.destinyAPI,
@@ -175,7 +202,7 @@ module.exports = {
                             'User-Agent': global.Auth.destinyUserAgent
                         }
                     })
-                    const res8 = await axios.get(`https://www.bungie.net/Platform/Destiny2/Tiger${args[1].toLowerCase().charAt(0).toUpperCase() + args[1].toLowerCase().slice(1)}/Account/${res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].membershipId}/Character/${res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].characterId}/Stats/Activities/?count=1&mode=None&page=0`, {
+                    const res8 = await axios.get(`https://www.bungie.net/Platform/Destiny2/${res.data.Response[0].membershipType}/Account/${res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].membershipId}/Character/${res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].characterId}/Stats/Activities/?count=1&mode=None&page=0`, {
                         headers: {
                             'X-API-Key': global.Auth.destinyAPI,
                             'User-Agent': global.Auth.destinyUserAgent
@@ -183,6 +210,14 @@ module.exports = {
                     })
                     if (res8.data.Response.activities != undefined) {
                         res9 = await axios.get(`https://www.bungie.net/Platform/Destiny2/Manifest/DestinyActivityDefinition/${res8.data.Response.activities[0].activityDetails.directorActivityHash}/`, {
+                            headers: {
+                                'X-API-Key': global.Auth.destinyAPI,
+                                'User-Agent': global.Auth.destinyUserAgent
+                            }
+                        })
+                    }
+                    if (res1.data.Response.characterActivities.data[Object.keys(res1.data.Response.characterActivities.data)[0]].currentActivityHash != 0) {
+                        res10 = await axios.get(`https://www.bungie.net/Platform/Destiny2/Manifest/DestinyActivityDefinition/${res1.data.Response.characterActivities.data[Object.keys(res1.data.Response.characterActivities.data)[0]].currentActivityHash}/`, {
                             headers: {
                                 'X-API-Key': global.Auth.destinyAPI,
                                 'User-Agent': global.Auth.destinyUserAgent
@@ -267,13 +302,14 @@ module.exports = {
                         .addField("Ghost Shell", `${res5.data.Response.itemType == 24 ? `[${res5.data.Response.displayProperties.name}](https://light.gg/db/items/${res1.data.Response.characterEquipment.data[Object.keys(res1.data.Response.characterEquipment.data)[0]].items[8].itemHash})` : "None/Unknown"}`)
                         .addField("Vehicle", `${res6.data.Response.itemType == 22 ? `[${res6.data.Response.displayProperties.name}](https://light.gg/db/items/${res1.data.Response.characterEquipment.data[Object.keys(res1.data.Response.characterEquipment.data)[0]].items[9].itemHash})` : "None/Unknown"}`)
                         .addField("Ship", `${res7.data.Response.itemType == 21 ? `[${res7.data.Response.displayProperties.name}](https://light.gg/db/items/${res1.data.Response.characterEquipment.data[Object.keys(res1.data.Response.characterEquipment.data)[0]].items[10].itemHash})` : "None/Unknown"}`)
-                        .addField("Recent Activity", `${res9.data == undefined ? "Unknown" : res9.data.Response.displayProperties.name}`)
-                        .addField("Time Played", `${(res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].minutesPlayedTotal/60).toFixed(2)} hours`, true)
-                        .addField("Last Login", dateFormat(res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].dateLastPlayed, "mmmm dS, yyyy, h:MM:ss TT"), true)
-                    m.edit("", embed)
+                        .addField("Latest Activity", res9.data == undefined ? "Unknown" : `[${res9.data.Response.displayProperties.name != "" ? res9.data.Response.displayProperties.name : "Unknown"}](https://destinytracker.com/destiny-2/db/activities/${res9.data.Response.hash})`, true)
+                        .addField("Current Activity", res1.data.Response.characterActivities.data[Object.keys(res1.data.Response.characterActivities.data)[0]].currentActivityHash != 0 ? `[${res10.data.Response.displayProperties.name != "" ? res10.data.Response.displayProperties.name : "Unknown"}](https://destinytracker.com/destiny-2/db/activities/${res10.data.Response.hash})` : "User Offline", true)
+                        .addField("Time Played", `${(res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].minutesPlayedTotal/60).toFixed(1)} hours`, true)
+                        .addField("Last Login", `${dateFormat(res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].dateLastPlayed, "mmmm dS, yyyy, h:MM:ss TT")} ${res1.data.Response.characterActivities.data[Object.keys(res1.data.Response.characterActivities.data)[0]].currentActivityHash != 0 ? "(currently in-game)" : ""}`, true)
+                    m.edit(`${res.data.Response[0].membershipType != OGType ? "Original player's profile is not available. Returning currently active profile instead." : ""}`, embed)
                 }
                 else if (args[3].toLowerCase() == "stats") {
-                    const res2 = await axios.get(`https://www.bungie.net/Platform/Destiny2/Tiger${args[1].toLowerCase().charAt(0).toUpperCase() + args[1].toLowerCase().slice(1)}/Account/${res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].membershipId}/Stats/?groups=General`, {
+                    const res2 = await axios.get(`https://www.bungie.net/Platform/Destiny2/${res.data.Response[0].membershipType}/Account/${res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].membershipId}/Stats/?groups=General`, {
                         headers: {
                             'X-API-Key': global.Auth.destinyAPI,
                             'User-Agent': global.Auth.destinyUserAgent
@@ -291,7 +327,8 @@ module.exports = {
                         .addField("KDR", res2.data.Response.characters[0].results.allPvP.allTime.killsDeathsRatio.basic.displayValue, true)
                         .addField("Games Played", res2.data.Response.characters[0].results.allPvP.allTime.activitiesEntered.basic.value, true)
                         .addField("Games Won", res2.data.Response.characters[0].results.allPvP.allTime.activitiesWon.basic.value, true)
-                    m.edit("", embed).then(async m => {
+                    m.edit(`${res.data.Response[0].membershipType != OGType ? "Original player's profile is not available. Returning currently active profile instead." : ""}`, embed).then(async m => {
+                        page = 0
                         listen = true
                         m.react('⬅️')
                         m.react('➡️')
@@ -315,7 +352,7 @@ module.exports = {
                                     m.react('➡️')
                                 }
                                 if (page == 1) {
-                                    m.edit("", global.Functions.BasicEmbed("normal")
+                                    m.edit(`${res.data.Response[0].membershipType != OGType ? "Original player's profile is not available. Returning currently active profile instead." : ""}`, global.Functions.BasicEmbed("normal")
                                     .setTitle(`${args[2]}'s PvE Stats`)
                                     .setThumbnail(`https://bungie.net${res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].emblemPath}`)
                                     .addField("PvE Kills", res2.data.Response.characters[0].results.allPvE.allTime.kills.basic.value, true)
@@ -325,7 +362,7 @@ module.exports = {
                                     .addField("Public Events Completed", res2.data.Response.characters[0].results.allPvE.allTime.publicEventsCompleted.basic.value, true))
                                 }
                                 else {
-                                    m.edit("", global.Functions.BasicEmbed("normal")
+                                    m.edit(`${res.data.Response[0].membershipType != OGType ? "Original player's profile is not available. Returning currently active profile instead." : ""}`, global.Functions.BasicEmbed("normal")
                                     .setTitle(`${args[2]}'s PvP Stats`)
                                     .setThumbnail(`https://bungie.net${res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].emblemPath}`)
                                     .addField("PvP Kills", res2.data.Response.characters[0].results.allPvP.allTime.kills.basic.value, true)
