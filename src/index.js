@@ -2,10 +2,12 @@
 const events = require('./events.js');
 const readline = require('readline');
 const roles = require('./data/roles.json');
+const manifestVersion = require('./data/manifest-version.json');
 const dateFormat = require('dateformat');
 const auth = require('./data/auth.json');
 const Discord = require('discord.js');
 const Intents = require('discord.js');
+const axios = require('axios');
 const Client = new Discord.Client({disableMentions: "everyone", ws: {intents: Intents.ALL}, presence: {activity: {name: "you.", type: "WATCHING"}, status: "online"}});
 const f = require('./functions.js');
 const fs = require('fs');
@@ -28,6 +30,35 @@ Client.on('ready', async () => {
             return false
         }
         return console.log(`----\nYou have ${reports} unresolved ${reports == 1 ? "report" : "reports"}.`)
+    })
+    axios.get(`https://www.bungie.net/Platform/Destiny2/Manifest/`, {
+        headers: {
+            'X-API-Key': auth.destinyAPI,
+            'User-Agent': auth.destinyUserAgent
+        }
+    })
+    .then((m) => {
+        if (m.data.Response.jsonWorldComponentContentPaths.en.DestinyInventoryItemDefinition != manifestVersion.version) {
+            console.log("New version of the Destiny Item Manifest available, downloading it now...")
+            manifestVersion.version = m.data.Response.jsonWorldComponentContentPaths.en.DestinyInventoryItemDefinition
+            axios.get(`https://www.bungie.net${m.data.Response.jsonWorldComponentContentPaths.en.DestinyInventoryItemDefinition}`, {
+                headers: {
+                    'X-API-Key': auth.destinyAPI,
+                    'User-Agent': auth.destinyUserAgent
+                }
+            })
+            .then((c) => {
+                var toWrite = c.data
+                fs.writeFile('C:/Users/Cuno/Documents/DestinyManifest.json', JSON.stringify(toWrite), function (err) {
+                    fs.unlink('C:/Users/Cuno/Documents/DiscordBot/src/data/DestinyManifest.json', function (err) {
+                        fs.rename('C:/Users/Cuno/Documents/DestinyManifest.json', 'C:/Users/Cuno/Documents/DiscordBot/src/data/DestinyManifest.json', function (err) {
+                            console.log("Successfully downloaded new version of the manifest, restarting bot now...")
+                            fs.writeFileSync('./src/data/manifest-version.json', JSON.stringify(manifestVersion, null, "\t"), function (err) {})
+                        })
+                    })
+                })
+            })
+        }
     })
 })
 

@@ -1,6 +1,6 @@
 const axios = require('axios');
 const dateFormat = require("dateformat");
-const itemManifest = require('C:/Users/Cuno/Documents/DiscordBot/src/data/DestinyInventoryItemDefinition-c5d7329b-3f1a-4c2f-ace2-863be468fcab.json')
+const itemManifest = require('C:/Users/Cuno/Documents/DiscordBot/src/data/DestinyManifest.json')
 var fetchFailed = false
 var OGType = 0
 var listen = true
@@ -34,27 +34,24 @@ module.exports = {
             if (res.data.Response.results.totalResults == 0) {
                 return message.channel.send(global.Functions.BasicEmbed(("error"), `No results found.${res.data.Response.suggestedWords[0] != undefined ? `\nRecommended keywords to search with: \`${res.data.Response.suggestedWords.join(", ")}\`` : ""}`))
             }
-            var res1 = await axios.get(`https://www.bungie.net/Platform/Destiny2/Manifest/DestinyInventoryItemDefinition/${String(res.data.Response.results.results[0].hash)}/`, {
-                headers: {
-                    'X-API-Key': global.Auth.destinyAPI,
-                    'User-Agent': global.Auth.destinyUserAgent
-                }
-            })
-            if (res1.data.Response.itemType == 3 && res1.data.Response.traitIds[1] != 'weapon_type.rocket_launcher') {
+            var item = itemManifest[res.data.Response.results.results[0].hash]
+            if (item.itemType == 3 && item.traitIds[1] != 'weapon_type.rocket_launcher') {
                 embed = embed
                     .setTitle(`${res.data.Response.results.results[0].displayProperties.name} (result: ${page + 1}/${res.data.Response.results.totalResults})`)
-                    .setDescription(`*${res1.data.Response.flavorText != "" ? res1.data.Response.flavorText : res1.data.Response.displayProperties.description != "" ? res1.data.Response.displayProperties.description : "No description provided"}*`)
-                    .addField("Tier", res1.data.Response.inventory.tierTypeName, true)
-                    .addField("Impact", res1.data.Response.stats.stats['4043523819'].value, true)
-                    .addField("Range", res1.data.Response.stats.stats['1240592695'].value, true)
-                    .addField("Magazine Size", res1.data.Response.stats.stats['3871231066'].value, true)
+                    .setDescription(`*${item.flavorText != "" ? item.flavorText : item.displayProperties.description != "" ? item.displayProperties.description : "No description provided"}*`)
+                    .addField("Tier", item.inventory.tierTypeName, true)
+                    .addField("Impact", item.stats.stats['4043523819'].value, true)
+                    .addField("Range", item.stats.stats['1240592695'].value, true)
+                    .addField("Magazine Size", item.stats.stats['3871231066'].value, true)
+                    .addField("Link", `[${res.data.Response.results.results[0].displayProperties.name}](https://light.gg/db/items/${res.data.Response.results.results[0].hash})`)
                     .setImage(`https://www.bungie.net${res.data.Response.results.results[0].displayProperties.icon}`, true)
             }
             else {
                 embed = embed
                     .setTitle(`${res.data.Response.results.results[0].displayProperties.name} (result: ${page + 1}/${res.data.Response.results.totalResults})`)
-                    .setDescription(`*${res1.data.Response.flavorText != "" ? res1.data.Response.flavorText : res1.data.Response.displayProperties.description != "" ? res1.data.Response.displayProperties.description : "No description provided"}*`)
-                    .addField("Tier", res1.data.Response.inventory.tierTypeName, true)
+                    .setDescription(`*${item.flavorText != "" ? item.flavorText : item.displayProperties.description != "" ? item.displayProperties.description : "No description provided"}*`)
+                    .addField("Tier", item.inventory.tierTypeName, true)
+                    .addField("Link", `[${res.data.Response.results.results[0].displayProperties.name}](https://light.gg/db/items/${res.data.Response.results.results[0].hash})`)
                     .setImage(`https://www.bungie.net${res.data.Response.results.results[0].displayProperties.icon}`, true)
             }
             message.channel.send(embed).then(async m => {
@@ -80,27 +77,24 @@ module.exports = {
                             m.react('⬅️')
                             m.react('➡️')
                         }
-                        res1 = await axios.get(`https://www.bungie.net/Platform/Destiny2/Manifest/DestinyInventoryItemDefinition/${String(res.data.Response.results.results[page].hash)}/`, {
-                            headers: {
-                                'X-API-Key': global.Auth.destinyAPI,
-                                'User-Agent': global.Auth.destinyUserAgent
-                            }
-                        })
-                        if (res1.data.Response.itemType == 3) {
+                        item = itemManifest[res.data.Response.results.results[page].hash]
+                        if (item.itemType == 3) {
                             m.edit("", global.Functions.BasicEmbed("normal")
                                 .setTitle(`${res.data.Response.results.results[page].displayProperties.name} (result: ${page + 1}/${res.data.Response.results.totalResults})`)
-                                .setDescription(`*${res1.data.Response.flavorText != "" ? res1.data.Response.flavorText : res1.data.Response.displayProperties.description != "" ? res1.data.Response.displayProperties.description : "No description provided"}*`)
-                                .addField("Tier", res1.data.Response.inventory.tierTypeName, true)
-                                .addField("Impact", res1.data.Response.stats.stats['4043523819'].value, true)
-                                .addField("Range", res1.data.Response.stats.stats['1240592695'].value, true)
-                                .addField("Magazine Size", res1.data.Response.stats.stats['3871231066'].value, true)
+                                .setDescription(`*${item.flavorText != "" ? item.flavorText : item.displayProperties.description != "" ? item.displayProperties.description : "No description provided"}*`)
+                                .addField("Tier", item.inventory.tierTypeName, true)
+                                .addField("Impact", item.stats.stats['4043523819'].value, true)
+                                .addField("Range", item.stats.stats['1240592695'].value, true)
+                                .addField("Magazine Size", item.stats.stats['3871231066'].value, true)
+                                .addField("Link", `[${res.data.Response.results.results[page].displayProperties.name}](https://light.gg/db/items/${res.data.Response.results.results[page].hash})`)
                                 .setImage(`https://www.bungie.net${res.data.Response.results.results[page].displayProperties.icon}`, true))
                         }
                         else {
                             m.edit("", global.Functions.BasicEmbed("normal")
                             .setTitle(`${res.data.Response.results.results[page].displayProperties.name} (result: ${page + 1}/${res.data.Response.results.totalResults})`)
-                            .setDescription(`*${res1.data.Response.flavorText != "" ? res1.data.Response.flavorText : res1.data.Response.displayProperties.description != "" ? res1.data.Response.displayProperties.description : "No description provided"}*`)
-                            .addField("Tier", res1.data.Response.inventory.tierTypeName, true)
+                            .setDescription(`*${item.flavorText != "" ? item.flavorText : item.displayProperties.description != "" ? item.displayProperties.description : "No description provided"}*`)
+                            .addField("Tier", item.inventory.tierTypeName, true)
+                            .addField("Link", `[${res.data.Response.results.results[page].displayProperties.name}](https://light.gg/db/items/${res.data.Response.results.results[page].hash})`)
                             .setImage(`https://www.bungie.net${res.data.Response.results.results[page].displayProperties.icon}`, true))
                         }
                         return true
