@@ -13,7 +13,7 @@ module.exports = {
     desc: "Queries the Destiny API.",
     level: "0",
     func: async (message, args) => {
-        var {kinetic, energy, power, ghost, vehicle, ship} = 0
+        var {subclass, kinetic, energy, power, ghost, vehicle, ship} = 0
         fetchFailed = false
         if (args[0] == undefined) {
             return message.channel.send(global.Functions.BasicEmbed('error', "Please choose a valid option: `item`, `player`."))
@@ -25,87 +25,90 @@ module.exports = {
             if (args[1] == undefined) {
                 return message.channel.send(global.Functions.BasicEmbed('error', "Please provide keyword(s) to search with."))
             }
-            const res = await axios.get(`https://www.bungie.net/Platform/Destiny2/Armory/Search/DestinyInventoryItemDefinition/${args.slice(1).join(" ")}/`, {
-                headers: {
-                    'X-API-Key': global.Auth.destinyAPI,
-                    'User-Agent': global.Auth.destinyUserAgent
+            message.channel.send("Searching database for items...").then(async (me) => {
+                const res = await axios.get(`https://www.bungie.net/Platform/Destiny2/Armory/Search/DestinyInventoryItemDefinition/${args.slice(1).join(" ")}/`, {
+                    headers: {
+                        'X-API-Key': global.Auth.destinyAPI,
+                        'User-Agent': global.Auth.destinyUserAgent
+                    }
+                })
+                if (res.data.Response.results.totalResults == 0) {
+                    return message.channel.send(global.Functions.BasicEmbed(("error"), `No results found.${res.data.Response.suggestedWords[0] != undefined ? `\nRecommended keywords to search with: \`${res.data.Response.suggestedWords.join(", ")}\`` : ""}`))
                 }
-            })
-            if (res.data.Response.results.totalResults == 0) {
-                return message.channel.send(global.Functions.BasicEmbed(("error"), `No results found.${res.data.Response.suggestedWords[0] != undefined ? `\nRecommended keywords to search with: \`${res.data.Response.suggestedWords.join(", ")}\`` : ""}`))
-            }
-            var item = itemManifest[res.data.Response.results.results[0].hash]
-            if (item.itemType == 3 && item.traitIds[1] != 'weapon_type.rocket_launcher') {
-                embed = embed
-                    .setTitle(`${res.data.Response.results.results[0].displayProperties.name} (result: ${page + 1}/${res.data.Response.results.totalResults})`)
-                    .setDescription(`*${item.flavorText != "" ? item.flavorText : item.displayProperties.description != "" ? item.displayProperties.description : "No description provided"}*`)
-                    .addField("Tier", item.inventory.tierTypeName, true)
-                    .addField("Impact", item.stats.stats['4043523819'].value, true)
-                    .addField("Range", item.stats.stats['1240592695'].value, true)
-                    .addField("Magazine Size", item.stats.stats['3871231066'].value, true)
-                    .addField("Link", `[${res.data.Response.results.results[0].displayProperties.name}](https://light.gg/db/items/${res.data.Response.results.results[0].hash})`)
-                    .setImage(`https://www.bungie.net${res.data.Response.results.results[0].displayProperties.icon}`, true)
-            }
-            else {
-                embed = embed
-                    .setTitle(`${res.data.Response.results.results[0].displayProperties.name} (result: ${page + 1}/${res.data.Response.results.totalResults})`)
-                    .setDescription(`*${item.flavorText != "" ? item.flavorText : item.displayProperties.description != "" ? item.displayProperties.description : "No description provided"}*`)
-                    .addField("Tier", item.inventory.tierTypeName, true)
-                    .addField("Link", `[${res.data.Response.results.results[0].displayProperties.name}](https://light.gg/db/items/${res.data.Response.results.results[0].hash})`)
-                    .setImage(`https://www.bungie.net${res.data.Response.results.results[0].displayProperties.icon}`, true)
-            }
-            message.channel.send(embed).then(async m => {
-                listen = true
-                m.react('⬅️')
-                m.react('➡️')
-                while (listen == true) {
-                    await m.awaitReactions((reaction, user) => user.id === message.author.id, {max: 1, time: 1.8e+6, errors: ['time']}).then(async c => {
-                        if (c.first().emoji.name == "➡️") {
-                            if (page + 1 > res.data.Response.results.totalResults) {
-                                return true
+                me.edit("Grabbing item definitions from manifest...")
+                var item = itemManifest[res.data.Response.results.results[0].hash]
+                if (item.itemType == 3 && item.traitIds[1] != 'weapon_type.rocket_launcher') {
+                    embed = embed
+                        .setTitle(`${res.data.Response.results.results[0].displayProperties.name} (result: ${page + 1}/${res.data.Response.results.totalResults})`)
+                        .setDescription(`*${item.flavorText != "" ? item.flavorText : item.displayProperties.description != "" ? item.displayProperties.description : "No description provided"}*`)
+                        .addField("Tier", item.inventory.tierTypeName, true)
+                        .addField("Impact", item.stats.stats['4043523819'].value, true)
+                        .addField("Range", item.stats.stats['1240592695'].value, true)
+                        .addField("Magazine Size", item.stats.stats['3871231066'].value, true)
+                        .addField("Link", `[${res.data.Response.results.results[0].displayProperties.name}](https://light.gg/db/items/${res.data.Response.results.results[0].hash})`)
+                        .setImage(`https://www.bungie.net${res.data.Response.results.results[0].displayProperties.icon}`, true)
+                }
+                else {
+                    embed = embed
+                        .setTitle(`${res.data.Response.results.results[0].displayProperties.name} (result: ${page + 1}/${res.data.Response.results.totalResults})`)
+                        .setDescription(`*${item.flavorText != "" ? item.flavorText : item.displayProperties.description != "" ? item.displayProperties.description : "No description provided"}*`)
+                        .addField("Tier", item.inventory.tierTypeName, true)
+                        .addField("Link", `[${res.data.Response.results.results[0].displayProperties.name}](https://light.gg/db/items/${res.data.Response.results.results[0].hash})`)
+                        .setImage(`https://www.bungie.net${res.data.Response.results.results[0].displayProperties.icon}`, true)
+                }
+                me.edit("", embed).then(async m => {
+                    listen = true
+                    m.react('⬅️')
+                    m.react('➡️')
+                    while (listen == true) {
+                        await m.awaitReactions((reaction, user) => user.id === message.author.id, {max: 1, time: 1.8e+6, errors: ['time']}).then(async c => {
+                            if (c.first().emoji.name == "➡️") {
+                                if (page + 1 > res.data.Response.results.totalResults) {
+                                    return true
+                                }
+                                page++
                             }
-                            page++
-                        }
-                        else if (c.first().emoji.name == "⬅️") {
-                            if (page - 1 < 0) {
-                                return true
+                            else if (c.first().emoji.name == "⬅️") {
+                                if (page - 1 < 0) {
+                                    return true
+                                }
+                                page--
                             }
-                            page--
-                        }
-                        if (message.guild.me.permissions.any("ADMINISTRATOR") == true) {
-                            m.reactions.removeAll()
-                            m.react('⬅️')
-                            m.react('➡️')
-                        }
-                        item = itemManifest[res.data.Response.results.results[page].hash]
-                        if (item.itemType == 3) {
-                            m.edit("", global.Functions.BasicEmbed("normal")
+                            if (message.guild.me.permissions.any("ADMINISTRATOR") == true) {
+                                m.reactions.removeAll()
+                                m.react('⬅️')
+                                m.react('➡️')
+                            }
+                            item = itemManifest[res.data.Response.results.results[page].hash]
+                            if (item.itemType == 3) {
+                                m.edit("", global.Functions.BasicEmbed("normal")
+                                    .setTitle(`${res.data.Response.results.results[page].displayProperties.name} (result: ${page + 1}/${res.data.Response.results.totalResults})`)
+                                    .setDescription(`*${item.flavorText != "" ? item.flavorText : item.displayProperties.description != "" ? item.displayProperties.description : "No description provided"}*`)
+                                    .addField("Tier", item.inventory.tierTypeName, true)
+                                    .addField("Impact", item.stats.stats['4043523819'].value, true)
+                                    .addField("Range", item.stats.stats['1240592695'].value, true)
+                                    .addField("Magazine Size", item.stats.stats['3871231066'].value, true)
+                                    .addField("Link", `[${res.data.Response.results.results[page].displayProperties.name}](https://light.gg/db/items/${res.data.Response.results.results[page].hash})`)
+                                    .setImage(`https://www.bungie.net${res.data.Response.results.results[page].displayProperties.icon}`, true))
+                            }
+                            else {
+                                m.edit("", global.Functions.BasicEmbed("normal")
                                 .setTitle(`${res.data.Response.results.results[page].displayProperties.name} (result: ${page + 1}/${res.data.Response.results.totalResults})`)
                                 .setDescription(`*${item.flavorText != "" ? item.flavorText : item.displayProperties.description != "" ? item.displayProperties.description : "No description provided"}*`)
                                 .addField("Tier", item.inventory.tierTypeName, true)
-                                .addField("Impact", item.stats.stats['4043523819'].value, true)
-                                .addField("Range", item.stats.stats['1240592695'].value, true)
-                                .addField("Magazine Size", item.stats.stats['3871231066'].value, true)
                                 .addField("Link", `[${res.data.Response.results.results[page].displayProperties.name}](https://light.gg/db/items/${res.data.Response.results.results[page].hash})`)
                                 .setImage(`https://www.bungie.net${res.data.Response.results.results[page].displayProperties.icon}`, true))
-                        }
-                        else {
-                            m.edit("", global.Functions.BasicEmbed("normal")
-                            .setTitle(`${res.data.Response.results.results[page].displayProperties.name} (result: ${page + 1}/${res.data.Response.results.totalResults})`)
-                            .setDescription(`*${item.flavorText != "" ? item.flavorText : item.displayProperties.description != "" ? item.displayProperties.description : "No description provided"}*`)
-                            .addField("Tier", item.inventory.tierTypeName, true)
-                            .addField("Link", `[${res.data.Response.results.results[page].displayProperties.name}](https://light.gg/db/items/${res.data.Response.results.results[page].hash})`)
-                            .setImage(`https://www.bungie.net${res.data.Response.results.results[page].displayProperties.icon}`, true))
-                        }
-                        return true
-                    })
-                    .catch(c => {
-                        if (message.guild.me.permissions.any("ADMINISTRATOR") == true) {
-                            m.reactions.removeAll()
-                        }
-                        return listen = false
-                    })
-                }
+                            }
+                            return true
+                        })
+                        .catch(c => {
+                            if (message.guild.me.permissions.any("ADMINISTRATOR") == true) {
+                                m.reactions.removeAll()
+                            }
+                            return listen = false
+                        })
+                    }
+                })
             })
         }
         else if (args[0].toLowerCase() == "player") {
@@ -169,6 +172,9 @@ module.exports = {
                     power = itemManifest[res1.data.Response.characterEquipment.data[Object.keys(res1.data.Response.characterEquipment.data)[0]].items[2].itemHash].itemType == 3 ? res1.data.Response.characterEquipment.data[Object.keys(res1.data.Response.characterEquipment.data)[0]].items[2].itemHash : 0
                     for (var item of res1.data.Response.characterEquipment.data[Object.keys(res1.data.Response.characterEquipment.data)[0]].items) {
                         switch (itemManifest[item.itemHash].itemType) {
+                            case 16:
+                                subclass = item.itemHash
+                                break
                             case 21:
                                 ship = item.itemHash
                                 break
@@ -205,7 +211,6 @@ module.exports = {
                     }
                     var race = "Unknown"
                     var userClass = "Unknown"
-                    var subclass = "Unknown"
                     switch (res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].raceType) {
                         case 0:
                             race = "Human"
@@ -228,52 +233,12 @@ module.exports = {
                             userClass = "Warlock"
                             break
                     }
-                    for (var item of res1.data.Response.characterEquipment.data[Object.keys(res1.data.Response.characterEquipment.data)[0]].items) {
-                        switch (item.itemHash) {
-                            case 3382391785:
-                                subclass = "Sentinel"
-                                break
-                            case 3105935002:
-                                subclass = "Sunbreaker"
-                                break
-                            case 2958378809:
-                                subclass = "Striker"
-                                break
-                            case 613647804:
-                                subclass = "Behemoth"
-                                break
-                            case 3887892656:
-                                subclass = "Voidwalker"
-                                break
-                            case 447268699:
-                                subclass = "Dawnblade"
-                                break
-                            case 1751782730:
-                                subclass = "Stormcaller"
-                                break
-                            case 3291545503:
-                                subclass = "Shadebinder"
-                                break
-                            case 3225959819:
-                                subclass = "Nightstalker"
-                                break
-                            case 3635991036:
-                                subclass = "Gunslinger"
-                                break
-                            case 1334959255:
-                                subclass = "Arcstrider"
-                                break
-                            case 873720784:
-                                subclass = "Revenant"
-                                break
-                        }
-                    }
                     embed = embed
                         .setTitle(args[2])
                         .setThumbnail(`https://bungie.net${res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].emblemPath}`)
                         .addField("Race", race, true)
                         .addField("Class", userClass, true)
-                        .addField("Subclass", subclass, true)
+                        .addField("Subclass", itemManifest[subclass].displayProperties.name, true)
                         .addField("Light", `<:light:811725351587807313>${res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].light}`, true)
                         .addField("Kinetic Weapon", itemManifest[kinetic] != undefined ? `[${itemManifest[kinetic].displayProperties.name}](https://light.gg/db/items/${kinetic})` : "None")
                         .addField("Energy Weapon", itemManifest[energy] != undefined ? `[${itemManifest[energy].displayProperties.name}](https://light.gg/db/items/${energy})`: "None")
