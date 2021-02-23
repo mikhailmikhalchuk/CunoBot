@@ -1,7 +1,6 @@
 const axios = require('axios');
 const dateFormat = require("dateformat");
 const itemManifest = require('C:/Users/Cuno/Documents/DiscordBot/src/data/DestinyManifest.json')
-var fetchFailed = false
 var OGType = 0
 var listen = true
 var page = 0
@@ -13,7 +12,7 @@ module.exports = {
     desc: "Queries the Destiny API.",
     level: "0",
     func: async (message, args) => {
-        var {subclass, kinetic, energy, power, ghost, vehicle, ship} = 0
+        var {subclass, kinetic, energy, power, ghost, vehicle, ship, failureReason} = 0
         fetchFailed = false
         if (args[0] == undefined) {
             return message.channel.send(global.Functions.BasicEmbed('error', "Please choose a valid option: `item`, `player`."))
@@ -32,6 +31,19 @@ module.exports = {
                         'User-Agent': global.Auth.destinyUserAgent
                     }
                 })
+                .catch((c) => {
+                    if (c.response.data.ErrorCode == 5) {
+                        return failureReason = "maintenance"
+                    }
+                    console.log(c.response.data)
+                    return failureReason = "unknown"
+                })
+                if (failureReason == "maintenance") {
+                    return me.edit("", global.Functions.BasicEmbed('error', "The API is currently down for maintenance, please try again later."))
+                }
+                else if (failureReason == "unknown") {
+                    return me.edit("", global.Functions.BasicEmbed('error', "An error occurred while fetching data from the API."))
+                }
                 if (res.data.Response.results.totalResults == 0) {
                     return message.channel.send(global.Functions.BasicEmbed(("error"), `No results found.${res.data.Response.suggestedWords[0] != undefined ? `\nRecommended keywords to search with: \`${res.data.Response.suggestedWords.join(", ")}\`` : ""}`))
                 }
@@ -146,6 +158,19 @@ module.exports = {
                         'User-Agent': global.Auth.destinyUserAgent
                     }
                 })
+                .catch((c) => {
+                    if (c.response.data.ErrorCode == 5) {
+                        return failureReason = "maintenance"
+                    }
+                    console.log(c.response.data)
+                    return failureReason = "unknown"
+                })
+                if (failureReason == "maintenance") {
+                    return m.edit("", global.Functions.BasicEmbed('error', "The API is currently down for maintenance, please try again later."))
+                }
+                else if (failureReason == "unknown") {
+                    return m.edit("", global.Functions.BasicEmbed('error', "An error occurred while fetching data from the API."))
+                }
                 if (res.data.Response[0] == undefined) {
                     return m.edit("", global.Functions.BasicEmbed(("error"), "Could not find user."))
                 }
@@ -156,12 +181,6 @@ module.exports = {
                         'User-Agent': global.Auth.destinyUserAgent
                     }
                 })
-                .catch(c => {
-                    fetchFailed = true
-                })
-                if (fetchFailed == true) {
-                    return m.edit("", global.Functions.BasicEmbed(("error"), "An error occurred while grabbing character data."))
-                }
                 var embed = global.Functions.BasicEmbed("normal")
                 if (args[3].toLowerCase() == "general") {
                     var res9 = "Unknown"
