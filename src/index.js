@@ -278,4 +278,15 @@ global.Roles = roles
 global.List = listeningForMessages
 
 //Bot login
-Client.login(auth.token)
+try {
+    Client.login(auth.token)
+}
+catch (e) {
+    console.error(`Failed to connect: got ${e.message}. Trying again...`);
+    try {
+        Client.login(auth.token);
+    }
+    catch (e) {
+        console.error(`Failed to connect: got ${e.message}. Halting further connection attempts.\nStack trace:\n${e.stack}`);
+    }
+}

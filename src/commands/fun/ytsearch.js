@@ -1,4 +1,4 @@
-const youtubedl = require("youtube-dl");
+const youtubedl = require("youtube-dl-exec");
 
 module.exports = {
     name: "ytsearch",

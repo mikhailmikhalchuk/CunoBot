@@ -257,7 +257,7 @@ module.exports = {
                         .setThumbnail(`https://bungie.net${res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].emblemPath}`)
                         .addField("Race", race, true)
                         .addField("Class", userClass, true)
-                        .addField("Subclass", itemManifest[subclass].displayProperties.name, true)
+                        .addField("Subclass", itemManifest[subclass] != undefined ? itemManifest[subclass].displayProperties.name : "Unknown", true)
                         .addField("Light", `<:light:811725351587807313>${res1.data.Response.characters.data[Object.keys(res1.data.Response.characters.data)[0]].light}`, true)
                         .addField("Kinetic Weapon", itemManifest[kinetic] != undefined ? `[${itemManifest[kinetic].displayProperties.name}](https://light.gg/db/items/${kinetic})` : "None")
                         .addField("Energy Weapon", itemManifest[energy] != undefined ? `[${itemManifest[energy].displayProperties.name}](https://light.gg/db/items/${energy})`: "None")
