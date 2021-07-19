@@ -1,5 +1,5 @@
 const fs = require('fs');
-const prefixes = require('C:/Users/Cuno/Documents/DiscordBot/src/data/prefixes.json');
+const prefixes = require('../../data/prefixes.json');
 
 module.exports = {
     name: "prefix",

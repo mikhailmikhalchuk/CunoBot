@@ -1,9 +1,10 @@
 const axios = require('axios');
 const dateFormat = require("dateformat");
-const itemManifest = require('C:/Users/Cuno/Documents/DiscordBot/src/data/DestinyManifest.json')
+const itemManifest = require('../../data/DestinyManifest.json')
 var OGType = 0
 var listen = true
 var page = 0
+const characterTest = /[#*+:<>?]+/
 
 module.exports = {
     name: "destiny",
@@ -25,7 +26,13 @@ module.exports = {
                 return message.channel.send(global.Functions.BasicEmbed('error', "Please provide keyword(s) to search with."))
             }
             message.channel.send("Searching database for items...").then(async (me) => {
-                const res = await axios.get(`https://www.bungie.net/Platform/Destiny2/Armory/Search/DestinyInventoryItemDefinition/${args.slice(1).join(" ")}/`, {
+                if (characterTest.test(args.slice(1).join(" "))) {
+                    return me.edit("", global.Functions.BasicEmbed(("error"), "Entered keyword(s) cannot contain the following characters:\n```# (Hashtag)\n* (Asterisk)\n+ (Plus)\n: (Colon)\n< (Left Angle Bracket)\n> (Right Angle Bracket)\n? (Question Mark)```"))
+                }
+                if (args.slice(1).join(" ").length > 100) {
+                    return m.edit("", global.Functions.BasicEmbed(("error"), "Entered keyword(s) cannot exceed 100 characters in length."))
+                }
+                const res = await axios.get(`https://www.bungie.net/Platform/Destiny2/Armory/Search/DestinyInventoryItemDefinition/${encodeURIComponent(args.slice(1).join(" "))}/`, {
                     headers: {
                         'X-API-Key': global.Auth.destinyAPI,
                         'User-Agent': global.Auth.destinyUserAgent
@@ -86,11 +93,9 @@ module.exports = {
                                 }
                                 page--
                             }
-                            if (message.guild.me.permissions.any("ADMINISTRATOR") == true) {
-                                m.reactions.removeAll()
-                                m.react('⬅️')
-                                m.react('➡️')
-                            }
+                            m.reactions.removeAll()
+                            m.react('⬅️')
+                            m.react('➡️')
                             item = itemManifest[res.data.Response.results.results[page].hash]
                             if (item.itemType == 3) {
                                 m.edit("", global.Functions.BasicEmbed("normal")
@@ -114,9 +119,7 @@ module.exports = {
                             return true
                         })
                         .catch(c => {
-                            if (message.guild.me.permissions.any("ADMINISTRATOR") == true) {
-                                m.reactions.removeAll()
-                            }
+                            m.reactions.removeAll()
                             return listen = false
                         })
                     }
@@ -126,10 +129,7 @@ module.exports = {
         else if (args[0].toLowerCase() == "player") {
             listen = false
             message.channel.send("Gathering player information, please wait...").then(async m => {
-                if (args[1] == undefined) {
-                    return m.edit("", global.Functions.BasicEmbed(("error"), "Please choose a valid platform: `xbox`, `psn`, `steam`, `stadia`."))
-                }
-                if (args[1].toLowerCase() != "xbox" && args[1].toLowerCase() != "psn" && args[1].toLowerCase() != "steam" && args[1].toLowerCase() != "stadia") {
+                if (args[1] == undefined || args[1].toLowerCase() != "xbox" && args[1].toLowerCase() != "psn" && args[1].toLowerCase() != "steam" && args[1].toLowerCase() != "stadia") {
                     return m.edit("", global.Functions.BasicEmbed(("error"), "Please choose a valid platform: `xbox`, `psn`, `steam`, `stadia`."))
                 }
                 if (args[2] == undefined) {
@@ -137,6 +137,12 @@ module.exports = {
                 }
                 if (args[3] == undefined) {
                     return m.edit("", global.Functions.BasicEmbed(("error"), "Please choose a return type: `general`, `stats`."))
+                }
+                if (args[2].length > 100) {
+                    return m.edit("", global.Functions.BasicEmbed(("error"), "Entered username cannot exceed 100 characters in length."))
+                }
+                if (characterTest.test(args[2])) {
+                    return m.edit("", global.Functions.BasicEmbed(("error"), "Entered username cannot contain the following characters:\n```# (Hashtag)\n* (Asterisk)\n+ (Plus)\n: (Colon)\n< (Left Angle Bracket)\n> (Right Angle Bracket)\n? (Question Mark)```"))
                 }
                 switch (args[1].toLowerCase()) {
                     case "xbox":
@@ -152,7 +158,7 @@ module.exports = {
                         OGType = 5
                         break
                 }
-                const res = await axios.get(`https://www.bungie.net/Platform/Destiny2/SearchDestinyPlayer/Tiger${args[1].toLowerCase().charAt(0).toUpperCase() + args[1].toLowerCase().slice(1)}/${args[2]}/`, {
+                const res = await axios.get(`https://www.bungie.net/Platform/Destiny2/SearchDestinyPlayer/Tiger${args[1].toLowerCase().charAt(0).toUpperCase() + args[1].toLowerCase().slice(1)}/${encodeURIComponent(args[2])}/`, {
                     headers: {
                         'X-API-Key': global.Auth.destinyAPI,
                         'User-Agent': global.Auth.destinyUserAgent
@@ -162,11 +168,18 @@ module.exports = {
                     if (c.response.data.ErrorCode == 5) {
                         return failureReason = "maintenance"
                     }
+                    //never seen this hit, but including as a precaution
+                    if (c.response.data.ErrorCode == 24) {
+                        return failureReason = "banned"
+                    }
                     console.log(c.response.data)
                     return failureReason = "unknown"
                 })
                 if (failureReason == "maintenance") {
                     return m.edit("", global.Functions.BasicEmbed('error', "The API is currently down for maintenance, please try again later."))
+                }
+                else if (failureReason == "banned") {
+                    return m.edit("", global.Functions.BasicEmbed('error', "Requested user is banned from Bungie services."))
                 }
                 else if (failureReason == "unknown") {
                     return m.edit("", global.Functions.BasicEmbed('error', "An error occurred while fetching data from the API."))
@@ -325,11 +338,9 @@ module.exports = {
                                     }
                                     page--
                                 }
-                                if (message.guild.me.permissions.any("ADMINISTRATOR") == true) {
-                                    m.reactions.removeAll()
-                                    m.react('⬅️')
-                                    m.react('➡️')
-                                }
+                                m.reactions.removeAll()
+                                m.react('⬅️')
+                                m.react('➡️')
                                 if (page == 1) {
                                     m.edit(`${res.data.Response[0].membershipType != OGType ? "Original player's profile is not available. Returning currently active profile instead." : ""}`, global.Functions.BasicEmbed("normal")
                                     .setTitle(`${args[2]}'s PvE Stats`)
@@ -354,16 +365,14 @@ module.exports = {
                                 return true
                             })
                             .catch(c => {
-                                if (message.guild.me.permissions.any("ADMINISTRATOR") == true) {
-                                    m.reactions.removeAll()
-                                }
+                                m.reactions.removeAll()
                                 return listen = false
                             })
                         }
                     })
                 }
                 else {
-                    return m.edit("", global.Functions.BasicEmbed(("error"), "Please choose a return type: `general`, `stats`."))
+                    return m.edit("", global.Functions.BasicEmbed(("error"), "Please choose a valid return type: `general`, `stats`."))
                 }
             })
         }

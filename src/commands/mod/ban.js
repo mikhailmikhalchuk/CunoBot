@@ -4,7 +4,6 @@ module.exports = {
     desc: "Bans a user.",
     args: "<@mention|username> [reason]",
     level: "1",
-    admin: true,
     func: async (message, args) => {
         const memberData = global.Functions.getMember(message, args.join(' '))
         var res = "No reason provided"

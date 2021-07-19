@@ -1,20 +1,24 @@
 const Discord = require('discord.js');
-const { composite } = require('jimp');
-const roles = require('./data/roles.json');
+const mongodb = require('mongodb');
+const auth = require('./data/auth.json');
+const mongoClient = new mongodb.MongoClient(auth.dbLogin, { useNewUrlParser: true, useUnifiedTopology: true });
 const functions = {}
 
 //Returns integer string used for calculating member permissions
-functions.getUserLevel = (guild, member) => {
+functions.getUserLevel = async (guild, member) => {
+    await mongoClient.connect()
+    const check = await mongoClient.db("Servers").collection("Permissions").findOne({server: guild.id})
+    mongoClient.close()
     if (member.id == "287372868814372885") {
         return 3
     }
     else if (member.user.bot) {
         return -1
     }
-    else if (member.roles.cache.has(roles[`${guild}level2`]) || member.permissions.any("ADMINISTRATOR")) {
+    else if (member.roles.cache.has(check["level2"]) || member.permissions.any("ADMINISTRATOR")) {
         return 2
     }
-    else if (member.roles.cache.has(roles[`${guild}level1`])) {
+    else if (member.roles.cache.has(check["level1"])) {
         return 1
     }
     return 0

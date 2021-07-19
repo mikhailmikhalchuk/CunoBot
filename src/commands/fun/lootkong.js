@@ -15,7 +15,7 @@ module.exports = {
     desc: "Opens a Lootkong.",
     level: "3",
     func: async (message) => {
-        if (userCooldown[message.author.id] == false || userCooldown[message.author.id] == undefined || global.Functions.getUserLevel(message.guild.id, message.member) == 3 || message.member.roles.cache.find(role => role.id === "725408238484324444") != undefined) {
+        if (userCooldown[message.author.id] == false || userCooldown[message.author.id] == undefined || await global.Functions.getUserLevel(message.guild.id, message.member) == 3 || message.member.roles.cache.find(role => role.id === "725408238484324444") != undefined) {
             var random = Math.floor(Math.random() * 11)
             if (random == 8 || random == 9) {
                 random = Math.floor(Math.random() * Object.keys(superjson).length)

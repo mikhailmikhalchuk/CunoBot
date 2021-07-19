@@ -4,7 +4,6 @@ module.exports = {
     desc: "Sends a message with a webhook with the name and image provided by the user.",
     args: "<name> <image/URL> <message>",
     level: "0",
-    admin: true,
     func: async (message, args) => {
         message.delete()
         if (args[0] == undefined || args[1] == undefined || args[2] == undefined && !message.attachments.first()) {

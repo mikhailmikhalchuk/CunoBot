@@ -4,7 +4,6 @@ module.exports = {
     desc: "Bulk deletes messages.",
     args: "<#>",
     level: "1",
-    admin: true,
     func: (message, args) => {
         if (Number(args[0]) >= 100) {
             message.delete()

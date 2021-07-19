@@ -4,18 +4,21 @@
     "description": "Discord Bot",
     "main": "src/index.js",
     "author": "Cuno",
+    "repository": "github:MikhailMCraft/CunoBot",
     "dependencies": {
         "axios": "^0.21.1",
         "canvas": "^2.6.1",
         "dateformat": "^3.0.3",
-        "discord.js": "^12.2.0",
+        "discord.js": "^12.5.3",
         "jimp": "^0.16.1",
         "mcping-js": "^1.5.0",
         "moment": "^2.24.0",
         "moment-duration-format": "^2.3.2",
+        "mongodb": "^4.0.0",
+        "mysql": "^2.18.1",
         "opusscript": "0.0.7",
         "winston": "^3.2.1",
         "youtube-dl": "^3.1.0",
-        "youtube-dl-exec": "^1.2.1"
+        "youtube-dl-exec": "^1.2.3"
     }
 }

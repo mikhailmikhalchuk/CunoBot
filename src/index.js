@@ -1,17 +1,19 @@
 ﻿const prefixes = require('./data/prefixes.json');
 const events = require('./events.js');
 const readline = require('readline');
-const roles = require('./data/roles.json');
 const manifestVersion = require('./data/manifest-version.json');
-const dateFormat = require('dateformat');
+const mongodb = require('mongodb');
 const auth = require('./data/auth.json');
+const mongoClient = new mongodb.MongoClient(auth.dbLogin, { useNewUrlParser: true, useUnifiedTopology: true });
+const dateFormat = require('dateformat');
 const Discord = require('discord.js');
 const Intents = require('discord.js');
 const axios = require('axios');
-const Client = new Discord.Client({disableMentions: "everyone", ws: {intents: Intents.ALL}, presence: {activity: {name: "you.", type: "WATCHING"}, status: "online"}});
+const Client = new Discord.Client({disableMentions: "everyone", ws: {intents: Intents.ALL}, presence: {activity: {name: "you | Use ?help for help", type: "WATCHING"}, status: "online"}});
 const f = require('./functions.js');
 const fs = require('fs');
 const commands = []
+var permissionsCheck
 var listeningForMessages = []
 
 //Ready listener
@@ -31,6 +33,13 @@ Client.on('ready', async () => {
         }
         return console.log(`----\nYou have ${reports} unresolved ${reports == 1 ? "report" : "reports"}.`)
     })
+    await mongoClient.connect()
+    global.PermissionsCheck = await mongoClient.db("Servers").collection("Permissions").find({}).toArray();
+    mongoClient.close()
+    if (global.PermissionsCheck == undefined) {
+        global.PermissionsCheck == []
+        //change value in json file to restart bot - todo
+    }
     axios.get(`https://www.bungie.net/Platform/Destiny2/Manifest/`, {
         headers: {
             'X-API-Key': auth.destinyAPI,
@@ -49,9 +58,9 @@ Client.on('ready', async () => {
             })
             .then((c) => {
                 var toWrite = c.data
-                fs.writeFile('C:/Users/Cuno/Documents/DestinyManifest.json', JSON.stringify(toWrite), function (err) {
-                    fs.unlink('C:/Users/Cuno/Documents/DiscordBot/src/data/DestinyManifest.json', function (err) {
-                        fs.rename('C:/Users/Cuno/Documents/DestinyManifest.json', 'C:/Users/Cuno/Documents/DiscordBot/src/data/DestinyManifest.json', function (err) {
+                fs.writeFile('../../DestinyManifest.json', JSON.stringify(toWrite), function (err) {
+                    fs.unlink('./src/data/DestinyManifest.json', function (err) {
+                        fs.rename('../../DestinyManifest.json', './src/data/DestinyManifest.json', function (err) {
                             console.log("Successfully downloaded new version of the manifest, restarting bot now...")
                             fs.writeFileSync('./src/data/manifest-version.json', JSON.stringify(manifestVersion, null, "\t"), function (err) {})
                         })
@@ -59,6 +68,9 @@ Client.on('ready', async () => {
                 })
             })
         }
+    })
+    .catch((c) => {
+        console.log("sus")
     })
 })
 
@@ -69,7 +81,7 @@ for (logger in events) {
 
 //Command listener
 Client.on('message', async (message) => {
-    if (global.List != undefined && !message.guild && message.author.id == "287372868814372885") {
+    if (global.List[1] != undefined && !message.guild && message.author.id == "287372868814372885") {
         Client.guilds.cache.find(guild => guild.id === String(global.List[0])).channels.cache.find(channel => channel.id === String(global.List[1])).send(message.content)
     }
     else if (message.channel.id == String(global.List[1]) && message.author.id != "660856814610677761") {
@@ -87,9 +99,17 @@ Client.on('message', async (message) => {
     //Help Command
     if (comm == `${prefix}help` || comm == `${prefix}commands`) {
         //Check if roles set
-        if (roles[`${message.guild.id}level2`] == undefined) {
+        var inDB = false;
+        global.PermissionsCheck.forEach((e) => {
+            if (JSON.stringify(e).includes(message.guild.id)) {
+                inDB = true;
+                return;
+            }
+        })
+        if (!inDB) {
+            var setup = true
             message.channel.send("Hello!\nIt looks like I do not have administration and moderation roles setup in this server.\nPlease mention or paste the ID of a role to set **Level 1** permissions for it.")
-            while (true) {
+            while (setup == true) {
                 await message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
                     if (c.first().author.bot || c.first().system) {
                         return true
@@ -101,42 +121,46 @@ Client.on('message', async (message) => {
                         if (c.first().content.mentions.id == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
                             return message.channel.send("Please mention or paste the ID of a different role.")
                         }
-                        var level1 = c.first().content.mentions.roles.first().id
+                        var write1 = c.first().content.mentions.roles.first().id
                     }
                     else if (!isNaN(Number(c.first().content))) {
-                        var level1 = c.first().content
+                        var write1 = c.first().content
                     }
                     else {
                         return message.channel.send("Please mention or paste the ID of a valid role.")
                     }
                     message.channel.send("Please mention or paste the ID of a role to set **Level 2** permissions for it.")
-                    while (true) {
+                    while (setup == true) {
                         await message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
+                            if (setup == false) {
+                                return false
+                            }
                             if (c.first().author.bot || c.first().system) {
                                 return true
                             }
-                            else if (level1 == level2 || c.first().content == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
+                            else if (write1 == write2 || c.first().content == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
                                 return message.channel.send("Please mention or paste the ID of a different role.")
                             }
                             else if (c.first().content.mentions != undefined) {
                                 if (c.first().content.mentions.id == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
                                     return message.channel.send("Please mention or paste the ID of a different role.")
                                 }
-                                var level2 = c.first().content.mentions.roles.first().id
+                                var write2 = c.first().content.mentions.roles.first().id
                             }
                             else if (!isNaN(Number(c.first().content))) {
-                                var level2 = c.first().content
+                                var write2 = c.first().content
                             }
                             else {
                                 return message.channel.send("Please mention or paste the ID of a valid role.")
                             }
-                            roles[`${message.guild.id}level1`] = level1
-                            roles[`${message.guild.id}level2`] = level2
                             prefixes[message.guild.id] = "?"
-                            fs.writeFile('./data/roles.json', JSON.stringify(roles, null, "\t"), function (err) {
-                                fs.writeFile('./data/prefixes.json', JSON.stringify(prefixes, null, "\t"), function (err) {
-                                    return message.channel.send("I'm all set up!\nUse \`?help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.")
-                                })
+                            await mongoClient.connect()
+                            await mongoClient.db("Servers").collection("Permissions").insertOne({server: message.guild.id, level1: write1, level2: write2})
+                            mongoClient.close()
+                            global.PermissionsCheck.push(message.guild.id)
+                            fs.writeFile('./data/prefixes.json', JSON.stringify(prefixes, null, "\t"), function (err) {
+                                message.channel.send("I'm all set up!\nUse \`?help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.")
+                                return setup = false;
                             })
                         })
                     }
@@ -186,6 +210,9 @@ Client.on('message', async (message) => {
                 for (var command in commands[group]) {
                     var commandData = commands[group][command]
                     if (f.commandMatch(commandData, searchCommand) && !commandData.hidden) {
+                        await mongoClient.connect()
+                        const check = await mongoClient.db("Servers").collection("Permissions").findOne({server: message.guild.id})
+                        mongoClient.close()
                         message.reply("check your DMs.")
                         return message.author.send(f.BasicEmbed("normal")
                             .setTitle(`Command Help: ${commandData.name}`)
@@ -193,7 +220,7 @@ Client.on('message', async (message) => {
                             .addField("Aliases", commandData.aliases.join(", ") || "N/A", true)
                             .addField('\u200b', '\u200b', true)
                             .addField("Arguments", commandData.args || "N/A", true)
-                            .addField("Level", `${commandData.level} (${commandData.level == 3 ? "Bot Owner" : commandData.level == 0 ? "Normal User" : commandData.level == -1 ? "Bot" : message.guild.roles.resolve(roles[`${message.guild.id}level${commandData.level}`]).name})`, true)
+                            .addField("Level", `${commandData.level} (${commandData.level == 3 ? "Bot Owner" : commandData.level == 0 ? "Normal User" : commandData.level == -1 ? "Bot" : message.guild.roles.resolve(check[`level${commandData.level}`]).name})`, true)
                             .addField("Description", commandData.desc))
                         .catch(() => {
                             message.reply("there was an error sending you the help DM. Make sure you do not have the bot blocked and your DMs are open.")
@@ -233,13 +260,23 @@ Client.on('message', async (message) => {
         group = commands[group]
         for (var command in group) {
             command = group[command]
-            if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && message.guild.me.permissions.any("ADMINISTRATOR") == false && command.admin == true) {
-                return message.channel.send(f.BasicEmbed(("error"), "This command is disabled in this server. [Learn more](https://mikhailmcraft.github.io/CunoBot/qna)"))
+            var inDB = false;
+            try {
+                global.PermissionsCheck.forEach((e) => {
+                    if (JSON.stringify(e).includes(message.guild.id)) {
+                        inDB = true;
+                        return;
+                    }
+                })
             }
-            else if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.getUserLevel(message.guild.id, message.member) == -1 || roles[`${message.guild.id}level2`] == undefined) {
+            catch (e) {
+                console.log(e)
+                console.log(`Value of global.PermissionsCheck: ${global.PermissionsCheck}`)
+            }
+            if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && await f.getUserLevel(message.guild.id, message.member) == -1 || inDB == false) {
                 return false
             }
-            else if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.getUserLevel(message.guild.id, message.member) >= command.level) {
+            else if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && await f.getUserLevel(message.guild.id, message.member) >= command.level) {
                 //Executes command
                 try {
                     command.func(message, args)
@@ -248,7 +285,7 @@ Client.on('message', async (message) => {
                     message.channel.send(f.BasicEmbed(("error"), e.stack))
                 }
             }
-            else if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && f.getUserLevel(message.guild.id, message.member) < command.level) {
+            else if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && await f.getUserLevel(message.guild.id, message.member) < command.level) {
                 return message.channel.send(f.BasicEmbed(("error"), "You do not have the proper permissions to execute this command."))
             }
         }
@@ -274,8 +311,8 @@ fs.readdir('src/commands', (_err, groups) => {
 global.Client = Client
 global.Functions = f
 global.Auth = auth
-global.Roles = roles
 global.List = listeningForMessages
+global.PermissionsCheck = permissionsCheck
 
 //Bot login
 try {

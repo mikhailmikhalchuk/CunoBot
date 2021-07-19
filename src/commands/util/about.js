@@ -1,4 +1,5 @@
-const roles = require('C:/Users/Cuno/Documents/DiscordBot/src/data/roles.json');
+const mongodb = require('mongodb');
+const mongoClient = new mongodb.MongoClient(global.Auth.dbLogin, { useNewUrlParser: true, useUnifiedTopology: true });
 
 module.exports = {
     name: "about",
@@ -7,14 +8,15 @@ module.exports = {
     args: "<@mention|username>",
     level: "0",
     func: async (message, args) => {
+        var m = await message.channel.send(global.Functions.BasicEmbed(("normal"), "Gathering data..."))
         const memberData = global.Functions.getMember(message, args.join(' '))
         if (!memberData[0]) {
-            return message.channel.send(null, global.Functions.BasicEmbed("error", memberData[1]))
+            return m.edit("", global.Functions.BasicEmbed("error", memberData[1]))
         }
         const member = memberData[1]
         var embed = global.Functions.BasicEmbed("normal")
         if (!member) {
-            return message.channel.send(global.Functions.BasicEmbed(("error"), "No users found!"))
+            return m.edit("", global.Functions.BasicEmbed(("error"), "No users found!"))
         }
         //Presence Data
         const game = member.user.presence.activities[0]
@@ -77,11 +79,14 @@ module.exports = {
                 stat = "Unknown"
                 break
         }
+        await mongoClient.connect()
+        const check = await mongoClient.db("Servers").collection("Permissions").findOne({server: message.guild.id})
+        mongoClient.close()
         if (game && game.type == 1) {
             emoji = "<:streaming:671128707603103799>"
             stat = `[Streaming](${game.url})` 
         }
-        var level = global.Functions.getUserLevel(message.guild.id, member)
+        var level = await global.Functions.getUserLevel(message.guild.id, member)
         embed = embed
             .setAuthor(member.displayName, member.user.avatarURL({format: 'png', dynamic: true}))
             .addField("Username", member.user.tag, true)
@@ -89,8 +94,8 @@ module.exports = {
             .addField("Status", `${emoji} ${stat}`, true)
             .addField("Account Creation", member.user.createdAt.toLocaleString('en-US', {year: "numeric", month: "long", day: "numeric", timeZone: "UTC"}), true)
             .addField("Joined Server", member.joinedAt.toLocaleString('en-US', {year: "numeric", month: "long", day: "numeric", timeZone: "UTC"}), true)
-            .addField("Bot Permissions", `${level} (${level == 3 ? "Bot Owner" : level == 0 ? "Normal User" : level == -1 ? "Bot" : message.guild.roles.resolve(roles[`${message.guild.id}level${level}`]).name})`, true)
+            .addField("Bot Permissions", `${level} (${level == 3 ? "Bot Owner" : level == 0 ? "Normal User" : level == -1 ? "Bot" : message.guild.roles.resolve(check[`level${level}`]).name})`, true)
             .addField("Roles", member.roles.cache.array().join(", "))
-        message.channel.send(embed)
+        m.edit("", embed)
     }
 }

@@ -9,7 +9,7 @@ module.exports = {
     args: "<message>",
     level: "0",
     func: async (message, args) => {
-        if (userCooldown[message.author.id] == false || userCooldown[message.author.id] == undefined || global.Functions.getUserLevel(message.guild.id, message.member) == 3) {
+        if (userCooldown[message.author.id] == false || userCooldown[message.author.id] == undefined || await global.Functions.getUserLevel(message.guild.id, message.member) == 3) {
             userCooldown[message.author.id] = true;
             const m = await message.channel.send("Adding to list...")
             const d = new Date();
