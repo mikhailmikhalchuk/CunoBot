@@ -6,19 +6,24 @@ const functions = {}
 
 //Returns integer string used for calculating member permissions
 functions.getUserLevel = async (guild, member) => {
-    await mongoClient.connect()
-    const check = await mongoClient.db("Servers").collection("Permissions").findOne({server: guild.id})
-    mongoClient.close()
+    var level1
+    var level2
+    global.PermissionsList.forEach((e) => {
+        if (e["server"] == guild.id) {
+            level1 = e["level1"]
+            level2 = e["level2"]
+        }
+    })
     if (member.id == "287372868814372885") {
         return 3
     }
     else if (member.user.bot) {
         return -1
     }
-    else if (member.roles.cache.has(check["level2"]) || member.permissions.any("ADMINISTRATOR")) {
+    else if (member.roles.cache.has(level2) || member.permissions.any("ADMINISTRATOR")) {
         return 2
     }
-    else if (member.roles.cache.has(check["level1"])) {
+    else if (member.roles.cache.has(level1)) {
         return 1
     }
     return 0

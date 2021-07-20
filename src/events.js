@@ -1,4 +1,3 @@
-const prefixes = require('./data/prefixes.json');
 const auth = require('./data/auth.json')
 const mongodb = require('mongodb');
 const mongoClient = new mongodb.MongoClient(auth.dbLogin, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -181,7 +180,12 @@ events.channelUpdate = async (client, oldChannel, newChannel) => {
 
 //Guild join logger
 events.guildCreate = async (client, guild) => {
-    var prefix = prefixes[guild.id]
+    var prefix
+    global.PrefixList.forEach((e) => {
+        if (e["server"] == message.guild.id) {
+            prefix = e["prefix"]
+        }
+    })
     var schannel = guild.channels.cache.find(text => text.type === "text")
     if (guild.me.permissions.any("SEND_MESSAGES") == false) {
         guild.leave()
@@ -191,7 +195,7 @@ events.guildCreate = async (client, guild) => {
         guild.leave()
         return
     }
-    if (global.PermissionsCheck == undefined) {
+    if (global.PermissionsList == undefined) {
         var setup = true;
         schannel.send("Hello!\nIt looks like I do not have administration and moderation roles setup in this server.\nPlease mention or paste the ID of a role to set **Level 1** permissions for it.")
         while (setup == true) {
@@ -202,11 +206,11 @@ events.guildCreate = async (client, guild) => {
                 else if (c.first().content == guild.roles.cache.find(role => role.name == "@everyone").id) {
                     return schannel.send("Please mention or paste the ID of a different role.")
                 }
-                else if (c.first().content.mentions != undefined) {
-                    if (c.first().content.mentions.id == guild.roles.cache.find(role => role.name == "@everyone").id) {
+                else if (c.first().mentions.roles.first() != undefined) {
+                    if (c.first().mentions.roles.first().id == guild.roles.cache.find(role => role.name == "@everyone").id) {
                         return schannel.send("Please mention or paste the ID of a different role.")
                     }
-                    var write1 = c.first().content.mentions.roles.first().id
+                    var write1 = c.first().mentions.roles.first().id
                 }
                 else if (!isNaN(Number(c.first().content))) {
                     var write1 = c.first().content
@@ -214,7 +218,7 @@ events.guildCreate = async (client, guild) => {
                 else {
                     return schannel.send("Please mention or paste the ID of a valid role.")
                 }
-                schannel.send("Please mention or paste the ID of a role to set **Level 2** permissions for it.")
+                schannel.send(`Awesome! I'll set that as the role for level 1 permissions. Now we'll need a level 2 role. Please mention or paste the ID of a role to set **Level 2** permissions for it.`)
                 while (setup == true) {
                     await schannel.awaitMessages(m => m.member.permissions.any("ADMINISTRATOR") == true, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
                         if (setup == false) {
@@ -223,14 +227,14 @@ events.guildCreate = async (client, guild) => {
                         if (c.first().author.bot || c.first().system) {
                             return true
                         }
-                        else if (write1 == write2 || c.first().content == guild.roles.cache.find(role => role.name == "@everyone").id) {
+                        else if (write1 == c.first().content || (c.first().mentions.roles.first() != undefined && write1 == c.first().mentions.roles.first().id) || c.first().content == guild.roles.cache.find(role => role.name == "@everyone").id) {
                             return schannel.send("Please mention or paste the ID of a different role.")
                         }
-                        else if (c.first().content.mentions != undefined) {
-                            if (c.first().content.mentions.id == guild.roles.cache.find(role => role.name == "@everyone").id) {
+                        else if (c.first().mentions.roles.first() != undefined) {
+                            if (c.first().mentions.roles.first().id == guild.roles.cache.find(role => role.name == "@everyone").id) {
                                 return schannel.send("Please mention or paste the ID of a different role.")
                             }
-                            var write2 = c.first().content.mentions.roles.first().id
+                            var write2 = c.first().mentions.roles.first().id
                         }
                         else if (!isNaN(Number(c.first().content))) {
                             var write2 = c.first().content
@@ -240,12 +244,12 @@ events.guildCreate = async (client, guild) => {
                         }
                         await mongoClient.connect()
                         await mongoClient.db("Servers").collection("Permissions").insertOne({server: message.guild.id, level1: write1, level2: write2})
+                        await mongoClient.db("Servers").collection("Prefixes").insertOne({server: message.guild.id, prefix: "?"})
+                        global.PrefixList = await mongoClient.db("Servers").collection("Prefixes").find({}).toArray();
+                        global.PermissionsList = await mongoClient.db("Servers").collection("Permissions").find({}).toArray();
                         mongoClient.close()
-                        global.PermissionsCheck.push(guild.id)
-                        fs.writeFile('./data/prefixes.json', JSON.stringify(prefixes).replace("}", `,"${guild.id}":"?"}`), function (err) {
-                            schannel.send("I'm all set up!\nUse \`?help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.")
-                            return setup = false;
-                        })
+                        schannel.send("I'm all set up!\nUse \`?help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.")
+                        return setup = false;
                     })
                 }
             })

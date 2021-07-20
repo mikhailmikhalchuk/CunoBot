@@ -1,5 +1,4 @@
-﻿const prefixes = require('./data/prefixes.json');
-const events = require('./events.js');
+﻿const events = require('./events.js');
 const readline = require('readline');
 const manifestVersion = require('./data/manifest-version.json');
 const mongodb = require('mongodb');
@@ -13,8 +12,9 @@ const Client = new Discord.Client({disableMentions: "everyone", ws: {intents: In
 const f = require('./functions.js');
 const fs = require('fs');
 const commands = []
-var permissionsCheck
+var permissionsList
 var listeningForMessages = []
+var prefixList
 
 //Ready listener
 Client.on('ready', async () => {
@@ -34,12 +34,9 @@ Client.on('ready', async () => {
         return console.log(`----\nYou have ${reports} unresolved ${reports == 1 ? "report" : "reports"}.`)
     })
     await mongoClient.connect()
-    global.PermissionsCheck = await mongoClient.db("Servers").collection("Permissions").find({}).toArray();
+    global.PermissionsList = await mongoClient.db("Servers").collection("Permissions").find({}).toArray();
+    global.PrefixList = await mongoClient.db("Servers").collection("Prefixes").find({}).toArray();
     mongoClient.close()
-    if (global.PermissionsCheck == undefined) {
-        global.PermissionsCheck == []
-        //change value in json file to restart bot - todo
-    }
     axios.get(`https://www.bungie.net/Platform/Destiny2/Manifest/`, {
         headers: {
             'X-API-Key': auth.destinyAPI,
@@ -95,13 +92,21 @@ Client.on('message', async (message) => {
     }
     const args = message.content.trim().split(" ")
     comm = args.shift()
-    prefixes[message.guild.id] == undefined ? prefix = "?" : prefix = prefixes[message.guild.id]
+    var hit = false
+    if (global.PrefixList == undefined || global.PermissionsList == undefined) return message.channel.send(f.BasicEmbed(("error"), "The bot is starting up.\nPlease use the command again in a little while."))
+    global.PrefixList.forEach((e) => {
+        if (e["server"] == message.guild.id) {
+            prefix = e["prefix"]
+            hit = true
+        }
+    })
+    if (!hit) prefix = "?"
     //Help Command
     if (comm == `${prefix}help` || comm == `${prefix}commands`) {
         //Check if roles set
         var inDB = false;
-        global.PermissionsCheck.forEach((e) => {
-            if (JSON.stringify(e).includes(message.guild.id)) {
+        global.PermissionsList.forEach((e) => {
+            if (e["server"] == message.guild.id) {
                 inDB = true;
                 return;
             }
@@ -117,11 +122,11 @@ Client.on('message', async (message) => {
                     else if (c.first().content == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
                         return message.channel.send("Please mention or paste the ID of a different role.")
                     }
-                    else if (c.first().content.mentions != undefined) {
-                        if (c.first().content.mentions.id == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
+                    else if (c.first().mentions.roles.first() != undefined) {
+                        if (c.first().mentions.roles.first().id == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
                             return message.channel.send("Please mention or paste the ID of a different role.")
                         }
-                        var write1 = c.first().content.mentions.roles.first().id
+                        var write1 = c.first().mentions.roles.first().id
                     }
                     else if (!isNaN(Number(c.first().content))) {
                         var write1 = c.first().content
@@ -129,7 +134,7 @@ Client.on('message', async (message) => {
                     else {
                         return message.channel.send("Please mention or paste the ID of a valid role.")
                     }
-                    message.channel.send("Please mention or paste the ID of a role to set **Level 2** permissions for it.")
+                    message.channel.send(`Awesome! I'll set that as the role for level 1 permissions. Now we'll need a level 2 role. Please mention or paste the ID of a role to set **Level 2** permissions for it.`)
                     while (setup == true) {
                         await message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
                             if (setup == false) {
@@ -138,14 +143,14 @@ Client.on('message', async (message) => {
                             if (c.first().author.bot || c.first().system) {
                                 return true
                             }
-                            else if (write1 == write2 || c.first().content == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
+                            else if (write1 == c.first().content || (c.first().mentions.roles.first() != undefined && write1 == c.first().mentions.roles.first().id) ||c.first().content == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
                                 return message.channel.send("Please mention or paste the ID of a different role.")
                             }
-                            else if (c.first().content.mentions != undefined) {
-                                if (c.first().content.mentions.id == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
+                            else if (c.first().mentions.roles.first() != undefined) {
+                                if (c.first().mentions.roles.first().id == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
                                     return message.channel.send("Please mention or paste the ID of a different role.")
                                 }
-                                var write2 = c.first().content.mentions.roles.first().id
+                                var write2 = c.first().mentions.roles.first().id
                             }
                             else if (!isNaN(Number(c.first().content))) {
                                 var write2 = c.first().content
@@ -153,15 +158,14 @@ Client.on('message', async (message) => {
                             else {
                                 return message.channel.send("Please mention or paste the ID of a valid role.")
                             }
-                            prefixes[message.guild.id] = "?"
                             await mongoClient.connect()
                             await mongoClient.db("Servers").collection("Permissions").insertOne({server: message.guild.id, level1: write1, level2: write2})
+                            await mongoClient.db("Servers").collection("Prefixes").insertOne({server: message.guild.id, prefix: "?"})
+                            global.PrefixList = await mongoClient.db("Servers").collection("Prefixes").find({}).toArray();
+                            global.PermissionsList = await mongoClient.db("Servers").collection("Permissions").find({}).toArray();
                             mongoClient.close()
-                            global.PermissionsCheck.push(message.guild.id)
-                            fs.writeFile('./data/prefixes.json', JSON.stringify(prefixes, null, "\t"), function (err) {
-                                message.channel.send("I'm all set up!\nUse \`?help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.")
-                                return setup = false;
-                            })
+                            message.channel.send("I'm all set up!\nUse \`?help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.")
+                            return setup = false;
                         })
                     }
                 })
@@ -262,8 +266,8 @@ Client.on('message', async (message) => {
             command = group[command]
             var inDB = false;
             try {
-                global.PermissionsCheck.forEach((e) => {
-                    if (JSON.stringify(e).includes(message.guild.id)) {
+                global.PermissionsList.forEach((e) => {
+                    if (e["server"] == message.guild.id) {
                         inDB = true;
                         return;
                     }
@@ -271,7 +275,7 @@ Client.on('message', async (message) => {
             }
             catch (e) {
                 console.log(e)
-                console.log(`Value of global.PermissionsCheck: ${global.PermissionsCheck}`)
+                console.log(`Value of global.PermissionsList: ${global.PermissionsList}`)
             }
             if (comm.slice(0, 1) == prefix && f.commandMatch(command, comm.slice(1)) && await f.getUserLevel(message.guild.id, message.member) == -1 || inDB == false) {
                 return false
@@ -312,7 +316,8 @@ global.Client = Client
 global.Functions = f
 global.Auth = auth
 global.List = listeningForMessages
-global.PermissionsCheck = permissionsCheck
+global.PermissionsList = permissionsList
+global.PrefixList = prefixList
 
 //Bot login
 try {

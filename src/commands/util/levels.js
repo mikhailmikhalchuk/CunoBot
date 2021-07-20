@@ -12,21 +12,19 @@ module.exports = {
         if (args[0] == undefined || args[0] == "") {
             return message.channel.send(global.Functions.BasicEmbed(("error"), "Please choose a valid option: `list`, `change`."))
         }
-        await mongoClient.connect()
-        const check = await mongoClient.db("Servers").collection("Permissions").findOne({server: message.guild.id})
-        mongoClient.close()
-        if (args[0].toLowerCase() == "list") {
-            if (level1 == "") {
-                return message.channel.send(global.Functions.BasicEmbed("normal")
-                    .setAuthor("Levels")
-                    .addField("Level 2", `<@&${check["level1"]}>`)
-                    .addField("Level 0", "@everyone")
-                    .addField("Your Level", `Level ${await global.Functions.getUserLevel(message.guild.id, message.member)}`))
+        var level1list
+        var level2list
+        global.PermissionsList.forEach((e) => {
+            if (e["server"] == message.guild.id) {
+                level1list = e["level1"]
+                level2list = e["level2"]
             }
+        })
+        if (args[0].toLowerCase() == "list") {
             return message.channel.send(global.Functions.BasicEmbed("normal")
                 .setAuthor("Levels")
-                .addField("Level 2", `<@&${check["level2"]}>`)
-                .addField("Level 1", `<@&${check["level1"]}>`)
+                .addField("Level 2", `<@&${level2list}>`)
+                .addField("Level 1", `<@&${level1list}>`)
                 .addField("Level 0", "@everyone")
                 .addField("Your Level", `Level ${await global.Functions.getUserLevel(message.guild.id, message.member)}`))
         }
@@ -46,11 +44,11 @@ module.exports = {
                     else if (c.first().content == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
                         return message.channel.send("Please mention or paste the ID of a different role.")
                     }
-                    else if (c.first().content.mentions != undefined) {
-                        if (c.first().content.mentions.id == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
+                    else if (c.first().mentions.roles.first() != undefined) {
+                        if (c.first().mentions.roles.first().id == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
                             return message.channel.send("Please mention or paste the ID of a different role.")
                         }
-                        write1 = c.first().content.mentions.roles.first().id
+                        write1 = c.first().mentions.roles.first().id
                     }
                     else if (!isNaN(Number(c.first().content.slice(3, 20)))) {
                         write1 = c.first().content
@@ -68,14 +66,14 @@ module.exports = {
                                 message.reply("cancelled command.")
                                 return loop = false
                             }
-                            else if (write1 == write2 || c.first().content == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
+                            else if (write1 == c.first().content || (c.first().mentions.roles.first() != undefined && write1 == c.first().mentions.roles.first().id) || c.first().content == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
                                 return message.channel.send("Please mention or paste the ID of a different role.")
                             }
-                            else if (c.first().content.mentions != undefined) {
-                                if (c.first().content.mentions.id == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
+                            else if (c.first().mentions.roles.first() != undefined) {
+                                if (c.first().mentions.roles.first().id == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
                                     return message.channel.send("Please mention or paste the ID of a different role.")
                                 }
-                                write2 = c.first().content.mentions.roles.first().id
+                                write2 = c.first().mentions.roles.first().id
                             }
                             else if (!isNaN(Number(c.first().content.slice(3, 20)))) {
                                 write2 = c.first().content
