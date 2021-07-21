@@ -1,5 +1,5 @@
 CunoBot
-Creator - @Cuno#3435
+Creator - @Cuno#9958
 
 Attribution
 @Thunder#2020 - Letting me use code from his bot's GitHub, as well as helping me with a lot of other JavaScript-related problems.
