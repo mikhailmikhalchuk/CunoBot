@@ -1,6 +1,7 @@
 CunoBot
-Creator - @Cuno#3435
+Creator - @Cuno#9958
 
 Attribution
 @Thunder#2020 - Letting me use code from his bot's GitHub, as well as helping me with a lot of other JavaScript-related problems.
 @RecklessRock#7984 - Allowing me to host my bot on his server, which helped me greatly with many debugging errors and new additions to the bot.
+Github Contributors - Contributions to the bot
