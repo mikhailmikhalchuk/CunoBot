@@ -1,12 +1,12 @@
 import auth from './data/auth.json';
-import Discord, { Snowflake, TextChannel } from 'discord.js';
+import Discord, { Message, TextChannel, Client, GuildChannel, GuildEmoji } from 'discord.js';
 const mongodb = require('mongodb')
 const mongoClient = new mongodb.MongoClient(auth.dbLogin, { useNewUrlParser: true, useUnifiedTopology: true });
 const dateFormat = require('dateformat');
 import * as f from './functions'
 
 //Message Deleted
-export async function messageDelete (client: Discord.Client, message: Discord.Message) {
+export async function messageDelete (client: Client, message: Message) {
     if (message.channel.type == "dm") return;
     await mongoClient.connect()
     var check = await mongoClient.db("Servers").collection("Logging").findOne({server: message.guild.id})
@@ -29,7 +29,7 @@ export async function messageDelete (client: Discord.Client, message: Discord.Me
 }
 
 //Bulk message deletion
-export async function messageDeleteBulk (client: Discord.Client, messages: Discord.Collection<Snowflake, Discord.Message>) {
+export async function messageDeleteBulk (client: Client, messages: Discord.Collection<Discord.Snowflake, Message>) {
     await mongoClient.connect()
     var check = await mongoClient.db("Servers").collection("Logging").findOne({server: messages.first().guild.id})
     mongoClient.close()
@@ -46,7 +46,7 @@ export async function messageDeleteBulk (client: Discord.Client, messages: Disco
 }
 
 //Message Updated
-export async function messageUpdate (client: Discord.Client, oldMessage: Discord.Message, newMessage: Discord.Message) {
+export async function messageUpdate (client: Client, oldMessage: Message, newMessage: Message) {
     if (oldMessage.channel.type == "dm" || newMessage.embeds.length != 0 || oldMessage.embeds.length != newMessage.embeds.length || newMessage.pinned != oldMessage.pinned) return;
     await mongoClient.connect()
     var check = await mongoClient.db("Servers").collection("Logging").findOne({server: oldMessage.guild.id})
@@ -69,7 +69,7 @@ export async function messageUpdate (client: Discord.Client, oldMessage: Discord
 }
 
 //Emoji Added
-export async function emojiCreate (client: Discord.Client, emoji: Discord.GuildEmoji) {
+export async function emojiCreate (client: Client, emoji: GuildEmoji) {
     await mongoClient.connect()
     const check = await mongoClient.db("Servers").collection("Logging").findOne({server: emoji.guild.id})
     mongoClient.close()
@@ -88,7 +88,7 @@ export async function emojiCreate (client: Discord.Client, emoji: Discord.GuildE
 }
 
 //Emoji Deleted
-export async function emojiDelete (client: Discord.Client, emoji: Discord.GuildEmoji) {
+export async function emojiDelete (client: Client, emoji: GuildEmoji) {
     await mongoClient.connect()
     const check = await mongoClient.db("Servers").collection("Logging").findOne({server: emoji.guild.id})
     mongoClient.close()
@@ -101,7 +101,7 @@ export async function emojiDelete (client: Discord.Client, emoji: Discord.GuildE
 }
 
 //Emoji Updated
-export async function emojiUpdate (client: Discord.Client, oldEmoji: Discord.GuildEmoji, newEmoji: Discord.GuildEmoji) {
+export async function emojiUpdate (client: Client, oldEmoji: GuildEmoji, newEmoji: GuildEmoji) {
     await mongoClient.connect()
     const check = await mongoClient.db("Servers").collection("Logging").findOne({server: oldEmoji.guild.id})
     mongoClient.close()
@@ -120,7 +120,7 @@ export async function emojiUpdate (client: Discord.Client, oldEmoji: Discord.Gui
 }
 
 //Category/channel created
-export async function channelCreate (client: Discord.Client, channel: Discord.GuildChannel) {
+export async function channelCreate (client: Client, channel: GuildChannel) {
     if ((channel as Discord.Channel).type == "dm") return;
     await mongoClient.connect()
     const check = await mongoClient.db("Servers").collection("Logging").findOne({server: channel.guild.id})
@@ -134,7 +134,7 @@ export async function channelCreate (client: Discord.Client, channel: Discord.Gu
 }
 
 //Category/channel deleted
-export async function channelDelete (client: Discord.Client, channel: Discord.GuildChannel) {
+export async function channelDelete (client: Client, channel: GuildChannel) {
     await mongoClient.connect()
     const check = await mongoClient.db("Servers").collection("Logging").findOne({server: channel.guild.id})
     mongoClient.close()
@@ -147,7 +147,7 @@ export async function channelDelete (client: Discord.Client, channel: Discord.Gu
 }
 
 //Category/channel updated
-export async function channelUpdate (client: Discord.Client, oldChannel: Discord.GuildChannel, newChannel: Discord.GuildChannel) {
+export async function channelUpdate (client: Client, oldChannel: GuildChannel, newChannel: GuildChannel) {
     if ((oldChannel as TextChannel).topic == (newChannel as TextChannel).topic && oldChannel.name == newChannel.name && oldChannel.parent == newChannel.parent) return;
     await mongoClient.connect()
     const check = await mongoClient.db("Servers").collection("Logging").findOne({server: oldChannel.guild.id})
@@ -163,8 +163,8 @@ export async function channelUpdate (client: Discord.Client, oldChannel: Discord
 }
 
 //Guild join logger
-export async function guildCreate (client: Discord.Client, guild: Discord.Guild) {
-    var prefix
+export async function guildCreate (client: Client, guild: Discord.Guild) {
+    var prefix = "?"
     global.PrefixList.forEach((e: any[string]) => {
         if (e["server"] == guild.id) {
             prefix = e["prefix"]
@@ -202,7 +202,7 @@ export async function guildCreate (client: Discord.Client, guild: Discord.Guild)
                 else {
                     return schannel.send("Please mention or paste the ID of a valid role.")
                 }
-                schannel.send(`Awesome! I'll set that as the role for level 1 permissions. Now we'll need a level 2 role. Please mention or paste the ID of a role to set **Level 2** permissions for it.`)
+                schannel.send(`Awesome! I'll set ${guild.roles.cache.get(write1).name} as the role for level 1 permissions. Now we'll need a level 2 role. Please mention or paste the ID of a role to set **Level 2** permissions for it.`)
                 while (setup == true) {
                     await schannel.awaitMessages(m => m.member.permissions.any("ADMINISTRATOR") == true, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
                         if (setup == false) {
@@ -232,7 +232,7 @@ export async function guildCreate (client: Discord.Client, guild: Discord.Guild)
                         global.PrefixList = await mongoClient.db("Servers").collection("Prefixes").find({}).toArray();
                         global.PermissionsList = await mongoClient.db("Servers").collection("Permissions").find({}).toArray();
                         mongoClient.close()
-                        schannel.send("I'm all set up!\nUse \`?help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.")
+                        schannel.send("I'm all set up!\nUse \`?help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#9958.")
                         return setup = false;
                     })
                 }
@@ -240,12 +240,12 @@ export async function guildCreate (client: Discord.Client, guild: Discord.Guild)
         }
     }
     else {
-        schannel.send(`Thank you for inviting me.\nUse \`${prefix}help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.`)
+        schannel.send(`Thank you for inviting me.\nUse \`${prefix}help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#9958.`)
     }
 }
 
 //User details updated
-export async function userUpdate (client: Discord.Client, oldUser: Discord.User, newUser: Discord.User) {
+export async function userUpdate (client: Client, oldUser: Discord.User, newUser: Discord.User) {
     if (oldUser.username == newUser.username && oldUser.avatar == newUser.avatar && oldUser.discriminator == newUser.discriminator) return;
     oldUser.client.guilds.cache.each(async (guild) => {
         var gm = guild.member(newUser)
@@ -282,7 +282,7 @@ export async function userUpdate (client: Discord.Client, oldUser: Discord.User,
 }
 
 //Guild member details updated
-export async function guildMemberUpdate (client: Discord.Client, oldMember: Discord.GuildMember, newMember: Discord.GuildMember) {
+export async function guildMemberUpdate (client: Client, oldMember: Discord.GuildMember, newMember: Discord.GuildMember) {
     if (oldMember.nickname == newMember.nickname) return;
     await mongoClient.connect()
     const check = await mongoClient.db("Servers").collection("Logging").findOne({server: newMember.guild.id})
@@ -299,7 +299,7 @@ export async function guildMemberUpdate (client: Discord.Client, oldMember: Disc
 }
 
 //Guild member joined
-export async function guildMemberAdd (client: Discord.Client, member: Discord.GuildMember) {
+export async function guildMemberAdd (client: Client, member: Discord.GuildMember) {
     await mongoClient.connect()
     const check = await mongoClient.db("Servers").collection("Logging").findOne({server: member.guild.id})
     mongoClient.close()
@@ -328,7 +328,7 @@ export async function guildMemberAdd (client: Discord.Client, member: Discord.Gu
 }
 
 //Guild member left/kicked
-export async function guildMemberRemove (client: Discord.Client, member: Discord.GuildMember) {
+export async function guildMemberRemove (client: Client, member: Discord.GuildMember) {
     await mongoClient.connect()
     const check = await mongoClient.db("Servers").collection("Logging").findOne({server: member.guild.id})
     mongoClient.close()
@@ -342,18 +342,18 @@ export async function guildMemberRemove (client: Discord.Client, member: Discord
 }
 
 //Bot session invalidated
-export function invalidated (client: Discord.Client) {
+export function invalidated () {
     const d = new Date()
     console.log(`Bot has disconnected.\nSession invalidated at ${dateFormat(d, "h:MM:ss TT")}.`)
     process.exit(0)
 }
 
 //Bot error encountered
-export function error (client: Discord.Client, error: Error) {
+export function error (error: Error) {
     console.error(error)
 }
 
 //Bot warning encountered
-export function warn (client: Discord.Client, info: string) {
+export function warn (info: string) {
     console.warn(info)
 }

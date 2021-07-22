@@ -17,23 +17,23 @@ module.exports = {
         switch (Math.floor(Math.random() * 5)) {
             case 0:
                 message.reply("definitely.")
-                cachedRatings = JSON.parse(JSON.stringify(cachedRatings).replace("}", `,"${args.join(" ")}":"definitely."}`))
+                cachedRatings[args.join(" ")] = "definitely."
                 break
             case 1:
                 message.reply("probably.")
-                cachedRatings = JSON.parse(JSON.stringify(cachedRatings).replace("}", `,"${args.join(" ")}":"probably."}`))
+                cachedRatings[args.join(" ")] = "probably."
                 break
             case 2:
                 message.reply("maybe.")
-                cachedRatings = JSON.parse(JSON.stringify(cachedRatings).replace("}", `,"${args.join(" ")}":"maybe."}`))
+                cachedRatings[args.join(" ")] = "maybe."
                 break
             case 3:
                 message.reply("unlikely.")
-                cachedRatings = JSON.parse(JSON.stringify(cachedRatings).replace("}", `,"${args.join(" ")}":"unlikely."}`))
+                cachedRatings[args.join(" ")] = "unlikely."
                 break
             case 4:
                 message.reply("definitely not.")
-                cachedRatings = JSON.parse(JSON.stringify(cachedRatings).replace("}", `,"${args.join(" ")}":"definitely not."}`))
+                cachedRatings[args.join(" ")] = "definitely not."
                 break
             default:
                 message.reply("an error occured while rolling the 8-ball.")

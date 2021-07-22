@@ -57,7 +57,7 @@ module.exports = {
                     else {
                         return message.channel.send("Please mention or paste the ID of a valid role.")
                     }
-                    message.channel.send("Please mention or paste the ID of a role to set **Level 2** permissions for it (or `cancel` to cancel).")
+                    message.channel.send(`I'll set ${message.guild.roles.cache.get(write1).name} as the level 1 role. Now, please mention or paste the ID of a role to set **Level 2** permissions for it (or \`cancel\` to cancel).`)
                     while (loop == true) {
                         await message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
                             if (c.first().author.bot || c.first().system) {

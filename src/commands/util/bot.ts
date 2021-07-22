@@ -1,8 +1,7 @@
 import Discord from 'discord.js'
-const dateFormat = require('dateformat');
-const moment = require("moment"); require("moment-duration-format");
-var d = new Date();
-var timeup = dateFormat(d, 'mmmm d, yyyy "at" h:MM:ss TT')
+import dateFormat from 'dateformat';
+import moment from "moment";
+var timeup = dateFormat(new Date(), 'mmmm d, yyyy "at" h:MM:ss TT')
 
 module.exports = {
     name: "bot",
@@ -16,6 +15,8 @@ module.exports = {
             .addField("Servers", global.Client.guilds.cache.size, true)
             .addField("Commands", global.CommandCount, true)
             .addField("Uptime", `${moment.duration(global.Client.uptime).format(" D [days], H [hrs], m [mins], s [secs]")} (since ${timeup})`, true)
+            .addField("Repository", "https://github.com/MikhailMCraft/CunoBot", true)
+            .addField("Server", "https://discord.gg/JWgtHHy", true)
         )
     }
 }

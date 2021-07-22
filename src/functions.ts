@@ -3,7 +3,11 @@ const auth = require('./data/auth.json');
 import Discord from "discord.js"
 const mongoClient = new mongodb.MongoClient(auth.dbLogin, { useNewUrlParser: true, useUnifiedTopology: true });
 
-//Returns integer string used for calculating member permissions
+/**
+ * Gets a user's permission level and returns it in a promise.
+ * @param guild The guild in which to get the member's permission level.
+ * @param member The member in which to get the permission level of.
+ */
 export async function getUserLevel (guild: Discord.Guild, member: Discord.GuildMember) {
     var level1
     var level2
@@ -28,8 +32,12 @@ export async function getUserLevel (guild: Discord.Guild, member: Discord.GuildM
     return 0
 }
 
-export function BasicEmbed (type: string, text?: any, options?: string[]) {
-    if (typeof type == "object") options = type
+/**
+ * Constructs a `Discord.MessageEmbed` and returns it.
+ * @param type The type of embed in which to return. Accepts `normal`, `success`, `error`, or any color.
+ * @param text The text in which to set the description of the embed.
+ */
+export function BasicEmbed (type: string, text?: any) {
     var embed = new Discord.MessageEmbed()
         .setFooter("Cuno's Bot")
         .setTimestamp()
@@ -55,7 +63,11 @@ export function BasicEmbed (type: string, text?: any, options?: string[]) {
     return embed
 }
 
-//Grabs a user by their full or partial name or nickname (or a mention)
+/**
+ * Gets a guild member based on name, nickname, or mention.
+ * @param message The message which triggered the function.
+ * @param str The string in which to search with.
+ */
 export function getMember (message: Discord.Message, str: string) {
     var member = message.mentions.members.first()
     if (member) {

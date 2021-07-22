@@ -1,6 +1,4 @@
 import Discord from 'discord.js'
-const mongodb = require('mongodb');
-const mongoClient = new mongodb.MongoClient(global.Auth.dbLogin, { useNewUrlParser: true, useUnifiedTopology: true });
 
 module.exports = {
     name: "about",

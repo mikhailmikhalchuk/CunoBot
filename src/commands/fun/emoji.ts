@@ -15,7 +15,7 @@ module.exports = {
         const groups = regex.exec(msg)
         if (groups) {
             const id = groups[3]
-            return message.channel.send(null, global.Functions.BasicEmbed('normal', ' ', ['nothumbnail'])
+            return message.channel.send(null, global.Functions.BasicEmbed('normal', ' ')
                 .setTitle("Emoji")
                 .addField("Name", groups[2], true)
                 .addField("ID", id, true)

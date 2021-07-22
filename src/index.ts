@@ -1,51 +1,121 @@
-﻿import readline from 'readline';
-import manifestVersion from './data/manifest-version.json';
-const mongodb = require('mongodb');
-import auth from './data/auth.json';
-const mongoClient = new mongodb.MongoClient(auth.dbLogin, { useNewUrlParser: true, useUnifiedTopology: true });
-const dateFormat = require('dateformat');
-import Discord, { TextChannel } from 'discord.js';
+﻿import Discord, { TextChannel } from 'discord.js';
 import axios, { AxiosResponse } from 'axios';
-const Client = new Discord.Client({disableMentions: "everyone", ws: {intents: Discord.Intents.ALL}, presence: {activity: {name: "you | Use ?help for help", type: "WATCHING"}, status: "online"}});
+import auth from './data/auth.json';
+import readline from 'readline';
+import manifestVersion from './data/manifest-version.json';
 import * as f from './functions';
 import * as eventsFile from './events'
 import * as Destiny from './interfaces'
 import fs from 'fs';
+const mongodb = require('mongodb');
+const dateFormat = require('dateformat');
+const mongoClient = new mongodb.MongoClient(auth.dbLogin, { useNewUrlParser: true, useUnifiedTopology: true });
+const Client = new Discord.Client({disableMentions: "everyone", ws: {intents: Discord.Intents.ALL}, presence: {activity: {name: "you | Use ?help for help", type: "WATCHING"}, status: "online"}});
 const commands: Discord.Collection<string, Command> = new Discord.Collection();
 const commandGroups: any[string] = []
 var permissionsList
 var listeningForMessages: any[] = []
 var prefixList
 
+//#region Interfaces
 interface IFunctions {
-    getUserLevel(guild: Discord.Guild, member: Discord.GuildMember): Promise<number>,
-    BasicEmbed(type: string, text?: any, options?: string[]): Discord.MessageEmbed,
-    getMember(message: Discord.Message, str: string): any[]
+    /**
+     * Gets a user's permission level and returns it in a promise.
+     * @param guild The guild in which to get the member's permission level.
+     * @param member The member in which to get the permission level of.
+     */
+    getUserLevel(guild: Discord.Guild, member: Discord.GuildMember): Promise<number>;
+
+    /**
+     * Constructs a `Discord.MessageEmbed` and returns it.
+     * @param type The type of embed in which to return. Accepts `normal`, `success`, `error`, or any color.
+     * @param text The text in which to set the description of the embed.
+     */
+    BasicEmbed(type: string, text?: any): Discord.MessageEmbed;
+
+    /**
+     * Gets a guild member based on name, nickname, or mention.
+     * @param message The message which triggered the function.
+     * @param str The string in which to search with.
+     */
+    getMember(message: Discord.Message, str: string): any[];
+}
+
+interface IAuth {
+    /**
+     * The bot token.
+     */
+    token: string;
+
+    /**
+     * The Destiny API key.
+     */
+    destinyAPI: string;
+
+    /**
+     * The Destiny API User Agent.
+     */
+    destinyUserAgent: string;
+
+    /**
+     * MongoDB login string.
+     */
+    dbLogin: string;
 }
 
 interface Command {
-    name: string,
-    aliases: any[string],
-    args?: string,
-    desc: string,
-    level: number,
-    hidden?: boolean,
-    func(message: Discord.Message, args: string[]): void
+    /**
+     * The command name.
+     */
+    name: string;
+
+    /**
+     * The command's aliases, if any.
+     */
+    aliases: any[string];
+
+    /**
+     * The arguments the command takes, if any.
+     */
+    args?: string;
+
+    /**
+     * The command's description.
+     */
+    desc: string;
+
+    /**
+     * The command's permission level.
+     */
+    level: number;
+
+    /**
+     * Whether or not the command will show up in commands like `?help`
+     */
+    hidden?: boolean;
+
+    /**
+     * Execute the command.
+     * @param message The message that triggered the command to run.
+     * @param args Associated arguments, if any.
+     */
+    func(message: Discord.Message, args: string[]): void;
 }
 
 declare global {
     namespace NodeJS {
         interface Global {
-            Client: Discord.Client,
-            Functions: IFunctions,
-            Auth: any,
-            List: any,
-            PermissionsList: any[],
-            PrefixList: any[],
-            CommandCount: number
+            Client: Discord.Client;
+            Functions: IFunctions;
+            Auth: IAuth;
+            List: any;
+            PermissionsList: any[];
+            PrefixList: any[];
+            CommandCount: number;
         }
     }
 }
+//#endregion
 
 //Ready listener
 Client.on('ready', async () => {
@@ -160,7 +230,7 @@ Client.on('message', async (message) => {
                     else {
                         return message.channel.send("Please mention or paste the ID of a valid role.")
                     }
-                    message.channel.send(`Awesome! I'll set that as the role for level 1 permissions. Now we'll need a level 2 role. Please mention or paste the ID of a role to set **Level 2** permissions for it.`)
+                    message.channel.send(`Awesome! I'll set ${message.guild.roles.cache.get(write1).name} as the role for level 1 permissions. Now we'll need a level 2 role. Please mention or paste the ID of a role to set **Level 2** permissions for it.`)
                     while (setup == true) {
                         await message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
                             if (setup == false) {
@@ -190,7 +260,7 @@ Client.on('message', async (message) => {
                             global.PrefixList = await mongoClient.db("Servers").collection("Prefixes").find({}).toArray();
                             global.PermissionsList = await mongoClient.db("Servers").collection("Permissions").find({}).toArray();
                             mongoClient.close()
-                            message.channel.send("I'm all set up!\nUse \`?help\` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#3435.")
+                            message.channel.send("I'm all set up!\nUse `?help` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#9958.")
                             return setup = false;
                         })
                     }
@@ -200,7 +270,7 @@ Client.on('message', async (message) => {
         //Help cats
         else if (args[0] == undefined || args[0] == "") {
             message.reply("check your DMs.")
-            message.author.send("Please pick a category from the following (type \`cancel\` to cancel).", f.BasicEmbed(("normal"), commandGroups.join("\n"))).then((i) => {
+            message.author.send("Please pick a category from the following (type `cancel` to cancel).", f.BasicEmbed(("normal"), commandGroups.join("\n"))).then((i) => {
                 (Client.channels.resolve(i.channel.id) as TextChannel).awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 15000, errors: ['time'] }).then(async c => {
                     var category = c.first().content.toLowerCase()
                     if (category == "cancel") {

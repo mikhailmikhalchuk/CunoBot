@@ -42,6 +42,9 @@ module.exports = {
                 if (res.data.ErrorCode == Destiny.PlatformErrorCodes.SystemDisabled) {
                     return me.edit("", global.Functions.BasicEmbed('error', "The API is currently down for maintenance, please try again later."))
                 }
+                else if (res.data.ErrorCode != Destiny.PlatformErrorCodes.Success) {
+                    return me.edit("", global.Functions.BasicEmbed('error', "An error occurred while fetching data from the API."))
+                }
                 if (res.data.Response.results.totalResults == 0) {
                     return message.channel.send(global.Functions.BasicEmbed(("error"), `No results found.${res.data.Response.suggestedWords[0] != undefined ? `\nRecommended keywords to search with: \`${res.data.Response.suggestedWords.join(", ")}\`` : ""}`))
                 }
@@ -137,16 +140,17 @@ module.exports = {
                 }
                 switch (args[1].toLowerCase()) {
                     case "xbox":
-                        OGType = 1
+                        OGType = Destiny.BungieMembershipType.TigerXbox
                         break
+                    case "playstation":
                     case "psn":
-                        OGType = 2
+                        OGType = Destiny.BungieMembershipType.TigerPsn
                         break
                     case "steam":
-                        OGType = 3
+                        OGType = Destiny.BungieMembershipType.TigerSteam
                         break
                     case "stadia":
-                        OGType = 5
+                        OGType = Destiny.BungieMembershipType.TigerStadia
                         break
                 }
                 const res = await axios.get<Destiny.ServerResponse<Destiny.UserInfoCard[]>>(`https://www.bungie.net/Platform/Destiny2/SearchDestinyPlayer/Tiger${args[1].toLowerCase().charAt(0).toUpperCase() + args[1].toLowerCase().slice(1)}/${encodeURIComponent(args[2])}/`, {
@@ -160,6 +164,9 @@ module.exports = {
                 }
                 else if (res.data.ErrorCode == Destiny.PlatformErrorCodes.UserBanned) {
                     return m.edit("", global.Functions.BasicEmbed('error', "Requested user is banned from Bungie services."))
+                }
+                else if (res.data.ErrorCode != Destiny.PlatformErrorCodes.Success) {
+                    return m.edit("", global.Functions.BasicEmbed('error', "An error occurred while fetching data from the API."))
                 }
                 if (res.data.Response[0] == undefined) {
                     return m.edit("", global.Functions.BasicEmbed(("error"), "Could not find user."))
@@ -176,9 +183,9 @@ module.exports = {
                     var res9: AxiosResponse<Destiny.ServerResponse<Destiny.DestinyActivityDefinition>>
                     var res10: AxiosResponse<Destiny.ServerResponse<Destiny.DestinyActivityDefinition>>
                     m.edit("Gathering inventory information, please wait...")
-                    kinetic = itemManifest[res1.data.Response.characterEquipment.data[Object.keys(res1.data.Response.characterEquipment.data)[0]].items[0].itemHash].itemType == 3 ? res1.data.Response.characterEquipment.data[Object.keys(res1.data.Response.characterEquipment.data)[0]].items[0].itemHash : 0
-                    energy = itemManifest[res1.data.Response.characterEquipment.data[Object.keys(res1.data.Response.characterEquipment.data)[0]].items[1].itemHash].itemType == 3 ? res1.data.Response.characterEquipment.data[Object.keys(res1.data.Response.characterEquipment.data)[0]].items[1].itemHash : 0
-                    power = itemManifest[res1.data.Response.characterEquipment.data[Object.keys(res1.data.Response.characterEquipment.data)[0]].items[2].itemHash].itemType == 3 ? res1.data.Response.characterEquipment.data[Object.keys(res1.data.Response.characterEquipment.data)[0]].items[2].itemHash : 0
+                    kinetic = itemManifest[res1.data.Response.characterEquipment.data[Object.keys(res1.data.Response.characterEquipment.data)[0]].items[0].itemHash].itemType == Destiny.DestinyItemType.Weapon ? res1.data.Response.characterEquipment.data[Object.keys(res1.data.Response.characterEquipment.data)[0]].items[0].itemHash : 0
+                    energy = itemManifest[res1.data.Response.characterEquipment.data[Object.keys(res1.data.Response.characterEquipment.data)[0]].items[1].itemHash].itemType == Destiny.DestinyItemType.Weapon ? res1.data.Response.characterEquipment.data[Object.keys(res1.data.Response.characterEquipment.data)[0]].items[1].itemHash : 0
+                    power = itemManifest[res1.data.Response.characterEquipment.data[Object.keys(res1.data.Response.characterEquipment.data)[0]].items[2].itemHash].itemType == Destiny.DestinyItemType.Weapon ? res1.data.Response.characterEquipment.data[Object.keys(res1.data.Response.characterEquipment.data)[0]].items[2].itemHash : 0
                     for (var item of res1.data.Response.characterEquipment.data[Object.keys(res1.data.Response.characterEquipment.data)[0]].items) {
                         switch (itemManifest[item.itemHash].itemType) {
                             case Destiny.DestinyItemType.Subclass:

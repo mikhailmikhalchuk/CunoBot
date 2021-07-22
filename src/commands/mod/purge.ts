@@ -1,4 +1,4 @@
-import Discord, { TextChannel } from 'discord.js'
+import Discord from 'discord.js'
 
 module.exports = {
     name: "purge",
@@ -17,7 +17,7 @@ module.exports = {
         else if (isNaN(Number(args[0]))) {
             return message.channel.send(global.Functions.BasicEmbed(("error"), `${args[0]} is not a number!`))
         }
-        (message.channel as TextChannel).bulkDelete(Number(args[0]) + 1, true).then((m) => {
+        (message.channel as Discord.TextChannel).bulkDelete(Number(args[0]) + 1, true).then((m) => {
             var messages = m.size == 2 ? "message" : "messages"
             if (m.size == 1) {
                 return message.channel.send(global.Functions.BasicEmbed(("error"), "Cannot delete messages older than 14 days.")).then(msg => {msg.delete({timeout: 3000})})
