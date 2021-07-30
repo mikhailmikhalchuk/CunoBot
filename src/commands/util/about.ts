@@ -12,7 +12,7 @@ module.exports = {
         if (!memberData[0]) {
             return m.edit("", global.Functions.BasicEmbed("error", memberData[1]))
         }
-        const member = memberData[1]
+        const member: Discord.GuildMember = memberData[1]
         var embed = global.Functions.BasicEmbed("normal")
         if (!member) {
             return m.edit("", global.Functions.BasicEmbed(("error"), "No users found!"))
@@ -45,7 +45,7 @@ module.exports = {
                         break
                     case "Custom Status":
                         if (game.emoji == null) embed = embed.setDescription(`*${game.state}*`)
-                        else embed = embed.setDescription(`*${game.emoji}${game.state}*`)
+                        else embed = embed.setDescription(`*:${game.emoji.name}: ${game.state}*`)
                         break
                     default:
                         embed = embed.setDescription(`*Playing ${game.name}*`)
@@ -84,7 +84,7 @@ module.exports = {
                 levelList = e
             }
         })
-        if (game && game.type == 1) {
+        if (game && game.type == "STREAMING") {
             emoji = "<:streaming:671128707603103799>"
             stat = `[Streaming](${game.url})` 
         }

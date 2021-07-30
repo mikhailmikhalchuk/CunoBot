@@ -1,6 +1,6 @@
 import Discord from 'discord.js'
-const fs = require('fs')
-const dateFormat = require('dateformat');
+import fs from 'fs';
+import dateFormat from 'dateformat';
 const userCooldown: any = {};
 
 module.exports = {

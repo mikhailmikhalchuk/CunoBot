@@ -72,7 +72,7 @@ interface Command {
     /**
      * The command's aliases, if any.
      */
-    aliases: any[string];
+    aliases: string[];
 
     /**
      * The arguments the command takes, if any.
@@ -108,7 +108,7 @@ declare global {
             Client: Discord.Client;
             Functions: IFunctions;
             Auth: IAuth;
-            List: any;
+            List: string[];
             PermissionsList: any[];
             PrefixList: any[];
             CommandCount: number;
@@ -134,7 +134,7 @@ Client.on('ready', async () => {
     global.PermissionsList = await mongoClient.db("Servers").collection("Permissions").find({}).toArray();
     global.PrefixList = await mongoClient.db("Servers").collection("Prefixes").find({}).toArray();
     mongoClient.close()
-    axios.get(`https://www.bungie.net/Platform/Destiny2/Manifest/`, {
+    axios.get('https://www.bungie.net/Platform/Destiny2/Manifest/', {
         headers: {
             'X-API-Key': auth.destinyAPI,
             'User-Agent': auth.destinyUserAgent
@@ -239,7 +239,7 @@ Client.on('message', async (message) => {
                             if (c.first().author.bot || c.first().system) {
                                 return true
                             }
-                            else if (write1 == c.first().content || (c.first().mentions.roles.first() != undefined && write1 == c.first().mentions.roles.first().id) ||c.first().content == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
+                            else if (write1 == c.first().content || (c.first().mentions.roles.first() != undefined && write1 == c.first().mentions.roles.first().id) || c.first().content == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
                                 return message.channel.send("Please mention or paste the ID of a different role.")
                             }
                             else if (c.first().mentions.roles.first() != undefined) {
@@ -347,6 +347,9 @@ Client.on('message', async (message) => {
         }
     }
     var execCommand = commands.get(comm.slice(1))
+    if (execCommand == undefined) {
+        execCommand = commands.find(c => c.aliases.includes(comm.slice(1)))
+    }
     var inDB = false;
     global.PermissionsList.forEach((e: any[string]) => {
         if (e["server"] == message.guild.id) {

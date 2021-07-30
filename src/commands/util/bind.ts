@@ -16,7 +16,7 @@ module.exports = {
         }
         else {
             message.delete()
-            global.List = ""
+            global.List = []
             bound = false
             return message.author.send(`Successfully removed the bind from the current channel. Message flow has ended.`)
         }
