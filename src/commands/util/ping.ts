@@ -1,17 +1,16 @@
 import Discord from 'discord.js'
+import { SlashCommandBuilder } from '@discordjs/builders';
 
 module.exports = {
-    name: "ping",
-    aliases: [],
-    desc: "Returns the speed at which the bot is functioning.",
-    level: 0,
-    func: (message: Discord.Message) => {
+    data: new SlashCommandBuilder()
+        .setName('ping')
+        .setDescription('Returns the speed at which the bot is functioning'),
+    async execute(interaction: Discord.CommandInteraction) {
         const t = Date.now()
-        message.channel.send("Pinging...").then(async (m) => {
-            m.edit("", global.Functions.BasicEmbed("normal")
-                .setAuthor("Pong!")
-                .addField("Bot Ping", `${Math.round(global.Client.ws.ping)} ms`)
-                .addField("Server Ping", `${Math.round(Date.now() - t)} ms`))
-        })
+        await interaction.reply("Pinging...")
+        interaction.editReply({embeds: [global.Functions.BasicEmbed("normal")
+            .setAuthor("Pong!")
+            .addField("Bot Ping", `${Math.round(global.Client.ws.ping)} ms`)
+            .addField("Server Ping", `${Math.round(Date.now() - t)} ms`)]})
     }
 }

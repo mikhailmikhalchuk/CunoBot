@@ -1,35 +1,31 @@
 import Discord from 'discord.js'
+import { SlashCommandBuilder } from '@discordjs/builders';
 
 module.exports = {
-    name: "purge",
-    aliases: ["delete"],
-    desc: "Bulk deletes messages.",
-    args: "<#>",
-    level: 1,
-    func: (message: Discord.Message, args: string[]) => {
-        if (Number(args[0]) >= 100) {
-            message.delete()
-            return message.channel.send(global.Functions.BasicEmbed(("error"), "You cannot delete more than 100 messages.")).then(msg => {msg.delete({timeout: 3000})})
+    data: new SlashCommandBuilder()
+        .setName('purge')
+        .setDescription('Bulk deletes messages')
+        .addIntegerOption(option => option.setName('messages').setDescription('The number of messages to delete').setRequired(true))
+        .setDefaultPermission(false),
+    async execute(interaction: Discord.CommandInteraction) {
+        const num = interaction.options.getInteger('messages')
+        if (num >= 100) {
+            return interaction.reply({embeds: [global.Functions.BasicEmbed(("error"), "You cannot delete more than 100 messages.")], ephemeral: true})
         }
-        else if (typeof Number(args[0]) == "number" && Number(args[0]) < 1) {
-            return message.channel.send(global.Functions.BasicEmbed(("error"), "You must assign an amount of messages to delete equal to or greater than 1."))
+        else if (num < 1) {
+            return interaction.reply({embeds: [global.Functions.BasicEmbed(("error"), "You must assign an amount of messages to delete equal to or greater than 1.")], ephemeral: true})
         }
-        else if (isNaN(Number(args[0]))) {
-            return message.channel.send(global.Functions.BasicEmbed(("error"), `${args[0]} is not a number!`))
-        }
-        (message.channel as Discord.TextChannel).bulkDelete(Number(args[0]) + 1, true).then((m) => {
+        (interaction.channel as Discord.TextChannel).bulkDelete(num + 1, true).then((m) => {
             var messages = m.size == 2 ? "message" : "messages"
             if (m.size == 1) {
-                return message.channel.send(global.Functions.BasicEmbed(("error"), "Cannot delete messages older than 14 days.")).then(msg => {msg.delete({timeout: 3000})})
+                return interaction.reply({embeds: [global.Functions.BasicEmbed(("error"), "Cannot delete messages older than 14 days.")], ephemeral: true})
             }
-            else if (m.size < Number(args[0]) + 1) {
-                return message.channel.send(global.Functions.BasicEmbed(("success"), `Successfully deleted ${m.size - 1} ${messages}.\n${Number(args[0]) + 1 - m.size} could not be deleted.`)
-                    .setAuthor("Purged"))
-                    .then(msg => {msg.delete({timeout: 3000})})
+            else if (m.size < num + 1) {
+                return interaction.reply({embeds: [global.Functions.BasicEmbed(("success"), `Successfully deleted ${m.size - 1} ${messages}.\n${num + 1 - m.size} could not be deleted.`)
+                    .setAuthor("Purged")]})
             }
-            return message.channel.send(global.Functions.BasicEmbed(("success"), `Successfully deleted ${m.size - 1} ${messages}.`)
-                .setAuthor("Purged"))
-                .then(msg => {msg.delete({timeout: 3000})})
+            return interaction.reply({embeds: [global.Functions.BasicEmbed(("success"), `Successfully deleted ${m.size - 1} ${messages}.`)
+                .setAuthor("Purged")]})
         })
     }
 }

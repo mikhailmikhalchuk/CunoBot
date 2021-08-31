@@ -1,4 +1,5 @@
 import Discord from 'discord.js'
+import { SlashCommandBuilder } from '@discordjs/builders';
 
 const userCooldown: any = {}
 
@@ -12,12 +13,11 @@ const highendjson: any = {0:"<:aacc:722917254127419433>", 1:"<:banhammer:7231976
 const highendtextjson: any = {0:"**Aacc** (High-End)", 1:"**Ban Hammer** (High-End)", 2:"**Brian Flatulents** (High-End)", 3:"**Dededenied** (High-End)", 4:"**Doorkick** (High-End)", 5:"**Luigi Dab** (High-End)", 6:"**Yosh Dance** (High-End)", 7:"**Buge** (High-End)", 8:"**Confused Dog** (High-End)"}
 
 module.exports = {
-    name: "lootkong",
-    aliases: [],
-    desc: "Opens a Lootkong.",
-    level: 3,
-    func: async (message: Discord.Message) => {
-        if (userCooldown[message.author.id] == false || userCooldown[message.author.id] == undefined || await global.Functions.getUserLevel(message.guild, message.member) == 3 || message.member.roles.cache.find(role => role.id === "725408238484324444") != undefined) {
+    data: new SlashCommandBuilder()
+        .setName('lootkong')
+        .setDescription('Opens a Lootkong'),
+    async execute(interaction: Discord.CommandInteraction) {
+        if (userCooldown[interaction.user.id] == false || userCooldown[interaction.user.id] == undefined || await global.Functions.getUserLevel(interaction.guild, (interaction.member as Discord.GuildMember)) == 3) {
             var random = Math.floor(Math.random() * 11)
             if (random == 8 || random == 9) {
                 random = Math.floor(Math.random() * Object.keys(superjson).length)
@@ -56,17 +56,17 @@ module.exports = {
                 var text2 = normaltextjson[random]
                 var type2 = `normal${random}`
             }
-            const lootkong1 = await message.channel.send("\n<:dk1:722914445554352280><:dk2:722914439610892298>\n<:dk3:722914431809486910><:dk4:722914419239026729>")
-            const lootkong2 = await message.channel.send("**Opening Lootkong...**\n_ _")
+            await interaction.reply("\n<:dk1:722914445554352280><:dk2:722914439610892298>\n<:dk3:722914431809486910><:dk4:722914419239026729>")
+            const lootkong2 = await interaction.channel.send("**Opening Lootkong...**\n_ _")
             setTimeout(() => {
-                lootkong1.edit(`<:dk1:722914445554352280>${emoji1}<:dk2:722914439610892298>\n<:dk3:722914431809486910>${emoji2}<:dk4:722914419239026729>`)
+                interaction.editReply(`<:dk1:722914445554352280>${emoji1}<:dk2:722914439610892298>\n<:dk3:722914431809486910>${emoji2}<:dk4:722914419239026729>`)
                 lootkong2.edit(`**Lootkong opened!**\nYou got:\n-${text1}\n-${text2}`)
             }, 2000)
-            userCooldown[message.author.id] = true
-            setTimeout(() => {userCooldown[message.author.id] = false}, 60000)
+            userCooldown[interaction.user.id] = true
+            setTimeout(() => {userCooldown[interaction.user.id] = false}, 60000)
         }
-        else if (userCooldown[message.author.id] == true) {
-            return message.reply("you must wait 60 seconds before using this command again!")
+        else if (userCooldown[interaction.user.id] == true) {
+            return interaction.reply("you must wait 60 seconds before using this command again!")
         }
     }
 }

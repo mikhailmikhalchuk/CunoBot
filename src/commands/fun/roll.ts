@@ -1,37 +1,37 @@
 import Discord from 'discord.js'
+import { SlashCommandBuilder } from '@discordjs/builders';
 
 module.exports = {
-    name: "roll",
-    aliases: ["dice"],
-    desc: "Rolls a die, with the amount of sides decided by the user. Defaults to 6.",
-    args: "[sides]",
-    level: 0,
-    func: async (message: Discord.Message, args: string[]) => {
-        var roll = Number(args[0])
-        if (!roll) roll = 6
-        const m = await message.channel.send(global.Functions.BasicEmbed(("normal"), " ")
+    data: new SlashCommandBuilder()
+        .setName('roll')
+        .setDescription('Rolls a die, with the amount of sides decided by the user. Defauls to 6')
+        .addIntegerOption(option => option.setName('sides').setDescription('The amount of sides to roll the die with')),
+    async execute(interaction: Discord.CommandInteraction) {
+        var roll = interaction.options.getInteger('sides')
+        if (roll == null) roll = 6
+        await interaction.reply({embeds: [global.Functions.BasicEmbed(("normal"), " ")
             .setAuthor("Rolling...")
-            .addField("Sides", roll))
+            .addField("Sides", roll.toString())]})
         if (isNaN(Number(roll))) {
-            return m.edit(global.Functions.BasicEmbed(("error"), `${roll} is not a number!`))
+            return interaction.editReply({embeds: [global.Functions.BasicEmbed(("error"), `${roll} is not a number!`)]})
         }
         if (Number(roll) <= 0) {
-            return m.edit(global.Functions.BasicEmbed(("error"), "Please pick a number greater than one."))
+            return interaction.editReply({embeds: [global.Functions.BasicEmbed(("error"), "Please pick a number greater than one.")]})
         }
         if (roll == Infinity) {
-            return m.edit(global.Functions.BasicEmbed(("error"), "You cannot roll infinity!"))
+            return interaction.editReply({embeds: [global.Functions.BasicEmbed(("error"), "You cannot roll infinity!")]})
         }
         if (Number(roll) == 1) {
-            return m.edit(global.Functions.BasicEmbed(("error"), "Please pick a number greater than one."))
+            return interaction.editReply({embeds: [global.Functions.BasicEmbed(("error"), "Please pick a number greater than one.")]})
         }
         if (Number.isInteger(roll * 1) == false) {
-            return m.edit(global.Functions.BasicEmbed(("error"), "Please pick a whole number."))
+            return interaction.editReply({embeds: [global.Functions.BasicEmbed(("error"), "Please pick a whole number.")]})
         }
         setTimeout(function () {
-            m.edit(global.Functions.BasicEmbed("success")
+            interaction.editReply({embeds: [global.Functions.BasicEmbed("success")
                 .setAuthor("Rolled")
-                .addField("Sides", roll)
-                .addField("Result", Math.ceil(Math.random() * roll)))
+                .addField("Sides", roll.toString())
+                .addField("Result", Math.ceil(Math.random() * roll).toString())]})
         }, 1000)
     }
 }

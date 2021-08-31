@@ -1,6 +1,6 @@
 const mongodb = require('mongodb');
 const auth = require('./data/auth.json');
-import Discord from "discord.js"
+import Discord, { ColorResolvable } from "discord.js"
 const mongoClient = new mongodb.MongoClient(auth.dbLogin, { useNewUrlParser: true, useUnifiedTopology: true });
 
 /**
@@ -55,12 +55,12 @@ export function BasicEmbed (type: string, text?: any) {
         .setAuthor("Error")
     }
     else if (type) {
-        embed = embed.setColor(type)
+        embed = embed.setColor((type as ColorResolvable))
     }
     else {
         embed = embed.setColor('DEFAULT')
     }
-    return embed
+    return embed;
 }
 
 /**
@@ -68,53 +68,44 @@ export function BasicEmbed (type: string, text?: any) {
  * @param message The message which triggered the function.
  * @param str The string in which to search with.
  */
-export function getMember (message: Discord.Message, str: string) {
-    var member = message.mentions.members.first()
-    if (member) {
-        return [true, member]
+export function getMember (guild: Discord.Guild, str: string) {
+    const nickList = guild.members.cache.filter(m => m.displayName.toLowerCase().slice(0, str.length) == str.toLowerCase())
+    const userList = guild.members.cache.filter(m => m.user.username.toLowerCase().slice(0, str.length) == str.toLowerCase())
+    const exactMatchNick = nickList.find(m => m.displayName.toLowerCase() == str.toLowerCase())
+    const exactMatchUser = userList.find(m => m.user.username.toLowerCase() == str.toLowerCase())
+    if (exactMatchNick) {
+        return [true, exactMatchNick]
     }
-    else {
-        if (str == undefined || str == "") {
-            return [true, message.member]
-        }
-        const nickList = message.guild.members.cache.filter(m => m.displayName.toLowerCase().slice(0, str.length) == str.toLowerCase())
-        const userList = message.guild.members.cache.filter(m => m.user.username.toLowerCase().slice(0, str.length) == str.toLowerCase())
-        const exactMatchNick = nickList.find(m => m.displayName.toLowerCase() == str.toLowerCase())
-        const exactMatchUser = userList.find(m => m.user.username.toLowerCase() == str.toLowerCase())
-        if (exactMatchNick) {
-            return [true, exactMatchNick]
-        }
-        if (exactMatchUser) {
-            return [true, exactMatchUser]
-        }
-        else if (nickList.size > 1) {
-            var members = []
-            for (var memberCheck in nickList.array()) {
-                if (Number(memberCheck) > 10) {
-                    members.push(`+${nickList.array().length - 10} more`)
-                    break
-                }
-                members.push(nickList.array()[memberCheck].displayName)
+    if (exactMatchUser) {
+        return [true, exactMatchUser]
+    }
+    else if (nickList.size > 1) {
+        var members = []
+        for (var memberCheck in nickList) {
+            if (Number(memberCheck) > 10) {
+                members.push(`+${nickList.size - 10} more`)
+                break
             }
-            return [false, `Mulitple users found: ${members.join(", ")}`]
+            members.push(nickList.get(memberCheck).displayName)
         }
-        else if (nickList.size == 1) {
-            return [true, nickList.first()]
-        }
-        else if (userList.size > 1) {
-            var members = []
-            for (var memberCheck in userList.array()) {
-                if (Number(memberCheck) > 10) {
-                    members.push(`+${userList.array().length - 10} more`)
-                    break
-                }
-                members.push(userList.array()[memberCheck].user.username)
+        return [false, `Mulitple users found: ${members.join(", ")}`]
+    }
+    else if (nickList.size == 1) {
+        return [true, nickList.first()]
+    }
+    else if (userList.size > 1) {
+        var members = []
+        for (var memberCheck in userList) {
+            if (Number(memberCheck) > 10) {
+                members.push(`+${userList.size - 10} more`)
+                break
             }
-            return [false, `Mulitple users found: ${members.join(", ")}`]
+            members.push(userList.get(memberCheck).user.username)
         }
-        else if (userList.size == 1) {
-            return [true, userList.first()]
-        }
+        return [false, `Mulitple users found: ${members.join(", ")}`]
+    }
+    else if (userList.size == 1) {
+        return [true, userList.first()]
     }
     return [false, "No user found!"]
 }

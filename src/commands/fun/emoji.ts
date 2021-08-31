@@ -1,26 +1,22 @@
 const regex = /<(a?):(.*?):(.*?)>/i
 import Discord from 'discord.js'
+import { SlashCommandBuilder } from '@discordjs/builders';
 
 module.exports = {
-    name: "emoji",
-    aliases: ["emote"],
-    args: "<emoji>",
-    desc: "Takes an emoji and returns its image, as well as some data.",
-    level: 0,
-    func: async (message: Discord.Message, args: string[]) => {
-        if (args[0] == undefined) {
-            return message.channel.send(global.Functions.BasicEmbed('error', "Please provide an emoji."))
-        }
-        const msg = args[0]
-        const groups = regex.exec(msg)
+    data: new SlashCommandBuilder()
+        .setName('emoji')
+        .setDescription("Takes and emoji and returns its image, as well as some data")
+        .addStringOption(option => option.setName('emoji').setDescription('The emoji to gather data on').setRequired(true)),
+    async execute(interaction: Discord.CommandInteraction) {
+        const groups = regex.exec(interaction.options.getString('emoji'))
         if (groups) {
             const id = groups[3]
-            return message.channel.send(null, global.Functions.BasicEmbed('normal', ' ')
+            return interaction.reply({embeds: [global.Functions.BasicEmbed('normal', ' ')
                 .setTitle("Emoji")
                 .addField("Name", groups[2], true)
                 .addField("ID", id, true)
-                .setImage(`https://cdn.discordapp.com/emojis/${id}.${groups[1] == "a" ? "gif" : "png"}`))
+                .setImage(`https://cdn.discordapp.com/emojis/${id}.${groups[1] == "a" ? "gif" : "png"}`)]})
         }
-        return message.channel.send(null, global.Functions.BasicEmbed('error', "Emoji not found. This command only works for custom emojis."))
+        return interaction.reply({embeds: [global.Functions.BasicEmbed('error', "Emoji not found. This command only works for custom emojis.")]})
     }
 }

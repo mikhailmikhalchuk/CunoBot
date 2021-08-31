@@ -1,24 +1,22 @@
 import Discord from 'discord.js'
+import { SlashCommandBuilder } from '@discordjs/builders';
 var bound = false
 
 module.exports = {
-    name: "bind",
-    aliases: [],
-    desc: "Binds the current channel to the DM.",
-    level: 3,
-    hidden: true,
-    func: (message: Discord.Message) => {
+    data: new SlashCommandBuilder()
+        .setName('bind')
+        .setDescription('Binds the current channel to the DM')
+        .setDefaultPermission(false),
+    async execute(interaction: Discord.CommandInteraction) {
         if (bound == false) {
-            message.delete()
-            global.List = [message.guild.id, message.channel.id]
+            global.List = [interaction.guild.id, interaction.channel.id]
             bound = true
-            return message.author.send(`Successfully bound to channel ID ${message.channel.id}. Message flow begins from this point onwards.`)
+            return interaction.reply({content: `Successfully bound to channel ID ${interaction.channel.id}. Message flow begins from this point onwards.`, ephemeral: true})
         }
         else {
-            message.delete()
             global.List = []
             bound = false
-            return message.author.send(`Successfully removed the bind from the current channel. Message flow has ended.`)
+            return interaction.reply({content: `Successfully removed the bind from the current channel. Message flow has ended.`, ephemeral: true})
         }
     }
 }

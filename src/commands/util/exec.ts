@@ -1,33 +1,29 @@
 import Discord from 'discord.js'
+import { SlashCommandBuilder } from '@discordjs/builders';
 const dateFormat = require('dateformat');
 var disabled = false;
 
 module.exports = {
-    name: "exec",
-    aliases: [],
-    args: "<code>",
-    desc: "Executes JavaScript code from the bot.",
-    level: 3,
-    hidden: true,
-    func: (message: Discord.Message, args: string[]) => {
-        message.delete()
+    data: new SlashCommandBuilder()
+        .setName('exec')
+        .setDescription('Executes JavaScript code from the bot')
+        .addStringOption(option => option.setName('code').setDescription('The code to execute'))
+        .setDefaultPermission(false),
+    async execute(interaction: Discord.CommandInteraction) {
         try {
             if (disabled == true) {
-                return message.channel.send(global.Functions.BasicEmbed(("error"), "The command is currently disabled."))
+                return interaction.reply({embeds: [global.Functions.BasicEmbed(("error"), "The command is currently disabled.")], ephemeral: true})
             }
-            else if (message.content.match(/auth\./gi) && disabled == false) {
+            else if (interaction.options.getString('code').match(/auth\./gi) && disabled == false) {
                 disabled = true
                 const d = new Date()
-                console.log(`ALERT | ATTEMPTED ACCESS OF SENSITIVE DATA\n----\nby: ${message.member.user.tag}\nin: ${message.guild.name}\non: ${dateFormat(d, 'mmmm d, yyyy "at" h:MM:ss TT')}\nchannel: #${(message.channel as Discord.TextChannel).name}\ncontent: \"${message.content}\"\n----\nEXEC COMMAND HAS BEEN DISABLED`)
-                return message.channel.send(global.Functions.BasicEmbed(("error"), "The command has been disabled due to an attempted access of sensitive data."))
+                console.log(`ALERT | ATTEMPTED ACCESS OF SENSITIVE DATA\n----\nby: ${(interaction.member.user as Discord.User).tag}\nin: ${interaction.guild.name}\non: ${dateFormat(d, 'mmmm d, yyyy "at" h:MM:ss TT')}\nchannel: #${(interaction.channel as Discord.TextChannel).name}\ncontent: \"${interaction.options.getString('code')}\"\n----\nEXEC COMMAND HAS BEEN DISABLED`)
+                return interaction.reply({embeds: [global.Functions.BasicEmbed(("error"), "The command has been disabled due to an attempted access of sensitive data.")], ephemeral: true})
             }
-            eval(args.join(" "))
+            eval(interaction.options.getString('code'))
         }
         catch {
-            return message.channel.send(global.Functions.BasicEmbed(("error"), "Could not run JavaScript. Check your code and try again."))
-            .then(msg => {
-                msg.delete({timeout: 3000})
-            })
+            return interaction.reply({embeds: [global.Functions.BasicEmbed(("error"), "Could not run JavaScript. Check your code and try again.")], ephemeral: true})
         }
     }
 }

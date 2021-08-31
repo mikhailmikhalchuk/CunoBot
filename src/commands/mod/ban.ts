@@ -1,36 +1,25 @@
 import Discord from 'discord.js'
+import { SlashCommandBuilder } from '@discordjs/builders';
 
 module.exports = {
-    name: "ban",
-    aliases: [],
-    desc: "Bans a user.",
-    args: "<@mention|username> [reason]",
-    level: 1,
-    func: async (message: Discord.Message, args: string[]) => {
-        const memberData = global.Functions.getMember(message, args.join(' '))
-        var res = "No reason provided"
-        if (!memberData[0]) {
-            return message.channel.send(null, global.Functions.BasicEmbed("error", memberData[1]))
+    data: new SlashCommandBuilder()
+        .setName('ban')
+        .setDescription('Bans a user')
+        .addMentionableOption(option => option.setName('member').setDescription('The member to ban').setRequired(true))
+        .addStringOption(option => option.setName('reason').setDescription('The reason for banning the user'))
+        .setDefaultPermission(false),
+    async execute(interaction: Discord.CommandInteraction) {
+        const member = interaction.options.getMentionable('member')
+        const res = interaction.options.getString('reason')
+        if ((interaction.member as Discord.GuildMember).roles.highest.position <= (member as Discord.GuildMember).roles.highest.position && interaction.user.id != interaction.guild.ownerId) {
+            return interaction.reply({embeds: [global.Functions.BasicEmbed(("error"), "Cannot ban users ranked the same or higher than you.")]})
         }
-        else if (args[0] == undefined || args[0] == "") {
-            return message.channel.send(global.Functions.BasicEmbed(("error"), "Please specify the user to ban."))
-        }
-        const member: Discord.GuildMember = memberData[1]
-        if (!member) {
-            return message.channel.send(global.Functions.BasicEmbed(("error"), "No users found!"))
-        }
-        if (args.slice(1).join(" ") != undefined) {
-            var res = args.slice(1).join(" ")
-        }
-        if (message.member.roles.highest.position <= member.roles.highest.position && message.author.id != message.guild.ownerID) {
-            return message.channel.send(global.Functions.BasicEmbed(("error"), "Cannot ban users ranked the same or higher than you."))
-        }
-        member.ban({reason: res}).then((d) => {
-            return message.channel.send(global.Functions.BasicEmbed(("success"), "Successfully banned user.")).then((m) => m.delete({timeout: 3000}))
+        (member as Discord.GuildMember).ban({reason: res ?? "No reason provided"}).then((d) => {
+            return interaction.reply({embeds: [global.Functions.BasicEmbed(("success"), "Successfully banned user.")]})
         })
         .catch((e) => {
             if (e.message == "Missing Permissions") {
-                return message.channel.send(global.Functions.BasicEmbed(("error"), "Do not have permissions to ban this user."))
+                return interaction.reply({embeds: [global.Functions.BasicEmbed(("error"), "Do not have permissions to ban this user.")]})
             }
         })
     }

@@ -1,24 +1,17 @@
 import Discord from 'discord.js'
+import { SlashCommandBuilder } from '@discordjs/builders';
 
 module.exports = {
-    name: "about",
-    aliases: ["user", "member"],
-    desc: "Gets information about a user.",
-    args: "[@mention|username]",
-    level: 0,
-    func: async (message: Discord.Message, args: string[]) => {
-        var m = await message.channel.send(global.Functions.BasicEmbed(("normal"), "Gathering data..."))
-        const memberData = global.Functions.getMember(message, args.join(' '))
-        if (!memberData[0]) {
-            return m.edit("", global.Functions.BasicEmbed("error", memberData[1]))
-        }
-        const member: Discord.GuildMember = memberData[1]
+    data: new SlashCommandBuilder()
+        .setName('about')
+        .setDescription('Gets information about a user')
+        .addMentionableOption(option => option.setName('user').setDescription('The user to get information on').setRequired(true)),
+    async execute(interaction: Discord.CommandInteraction) {
+        await interaction.reply({embeds: [global.Functions.BasicEmbed(("normal"), "Gathering data...")]})
+        const member = (interaction.options.getMentionable('user') as Discord.GuildMember)
         var embed = global.Functions.BasicEmbed("normal")
-        if (!member) {
-            return m.edit("", global.Functions.BasicEmbed(("error"), "No users found!"))
-        }
         //Presence Data
-        const game = member.user.presence.activities[0]
+        const game = member.presence.activities[0]
         if (game) {
             if (game.type == "LISTENING") {
                 embed = embed.setDescription(`*Listening to ${game.name}: ${game.details} by ${game.state}*`)
@@ -80,7 +73,7 @@ module.exports = {
         }
         var levelList: any[string] = []
         global.PermissionsList.forEach((e: any[string]) => {
-            if (e["server"] == message.guild.id) {
+            if (e["server"] == interaction.guild.id) {
                 levelList = e
             }
         })
@@ -88,7 +81,11 @@ module.exports = {
             emoji = "<:streaming:671128707603103799>"
             stat = `[Streaming](${game.url})` 
         }
-        var level = await global.Functions.getUserLevel(message.guild, member)
+        var level = await global.Functions.getUserLevel(interaction.guild, member)
+        var members: string[] = [];
+        member.roles.cache.forEach((role) => {
+            members.push(role.name);
+        });
         embed = embed
             .setAuthor(member.displayName, member.user.avatarURL({format: 'png', dynamic: true}))
             .addField("Username", member.user.tag, true)
@@ -96,8 +93,8 @@ module.exports = {
             .addField("Status", `${emoji} ${stat}`, true)
             .addField("Account Creation", member.user.createdAt.toLocaleString('en-US', {year: "numeric", month: "long", day: "numeric", timeZone: "UTC"}), true)
             .addField("Joined Server", member.joinedAt.toLocaleString('en-US', {year: "numeric", month: "long", day: "numeric", timeZone: "UTC"}), true)
-            .addField("Bot Permissions", `${level} (${level == 3 ? "Bot Owner" : level == 0 ? "Normal User" : level == -1 ? "Bot" : message.guild.roles.resolve(levelList[`level${level}`]).name})`, true)
-            .addField("Roles", member.roles.cache.array().join(", "))
-        m.edit("", embed)
+            .addField("Bot Permissions", `${level} (${level == 3 ? "Bot Owner" : level == 0 ? "Normal User" : level == -1 ? "Bot" : interaction.guild.roles.resolve(levelList[`level${level}`]).name})`, true)
+            .addField("Roles", members.join(", "))
+        interaction.editReply({embeds: [embed]})
     }
 }

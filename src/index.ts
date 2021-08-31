@@ -1,4 +1,6 @@
-﻿import Discord, { TextChannel } from 'discord.js';
+﻿import Discord, { Collection, Intents, TextChannel } from 'discord.js';
+import { REST } from '@discordjs/rest';
+import { APIMessage, Routes } from 'discord-api-types/v9';
 import axios, { AxiosResponse } from 'axios';
 import auth from './data/auth.json';
 import readline from 'readline';
@@ -7,15 +9,17 @@ import * as f from './functions';
 import * as eventsFile from './events'
 import * as Destiny from './interfaces'
 import fs from 'fs';
+import { SlashCommandBuilder } from '@discordjs/builders';
 const mongodb = require('mongodb');
 const dateFormat = require('dateformat');
 const mongoClient = new mongodb.MongoClient(auth.dbLogin, { useNewUrlParser: true, useUnifiedTopology: true });
-const Client = new Discord.Client({disableMentions: "everyone", ws: {intents: Discord.Intents.ALL}, presence: {activity: {name: "you | Use ?help for help", type: "WATCHING"}, status: "online"}});
-const commands: Discord.Collection<string, Command> = new Discord.Collection();
+const Client = new Discord.Client({intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_PRESENCES, Intents.FLAGS.GUILD_INTEGRATIONS], presence: {status: "online", activities: [{name: "you. | Use /levels change to set perms", type: "WATCHING"}]}});
+const commands: any[] = [];
 const commandGroups: any[string] = []
+const rest = new REST({version: '9'}).setToken(auth.token);
 var permissionsList
 var listeningForMessages: any[] = []
-var prefixList
+var updateComm: any[] = []
 
 //#region Interfaces
 interface IFunctions {
@@ -38,7 +42,7 @@ interface IFunctions {
      * @param message The message which triggered the function.
      * @param str The string in which to search with.
      */
-    getMember(message: Discord.Message, str: string): any[];
+    getMember(guild: Discord.Guild, str: string): any[];
 }
 
 interface IAuth {
@@ -67,39 +71,9 @@ interface Command {
     /**
      * The command name.
      */
-    name: string;
+    data: Omit<SlashCommandBuilder, "addSubcommandGroup" | "addSubcommand">;
 
-    /**
-     * The command's aliases, if any.
-     */
-    aliases: string[];
-
-    /**
-     * The arguments the command takes, if any.
-     */
-    args?: string;
-
-    /**
-     * The command's description.
-     */
-    desc: string;
-
-    /**
-     * The command's permission level.
-     */
-    level: number;
-
-    /**
-     * Whether or not the command will show up in commands like `?help`
-     */
-    hidden?: boolean;
-
-    /**
-     * Execute the command.
-     * @param message The message that triggered the command to run.
-     * @param args Associated arguments, if any.
-     */
-    func(message: Discord.Message, args: string[]): void;
+    execute(interaction: Discord.CommandInteraction): Promise<Discord.Message | APIMessage>;
 }
 
 declare global {
@@ -110,8 +84,7 @@ declare global {
             Auth: IAuth;
             List: string[];
             PermissionsList: any[];
-            PrefixList: any[];
-            CommandCount: number;
+            Commands: Discord.Collection<string, Command>;
         }
     }
 }
@@ -132,7 +105,6 @@ Client.on('ready', async () => {
     })
     await mongoClient.connect()
     global.PermissionsList = await mongoClient.db("Servers").collection("Permissions").find({}).toArray();
-    global.PrefixList = await mongoClient.db("Servers").collection("Prefixes").find({}).toArray();
     mongoClient.close()
     axios.get('https://www.bungie.net/Platform/Destiny2/Manifest/', {
         headers: {
@@ -166,6 +138,94 @@ Client.on('ready', async () => {
     .catch((c: Error) => {
         console.log("sus")
     })
+    await rest.put(
+        Routes.applicationGuildCommands("660856814610677761", "660857785566887976"),
+        { body: updateComm}
+    )
+    await rest.put(
+        Routes.applicationCommands("660856814610677761"),
+        { body: commands}
+    )
+    const permissions3: Discord.ApplicationCommandPermissionData[] = [
+        {
+            id: '287372868814372885',
+            type: 'USER',
+            permission: true
+        }
+    ]
+    
+    global.PermissionsList.forEach(async (e: any[string]) => {
+        const com = await Client.application.commands.fetch()
+        const permissions1: Discord.ApplicationCommandPermissionData[] = [{
+            id: e["level1"],
+            type: 'ROLE',
+            permission: true,
+        }]
+        const permissions2: Discord.ApplicationCommandPermissionData[] = [{
+            id: e["level2"],
+            type: 'ROLE',
+            permission: true,
+        }]
+        const full: Discord.GuildApplicationCommandPermissionData[] = [
+            {
+                id: com.find(c => c.name === "ban").id,
+                permissions: permissions1
+            },
+            {
+                id: com.find(c => c.name === "kick").id,
+                permissions: permissions1
+            },
+            {
+                id: com.find(c => c.name === "mute").id,
+                permissions: permissions1
+            },
+            {
+                id: com.find(c => c.name === "purge").id,
+                permissions: permissions1
+            },
+            {
+                id: com.find(c => c.name === "sendas").id,
+                permissions: permissions1
+            },
+            {
+                id: com.find(c => c.name === "log").id,
+                permissions: permissions1
+            },
+            {
+                id: com.find(c => c.name === "getmessage").id,
+                permissions: permissions1
+            },
+            {
+                id: com.find(c => c.name === "levels").id,
+                permissions: permissions1
+            },
+            {
+                id: com.find(c => c.name === "say").id,
+                permissions: permissions2
+            },
+            {
+                id: com.find(c => c.name === "exec").id,
+                permissions: permissions3
+            },
+            {
+                id: com.find(c => c.name === "kill").id,
+                permissions: permissions3
+            },
+            {
+                id: com.find(c => c.name === "bind").id,
+                permissions: permissions3
+            },
+            {
+                id: com.find(c => c.name === "music").id,
+                permissions: permissions3
+            },
+            {
+                id: com.find(c => c.name === "listguilds").id,
+                permissions: permissions3
+            }
+        ]
+        await Client.guilds.cache.get(e["server"])?.commands.permissions.set({fullPermissions: full})
+    })
 })
 
 //Pull events from events.js
@@ -174,8 +234,18 @@ for (var logger in eventsFile) {
     Client.on(logger, eventsFile[logger].bind(null, Client));
 }
 
+Client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isCommand()) return;
+    
+    const command = global.Commands.get(interaction.commandName);
+
+    if (!command) return;
+
+    await command.execute(interaction);
+})
+
 //Command listener
-Client.on('message', async (message) => {
+Client.on('messageCreate', async (message) => {
     if (global.List[1] != undefined && !message.guild && message.author.id == "287372868814372885") {
         (Client.guilds.cache.find(guild => guild.id === String(global.List[0])).channels.cache.find(channel => channel.id === String(global.List[1])) as TextChannel).send(message.content)
     }
@@ -185,205 +255,25 @@ Client.on('message', async (message) => {
             Client.users.resolve("287372868814372885").send({files: [a]})
         })
     }
-    if (!message.guild || message.author.bot || message.webhookID) {
-        return false
-    }
-    const args = message.content.trim().split(" ")
-    var comm = args.shift()
-    var prefix = "?"
-    if (global.PrefixList == undefined || global.PermissionsList == undefined) return false;
-    global.PrefixList.forEach((e: any[string]) => {
-        if (e["server"] == message.guild.id) {
-            prefix = e["prefix"]
-        }
-    })
-    //Help Command
-    if (comm == `${prefix}help` || comm == `${prefix}commands`) {
-        //Check if roles set
-        var inDB = false;
-        global.PermissionsList.forEach((e: any[string]) => {
-            if (e["server"] == message.guild.id) {
-                inDB = true;
-                return;
-            }
-        })
-        if (!inDB) {
-            var setup = true
-            message.channel.send("Hello!\nIt looks like I do not have administration and moderation roles setup in this server.\nPlease mention or paste the ID of a role to set **Level 1** permissions for it.")
-            while (setup == true) {
-                await message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
-                    if (c.first().author.bot || c.first().system) {
-                        return true
-                    }
-                    else if (c.first().content == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
-                        return message.channel.send("Please mention or paste the ID of a different role.")
-                    }
-                    else if (c.first().mentions.roles.first() != undefined) {
-                        if (c.first().mentions.roles.first().id == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
-                            return message.channel.send("Please mention or paste the ID of a different role.")
-                        }
-                        var write1 = c.first().mentions.roles.first().id
-                    }
-                    else if (message.guild.roles.cache.find(role => role.id == c.first().content) != undefined) {
-                        var write1 = c.first().content
-                    }
-                    else {
-                        return message.channel.send("Please mention or paste the ID of a valid role.")
-                    }
-                    message.channel.send(`Awesome! I'll set ${message.guild.roles.cache.get(write1).name} as the role for level 1 permissions. Now we'll need a level 2 role. Please mention or paste the ID of a role to set **Level 2** permissions for it.`)
-                    while (setup == true) {
-                        await message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 1.8e+6, errors: ['time'] }).then(async c => {
-                            if (setup == false) {
-                                return false
-                            }
-                            if (c.first().author.bot || c.first().system) {
-                                return true
-                            }
-                            else if (write1 == c.first().content || (c.first().mentions.roles.first() != undefined && write1 == c.first().mentions.roles.first().id) || c.first().content == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
-                                return message.channel.send("Please mention or paste the ID of a different role.")
-                            }
-                            else if (c.first().mentions.roles.first() != undefined) {
-                                if (c.first().mentions.roles.first().id == message.guild.roles.cache.find(role => role.name == "@everyone").id) {
-                                    return message.channel.send("Please mention or paste the ID of a different role.")
-                                }
-                                var write2 = c.first().mentions.roles.first().id
-                            }
-                            else if (message.guild.roles.cache.find(role => role.id == c.first().content) != undefined) {
-                                var write2 = c.first().content
-                            }
-                            else {
-                                return message.channel.send("Please mention or paste the ID of a valid role.")
-                            }
-                            await mongoClient.connect()
-                            await mongoClient.db("Servers").collection("Permissions").insertOne({server: message.guild.id, level1: write1, level2: write2})
-                            await mongoClient.db("Servers").collection("Prefixes").insertOne({server: message.guild.id, prefix: "?"})
-                            global.PrefixList = await mongoClient.db("Servers").collection("Prefixes").find({}).toArray();
-                            global.PermissionsList = await mongoClient.db("Servers").collection("Permissions").find({}).toArray();
-                            mongoClient.close()
-                            message.channel.send("I'm all set up!\nUse `?help` to get a list of all commands.\nI am still in development, so please DM any concerns to Cuno#9958.")
-                            return setup = false;
-                        })
-                    }
-                })
-            }
-        }
-        //Help cats
-        else if (args[0] == undefined || args[0] == "") {
-            message.reply("check your DMs.")
-            message.author.send("Please pick a category from the following (type `cancel` to cancel).", f.BasicEmbed(("normal"), commandGroups.join("\n"))).then((i) => {
-                (Client.channels.resolve(i.channel.id) as TextChannel).awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 15000, errors: ['time'] }).then(async c => {
-                    var category = c.first().content.toLowerCase()
-                    if (category == "cancel") {
-                        return message.author.send("Cancelled command.")
-                    }
-                    else if (category.startsWith(prefix)) {
-                        var category = category.slice(1)
-                    }
-                    if (commandGroups[category]) {
-                        const embed = f.BasicEmbed(("normal"), " ").setTitle(`Commands - ${category}`)
-                        commands.forEach((commandData) => {
-                            if (!commandData.hidden) {
-                                embed.setDescription(embed.description + `**${prefix + commandData.name} ${commandData.args ? commandData.args : ""}** - ${commandData.desc}\n`)
-                            }
-                        })
-                        return message.author.send(`Type \`${prefix}help\` followed by the command name for more information on a specific command.`, embed)
-                    }
-                    return message.author.send(f.BasicEmbed(("error"), "That category does not exist!"))
-                })
-                .catch(async e => {
-                    return i.edit(f.BasicEmbed(("RED"), "Listening time expired."))
-                })
-            })
-            .catch(() => {
-                message.reply("there was an error sending you the help DM. Make sure you do not have the bot blocked.")
-            })
-        }
-        //Command help
-        else {
-            const searchCommand = args[0]
-            const commandData = commands.get(searchCommand)
-            if (commandData != undefined && !commandData.hidden) {
-                var levelList: any[string] = []
-                global.PermissionsList.forEach((e: any[string]) => {
-                    if (e["server"] == message.guild.id) {
-                        levelList = e
-                    }
-                })
-                message.reply("check your DMs.")
-                return message.author.send(f.BasicEmbed("normal")
-                    .setTitle(`Command Help: ${commandData.name}`)
-                    .addField("Name", commandData.name, true)
-                    .addField("Aliases", commandData.aliases.join(", ") || "N/A", true)
-                    .addField('\u200b', '\u200b', true)
-                    .addField("Arguments", commandData.args || "N/A", true)
-                    .addField("Level", `${commandData.level} (${commandData.level == 3 ? "Bot Owner" : commandData.level == 0 ? "Normal User" : commandData.level == -1 ? "Bot" : message.guild.roles.resolve(levelList[`level${commandData.level}`]).name})`, true)
-                    .addField("Description", commandData.desc))
-                .catch(() => {
-                    message.reply("there was an error sending you the help DM. Make sure you do not have the bot blocked and your DMs are open.")
-                })
-            }
-            else if (searchCommand == "help" || searchCommand == "commands") {
-                message.reply("check your DMs.")
-                return message.author.send(f.BasicEmbed("normal")
-                    .setTitle("Command Help: help")
-                    .addField("Name", "help", true)
-                    .addField("Aliases", "commands", true)
-                    .addField('\u200b', '\u200b', true)
-                    .addField("Arguments", "[command]", true)
-                    .addField("Level", "0 (Normal User)", true)
-                    .addField("Description", "Returns a list of commands from a category, or provides more information on a command."))
-                .catch(() => {
-                    message.reply("there was an error sending you the help DM. Make sure you do not have the bot blocked and your DMs are open.")
-                })
-            }
-            if (commandData != undefined) {
-                const embed = f.BasicEmbed("normal", " ").setTitle("Commands")
-                if (!commandData.hidden) {
-                    embed.setDescription(embed.description + `**${prefix + commandData.name} ${commandData.args ? commandData.args : ""}** - ${commandData.desc}\n`)
-                }
-                return message.channel.send(`Type \`${prefix}help\` followed by the command name for more information on a specific command.`, embed)
-            }
-            return message.channel.send(f.BasicEmbed("error", "Command not found."))
-        }
-    }
-    var execCommand = commands.get(comm.slice(1))
-    if (execCommand == undefined) {
-        execCommand = commands.find(c => c.aliases.includes(comm.slice(1)))
-    }
-    var inDB = false;
-    global.PermissionsList.forEach((e: any[string]) => {
-        if (e["server"] == message.guild.id) {
-            inDB = true;
-            return;
-        }
-    })
-    if (comm.slice(0, 1) == prefix && execCommand != undefined && await f.getUserLevel(message.guild, message.member) == -1 || inDB == false) {
-        return false
-    }
-    else if (comm.slice(0, 1) == prefix && execCommand != undefined && await f.getUserLevel(message.guild, message.member) >= execCommand.level) {
-        //Executes command
-        try {
-            execCommand.func(message, args)
-        }
-        catch (e) {
-            message.channel.send(f.BasicEmbed(("error"), e))
-        }
-    }
-    else if (comm.slice(0, 1) == prefix && execCommand != undefined && await f.getUserLevel(message.guild, message.member) < execCommand.level) {
-        return message.channel.send(f.BasicEmbed(("error"), "You do not have the proper permissions to execute this command."))
+    if (!message.guild || message.author.bot || message.webhookId) {
+        return;
     }
 })
 
 //Load amount of commands
-global.CommandCount = 0
+global.Commands = new Collection();
 fs.readdir('src/commands', (_err: Error, groups: any[string]) => {
     groups.forEach((group: string) => {
         commandGroups.push(group)
         fs.readdir(`src/commands/${group}`, (_groupErr: Error, comms: any[string]) => {
             comms.forEach((command: string) => {
                 const commandData: Command = require(`./commands/${group}/${command}`)
-                commands.set(commandData.name, commandData)
-                global.CommandCount++
+                global.Commands.set(commandData.data.name, commandData)
+                if (commandData.data.name == "updates") {
+                    updateComm.push(commandData.data.toJSON())
+                    return;
+                }
+                commands.push(commandData.data.toJSON())
             })
         })
     })
@@ -395,7 +285,6 @@ global.Functions = f
 global.Auth = auth
 global.List = listeningForMessages
 global.PermissionsList = permissionsList
-global.PrefixList = prefixList
 
 //Bot login
 try {

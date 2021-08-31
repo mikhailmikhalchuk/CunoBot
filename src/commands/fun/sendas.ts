@@ -1,25 +1,25 @@
 import Discord from 'discord.js'
+import { SlashCommandBuilder } from '@discordjs/builders';
 
 module.exports = {
-    name: "sendas",
-    aliases: [],
-    desc: "Sends a message with a webhook with the name and image provided by the user.",
-    args: "<name> <image/URL> <message>",
-    level: 1,
-    func: async (message: Discord.Message, args: string[]) => {
-        message.delete()
-        if (args[0] == undefined || args[1] == undefined || args[2] == undefined && !message.attachments.first()) {
-            return message.channel.send(global.Functions.BasicEmbed(("error"), "An argument is missing."))
-        }
-        (message.channel as Discord.TextChannel).createWebhook(args[0], {avatar: message.attachments.first() ? message.attachments.first().url : args[1]}).then((w) => {
-            w.send(args.slice(message.attachments.first() ? 1 : 2).join(" ")).then(() => {w.delete()})
+    data: new SlashCommandBuilder()
+        .setName('sendas')
+        .setDescription('Sends a message as a webhook with the name and image provided by the user')
+        .setDefaultPermission(false)
+        .addStringOption(option => option.setName('name').setDescription('The name to use for the webhook').setRequired(true))
+        .addStringOption(option => option.setName('link').setDescription('A link to an image').setRequired(true))
+        .addStringOption(option => option.setName('message').setDescription('The message to have the webhook send').setRequired(true)),
+    async execute(interaction: Discord.CommandInteraction) {
+        interaction.ephemeral = true;
+        (interaction.channel as Discord.TextChannel).createWebhook(interaction.options.getString('name'), {avatar: interaction.options.getString('link')}).then((w) => {
+            w.send(interaction.options.getString('message')).then(() => {w.delete()})
         })
         .catch((e) => {
             if (e.message.startsWith("ENOENT: no such file or directory, stat")) {
-                return message.channel.send(global.Functions.BasicEmbed(("error"), "Misplaced argument."))
+                return interaction.reply({embeds: [global.Functions.BasicEmbed(("error"), "Misplaced argument.")]})
             }
             else {
-                return message.channel.send(global.Functions.BasicEmbed(("error"), e))
+                return interaction.reply({embeds: [global.Functions.BasicEmbed(("error"), e)]})
             }
         })
     }
